@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #3: Lowest Common Ancestor (LCA) - Advanced Interactive Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        code, .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .node-circle { transition: all 0.4s ease-in-out; }
+        .tree-line { transition: all 0.4s ease-in-out; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <div>
+        <!-- Navbar -->
+        <header class="bg-white border-b border-slate-100 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="#" class="bg-indigo-600 text-white p-2 rounded-xl shadow-md shadow-indigo-100">
+                        <i class="fa-solid fa-flask text-base"></i>
+                    </a>
+                    <div>
+                        <span class="font-bold text-slate-900 text-sm block leading-snug">Virtual Labs</span>
+                        <span class="text-[10px] text-indigo-600 font-bold uppercase tracking-wider block">CS & DATA STRUCTURES</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <span class="bg-indigo-50 text-indigo-700 text-xs font-semibold px-3 py-1 rounded-full border border-indigo-100">
+                        Lab #3 of 32
+                    </span>
+                    <button onclick="resetToDefaultTree()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Default Tree
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Lab Title Banner -->
+        <div class="bg-white border-b border-slate-100 py-6 px-6">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center space-x-2 text-xs text-indigo-600 font-semibold mb-1">
+                        <span>Trees & BST</span>
+                        <i class="fa-solid fa-chevron-right text-[9px] text-slate-400"></i>
+                        <span class="text-slate-500">Custom Tree Builder & LCA Execution Engine</span>
+                    </div>
+                    <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">
+                        Lab #3: Lowest Common Ancestor (LCA) Full Studio
+                    </h1>
+                    <p class="text-xs text-slate-500 mt-1">
+                        Build your custom binary tree structure, choose any target nodes P & Q, and trace recursive call stacks live.
+                    </p>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-semibold text-slate-600 bg-indigo-50 text-indigo-700 border border-indigo-200/80 px-3 py-1 rounded-full">
+                        <i class="fa-solid fa-sitemap mr-1"></i> Interactive Custom Tree Engine
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Workbench Area -->
+        <main class="max-w-7xl mx-auto px-6 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+            <!-- Control & Status Panel -->
+            <div class="space-y-5 lg:col-span-1">
+                
+                <!-- Tree Builder Form -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">1. Add Node to Parent</h3>
+                    <form onsubmit="handleAddNode(event)" class="space-y-3">
+                        <div>
+                            <label class="text-[11px] font-bold text-slate-600 block mb-1">Parent Node Value</label>
+                            <input type="number" id="parentVal" placeholder="e.g. 3" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 outline-none focus:border-indigo-500 transition">
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-bold text-slate-600 block mb-1">New Child Node Value</label>
+                            <input type="number" id="childVal" placeholder="e.g. 9" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 outline-none focus:border-indigo-500 transition">
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-bold text-slate-600 block mb-1">Position</label>
+                            <select id="childPos" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 outline-none focus:border-indigo-500 transition">
+                                <option value="left">Left Child</option>
+                                <option value="right">Right Child</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-xs">
+                            + Insert Node into Tree
+                        </button>
+                    </form>
+                </div>
+
+                <!-- LCA Target Selection -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">2. Find LCA for P & Q</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-[11px] font-bold text-emerald-600 block mb-1">Target P</label>
+                            <input type="number" id="nodeP" value="7" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 outline-none focus:border-indigo-500 transition">
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-bold text-blue-600 block mb-1">Target Q</label>
+                            <input type="number" id="nodeQ" value="4" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 outline-none focus:border-indigo-500 transition">
+                        </div>
+                        <button onclick="runLCA()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-xs flex items-center justify-center space-x-1.5">
+                            <i class="fa-solid fa-play text-[10px]"></i>
+                            <span>Execute LCA Trace</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- LCA Result Metric -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">LCA Finding Result</h3>
+                    <div class="bg-purple-50 border border-purple-100 p-3 rounded-xl text-center">
+                        <span class="text-[11px] text-purple-600 font-semibold block">Lowest Common Ancestor</span>
+                        <span class="text-2xl font-black text-purple-700" id="lcaResult">--</span>
+                    </div>
+                </div>
+
+                <!-- Recursive Stack Trace Log -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Recursive Call Stack</h3>
+                    <div id="logContainer" class="bg-slate-900 text-slate-300 p-3 rounded-xl font-mono text-[11px] h-44 overflow-y-auto space-y-1">
+                        <div class="text-slate-500">// Execution stack ready. Click Execute LCA Trace.</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Visualization Canvas -->
+            <div class="lg:col-span-3 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between relative min-h-[550px] overflow-hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Interactive Binary Tree Canvas</span>
+                    <div class="flex items-center space-x-3 text-[11px] text-slate-500 font-medium">
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-emerald-500 rounded-full inline-block mr-1"></span> Node P</span>
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-blue-500 rounded-full inline-block mr-1"></span> Node Q</span>
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-purple-600 rounded-full inline-block mr-1"></span> LCA Node</span>
+                    </div>
+                </div>
+
+                <!-- SVG Tree Render Container -->
+                <div class="relative w-full h-[500px] border border-slate-100 rounded-xl bg-slate-50/50 overflow-auto flex items-center justify-center" id="canvasBox">
+                    <svg id="treeSvg" class="w-full h-full min-w-[700px] min-h-[480px]"></svg>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-100 py-6 text-center text-xs text-slate-400">
+        <span>&copy; 2026 Virtual Labs • Lowest Common Ancestor Interactive Custom Studio</span>
+    </footer>
+
+    <!-- Script implementing full tree builder & recursive LCA execution -->
+    <script>
+        class TreeNode {
+            constructor(val) {
+                this.val = val;
+                this.left = null;
+                this.right = null;
+                this.x = 0;
+                this.y = 0;
+            }
+        }
+
+        // Initialize standard sample tree
+        let root = new TreeNode(3);
+        root.left = new TreeNode(5);
+        root.right = new TreeNode(1);
+        root.left.left = new TreeNode(6);
+        root.left.right = new TreeNode(2);
+        root.right.left = new TreeNode(0);
+        root.right.right = new TreeNode(8);
+        root.left.right.left = new TreeNode(7);
+        root.left.right.right = new TreeNode(4);
+
+        let lcaVal = null;
+
+        function findNode(node, val) {
+            if (!node) return null;
+            if (node.val === val) return node;
+            let leftRes = findNode(node.left, val);
+            if (leftRes) return leftRes;
+            return findNode(node.right, val);
+        }
+
+        function handleAddNode(e) {
+            e.preventDefault();
+            const parentVal = parseInt(document.getElementById('parentVal').value);
+            const childVal = parseInt(document.getElementById('childVal').value);
+            const pos = document.getElementById('childPos').value;
+
+            if (isNaN(parentVal) || isNaN(childVal)) return;
+
+            const parentNode = findNode(root, parentVal);
+            if (!parentNode) {
+                alert(`Parent node [${parentVal}] not found in tree!`);
+                return;
+            }
+
+            if (pos === 'left') {
+                if (parentNode.left) {
+                    alert(`Parent [${parentVal}] already has a left child!`);
+                    return;
+                }
+                parentNode.left = new TreeNode(childVal);
+            } else {
+                if (parentNode.right) {
+                    alert(`Parent [${parentVal}] already has a right child!`);
+                    return;
+                }
+                parentNode.right = new TreeNode(childVal);
+            }
+
+            document.getElementById('parentVal').value = '';
+            document.getElementById('childVal').value = '';
+            runLCA();
+        }
+
+        function findLCA(node, p, q) {
+            if (!node) return null;
+
+            if (node.val === p || node.val === q) {
+                logTrace(`Matched target Node ${node.val}! Propagating signal upward.`, 'match');
+                return node;
+            }
+
+            let left = findLCA(node.left, p, q);
+            let right = findLCA(node.right, p, q);
+
+            if (left && right) {
+                logTrace(`Node ${node.val}: Both branches active (Left=${left.val}, Right=${right.val}) &rarr; <strong class="text-purple-400">LCA FOUND: ${node.val}</strong>`, 'lca');
+                return node;
+            }
+
+            return left ? left : right;
+        }
+
+        function runLCA() {
+            const p = parseInt(document.getElementById('nodeP').value);
+            const q = parseInt(document.getElementById('nodeQ').value);
+
+            if (isNaN(p) || isNaN(q)) return;
+
+            document.getElementById('logContainer').innerHTML = '';
+            logTrace(`--- Running LCA Search for (${p}, ${q}) ---`);
+
+            let res = findLCA(root, p, q);
+            lcaVal = res ? res.val : null;
+
+            document.getElementById('lcaResult').innerText = lcaVal !== null ? `Node ${lcaVal}` : 'Not Found';
+            render();
+        }
+
+        function resetToDefaultTree() {
+            root = new TreeNode(3);
+            root.left = new TreeNode(5);
+            root.right = new TreeNode(1);
+            root.left.left = new TreeNode(6);
+            root.left.right = new TreeNode(2);
+            root.right.left = new TreeNode(0);
+            root.right.right = new TreeNode(8);
+            root.left.right.left = new TreeNode(7);
+            root.left.right.right = new TreeNode(4);
+
+            document.getElementById('nodeP').value = 7;
+            document.getElementById('nodeQ').value = 4;
+            lcaVal = null;
+            document.getElementById('lcaResult').innerText = '--';
+            document.getElementById('logContainer').innerHTML = '<div class="text-slate-500">// Execution stack ready. Click Execute LCA Trace.</div>';
+            render();
+        }
+
+        function logTrace(msg, type = 'info') {
+            const container = document.getElementById('logContainer');
+            let color = 'text-slate-300';
+            if (type === 'match') color = 'text-amber-300 font-semibold';
+            if (type === 'lca') color = 'text-purple-300 font-bold';
+
+            container.innerHTML += `<div class="${color}">&gt; ${msg}</div>`;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function calculatePositions(node, depth = 0, x = 350, offset = 140) {
+            if (!node) return;
+            node.x = x;
+            node.y = 50 + depth * 65;
+
+            if (node.left) calculatePositions(node.left, depth + 1, x - offset, offset / 1.8);
+            if (node.right) calculatePositions(node.right, depth + 1, x + offset, offset / 1.8);
+        }
+
+        function drawTreeSvg(node, svg) {
+            if (!node) return;
+
+            const targetP = parseInt(document.getElementById('nodeP').value);
+            const targetQ = parseInt(document.getElementById('nodeQ').value);
+
+            if (node.left) {
+                svg.innerHTML += `<line x1="${node.x}" y1="${node.y}" x2="${node.left.x}" y2="${node.left.y}" stroke="#cbd5e1" stroke-width="2" class="tree-line"/>`;
+                drawTreeSvg(node.left, svg);
+            }
+            if (node.right) {
+                svg.innerHTML += `<line x1="${node.x}" y1="${node.y}" x2="${node.right.x}" y2="${node.right.y}" stroke="#cbd5e1" stroke-width="2" class="tree-line"/>`;
+                drawTreeSvg(node.right, svg);
+            }
+
+            let fill = '#4f46e5';
+            if (node.val === targetP) fill = '#10b981';
+            if (node.val === targetQ) fill = '#3b82f6';
+            if (node.val === lcaVal) fill = '#9333ea';
+
+            svg.innerHTML += `
+                <g class="node-circle">
+                    <circle cx="${node.x}" cy="${node.y}" r="20" fill="${fill}" />
+                    <text x="${node.x}" y="${node.y + 4}" text-anchor="middle" fill="white" font-size="12" font-weight="bold" font-family="Inter">${node.val}</text>
+                </g>
+            `;
+        }
+
+        function render() {
+            const svg = document.getElementById('treeSvg');
+            svg.innerHTML = '';
+            calculatePositions(root, 0, svg.clientWidth / 2 || 350, 140);
+            drawTreeSvg(root, svg);
+        }
+
+        window.addEventListener('resize', render);
+        document.addEventListener('DOMContentLoaded', () => {
+            render();
+            runLCA();
+        });
+    </script>
+</body>
+</html>

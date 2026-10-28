@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Interview & Code Evaluation Suite</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Prism JS for Code Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      lightTheme: true,
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              200: '#bae0fd',
+              500: '#2563eb',
+              600: '#1d4ed8',
+              700: '#1e40af',
+              800: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #0d9488 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="font-sans bg-slate-50 text-slate-900 min-h-screen flex flex-col justify-between selection:bg-blue-100 selection:text-blue-900">
+
+  <!-- Navigation Bar -->
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-md shadow-blue-500/20">
+          <i class="fa-solid me-0 fa-robot"></i>
+        </div>
+        <div>
+          <span class="font-extrabold text-xl tracking-tight text-slate-900">Smart<span class="text-blue-600">Interview</span>.ai</span>
+          <span class="hidden sm:inline-block ml-2 px-2 py-0.5 text-xs font-semibold bg-blue-50 text-blue-700 rounded-full border border-blue-200">v2.4 Live AI</span>
+        </div>
+      </div>
+
+      <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-600">
+        <a href="#interview-modes" class="hover:text-blue-600 transition-colors">Interview Modes</a>
+        <a href="#code-evaluator" class="hover:text-blue-600 transition-colors">Code Assessor</a>
+        <a href="#analysis-report" class="hover:text-blue-600 transition-colors">Evaluation Report</a>
+        <a href="#features" class="hover:text-blue-600 transition-colors">Features</a>
+      </nav>
+
+      <div class="flex items-center space-x-3">
+        <button onclick="scrollToSection('code-evaluator')" class="px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm hover:shadow transition-all duration-200 flex items-center gap-2">
+          <i class="fa-solid fa-play text-xs"></i> Launch Code Test
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative overflow-hidden bg-gradient-to-b from-blue-50/50 via-white to-slate-50 py-16 lg:py-20 border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100/80 border border-blue-200 text-blue-800 text-xs font-semibold mb-6">
+        <span class="flex h-2 w-2 rounded-full bg-blue-600 animate-pulse"></span>
+        Next-Gen Technical Assessment Platform
+      </div>
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 max-w-4xl mx-auto leading-tight">
+        Master Technical Interviews with <span class="gradient-text">Real-Time AI Feedback</span> & Deep Diagnostics
+      </h1>
+      <p class="mt-5 text-lg text-slate-600 max-w-2xl mx-auto font-normal">
+        Simulate visual face-to-face AI interviews, answer adaptive technical questions, write live code, and receive instant comprehensive bug and mistake analysis.
+      </p>
+
+      <!-- Quick Nav Action Buttons -->
+      <div class="mt-8 flex flex-wrap justify-center gap-4">
+        <button onclick="scrollToSection('interview-modes')" class="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-lg shadow-blue-600/25 transition-all flex items-center gap-2">
+          <i class="fa-solid fa-video"></i> Start AI Interview
+        </button>
+        <button onclick="scrollToSection('code-evaluator')" class="px-6 py-3 rounded-xl bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 font-semibold text-sm shadow-sm transition-all flex items-center gap-2">
+          <i class="fa-solid fa-code text-blue-600"></i> AI Code Interview
+        </button>
+      </div>
+
+      <!-- Quick Metrics -->
+      <div class="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+        <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm text-center">
+          <div class="text-2xl font-bold text-blue-600">98.4%</div>
+          <div class="text-xs font-medium text-slate-500 mt-1">Accuracy Score</div>
+        </div>
+        <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm text-center">
+          <div class="text-2xl font-bold text-slate-900">4 Languages</div>
+          <div class="text-xs font-medium text-slate-500 mt-1">Python, C++, Java, JS</div>
+        </div>
+        <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm text-center">
+          <div class="text-2xl font-bold text-emerald-600">Instant</div>
+          <div class="text-xs font-medium text-slate-500 mt-1">Mistake Breakdown</div>
+        </div>
+        <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm text-center">
+          <div class="text-2xl font-bold text-purple-600">Live AI</div>
+          <div class="text-xs font-medium text-slate-500 mt-1">Report Generator</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI Interview Modes Options Grid -->
+  <section id="interview-modes" class="py-16 bg-white border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold text-slate-900">Choose Your Interview Environment</h2>
+        <p class="mt-2 text-slate-600">Select an assessment module tailored to your interview preparation goals</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <!-- Visual AI Interview Card -->
+        <div class="bg-slate-50 rounded-2xl border border-slate-200 p-6 flex flex-col justify-between hover:border-blue-400 hover:shadow-lg transition-all group">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-xl font-bold mb-4 group-hover:scale-110 transition-transform">
+              <i class="fa-solid fa-video"></i>
+            </div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-lg font-bold text-slate-900">Visual AI Avatar Interview</h3>
+              <span class="px-2 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-700 rounded-full">Interactive</span>
+            </div>
+            <p class="text-slate-600 text-sm mb-6 leading-relaxed">
+              Real-time video & audio interview powered by AI. Evaluates body language, posture, verbal clarity, confidence, and real-time response quality.
+            </p>
+          </div>
+          <div>
+            <ul class="text-xs text-slate-500 space-x-0 space-y-2 mb-6 border-t border-slate-200 pt-4">
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500"></i> Facial Sentiment Analysis</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500"></i> Voice Tone & Pace Evaluation</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500"></i> System Design & Soft Skills</li>
+            </ul>
+            <button onclick="window.location.href='visual_ai.html'" class="w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2">
+    Launch Visual Interview <i class="fa-solid fa-arrow-right text-xs"></i>
+</button>
+          </div>
+        </div>
+
+        <!-- AI Question-Based Technical Interview Card -->
+        <div class="bg-slate-50 rounded-2xl border border-slate-200 p-6 flex flex-col justify-between hover:border-blue-400 hover:shadow-lg transition-all group">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center text-xl font-bold mb-4 group-hover:scale-110 transition-transform">
+              <i class="fa-solid fa-comments"></i>
+            </div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-lg font-bold text-slate-900">AI Adaptive Dialogue Interview</h3>
+              <span class="px-2 py-0.5 text-xs font-semibold bg-purple-100 text-purple-700 rounded-full">Conversational</span>
+            </div>
+            <p class="text-slate-600 text-sm mb-6 leading-relaxed">
+              Dynamic Q&A interview session. The AI asking follow-up questions based directly on your answers to test core concepts and problem depth.
+            </p>
+          </div>
+          <div>
+            <ul class="text-xs text-slate-500 space-x-0 space-y-2 mb-6 border-t border-slate-200 pt-4">
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-purple-500"></i> Dynamic Follow-Up Drilldown</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-purple-500"></i> Computer Science Core Concepts</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-purple-500"></i> Scenario-Based Behavioral Q&A</li>
+            </ul>
+            <button onclick="window.location.href='ai_dialogue.html'" class="w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2">
+    Start Conversation <i class="fa-solid fa-arrow-right text-xs"></i>
+</button>
+          </div>
+        </div>
+
+        <!-- Topic-Based Skill Assessment Card -->
+        <div class="bg-slate-50 rounded-2xl border border-slate-200 p-6 flex flex-col justify-between hover:border-blue-400 hover:shadow-lg transition-all group">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-teal-100 text-teal-600 flex items-center justify-center text-xl font-bold mb-4 group-hover:scale-110 transition-transform">
+              <i class="fa-solid fa-list-check"></i>
+            </div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-lg font-bold text-slate-900">Topic-Specific Test Suite</h3>
+              <span class="px-2 py-0.5 text-xs font-semibold bg-teal-100 text-teal-700 rounded-full">Timed Test</span>
+            </div>
+            <p class="text-slate-600 text-sm mb-6 leading-relaxed">
+              Targeted multiple-choice and conceptual assessment tests spanning Data Structures, Operating Systems, DBMS, and Web Technologies.
+            </p>
+          </div>
+          <div>
+            <ul class="text-xs text-slate-500 space-x-0 space-y-2 mb-6 border-t border-slate-200 pt-4">
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-teal-500"></i> Domain Specific Assessments</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-teal-500"></i> Automated Time Management</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-teal-500"></i> Benchmark Peer Percentiles</li>
+            </ul>
+            <button onclick="triggerPlaceholder('Topic Skill Test Suite')" class="w-full py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2">
+              Take Topic Test <i class="fa-solid fa-arrow-right text-xs"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive AI Code Interview & Report Generator Section -->
+  <section id="code-evaluator" class="py-16 bg-slate-100/70 border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-blue-100 text-blue-800 text-xs font-bold mb-2">
+            <i class="fa-solid fa-terminal"></i> LIVE CODE EVALUATOR
+          </div>
+          <h2 class="text-3xl font-extrabold text-slate-900">AI Code Interview & Real-Time Analyzer</h2>
+          <p class="text-slate-600 mt-1">Select a challenge, inspect/edit code, evaluate solutions, and view structured error reports.</p>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <label for="problemSelect" class="text-sm font-semibold text-slate-700">Problem Setup:</label>
+          <select id="problemSelect" onchange="loadPresetProblem()" class="bg-white border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 shadow-sm font-medium">
+            <option value="two-sum">1. Two Sum (Has Logic/Edge Bug)</option>
+            <option value="binary-search">2. Binary Search (Index Off-By-One)</option>
+            <option value="reverse-string">3. String Reverse (Incomplete Loop)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Main Editor & Evaluation Layout -->
+      <div class="grid lg:grid-cols-12 gap-6">
+
+        <!-- Left Column: Problem & Code Workspace -->
+        <div class="lg:col-span-7 flex flex-col gap-6">
+
+          <!-- Problem Description Box -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <div class="flex items-center justify-between mb-3">
+              <h3 id="problemTitle" class="text-xl font-bold text-slate-900">1. Two Sum Problem</h3>
+              <span id="problemDifficulty" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">Medium</span>
+            </div>
+            <p id="problemDescription" class="text-slate-600 text-sm leading-relaxed mb-4">
+              Given an array of integers <code>nums</code> and an integer <code>target</code>, return indices of the two numbers such that they add up to target. You may assume each input has exactly one solution.
+            </p>
+            <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs font-mono text-slate-700">
+              <span class="font-bold text-slate-900">Example Input:</span> nums = [2, 7, 11, 15], target = 9<br>
+              <span class="font-bold text-slate-900">Expected Output:</span> [0, 1]
+            </div>
+          </div>
+
+          <!-- Interactive Code Editor Window -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+            <div class="bg-slate-800 text-slate-300 px-4 py-3 flex items-center justify-between text-xs font-mono">
+              <div class="flex items-center space-x-2">
+                <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+                <span class="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
+                <span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
+                <span class="ml-2 font-sans font-semibold text-white">Interactive Editor</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <select id="languageSelect" onchange="changeLanguage()" class="bg-slate-700 text-white text-xs rounded px-2 py-1 border border-slate-600 focus:outline-none">
+                  <option value="python">Python 3</option>
+                  <option value="cpp">C++ 17</option>
+                  <option value="java">Java 11</option>
+                  <option value="javascript">JavaScript (Node.js)</option>
+                </select>
+                <button onclick="resetCode()" class="hover:text-white transition-colors" title="Reset Code">
+                  <i class="fa-solid fa-rotate-left"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="relative">
+              <textarea id="codeEditor" spellcheck="false" class="w-full h-80 p-4 font-mono text-sm bg-slate-900 text-emerald-400 focus:outline-none focus:ring-0 leading-relaxed custom-scrollbar resize-none"></textarea>
+            </div>
+
+            <!-- Action Controls Bar -->
+            <div class="p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+              <div class="text-xs text-slate-500 flex items-center gap-1.0">
+                <i class="fa-solid fa-circle-info text-blue-500"></i> Edit or fix the code above, then trigger evaluation.
+              </div>
+              <div class="flex items-center gap-3">
+                <button onclick="runCodeAnalysis()" id="evalBtn" class="px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow-md transition-all flex items-center gap-2">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i> Evaluate Code & Generate Report
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Column: Live Diagnostic Report Output -->
+        <div class="lg:col-span-5">
+          <div id="reportContainer" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 h-full flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between border-b border-slate-200 pb-4 mb-4">
+                <div class="flex items-center gap-2">
+                  <i class="fa-solid fa-chart-pie text-blue-600 text-xl"></i>
+                  <h3 class="font-bold text-slate-900 text-lg">AI Performance Diagnostics</h3>
+                </div>
+                <span id="reportStatus" class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-slate-100 text-slate-600">Awaiting Run</span>
+              </div>
+
+              <!-- Placeholder State -->
+              <div id="reportPlaceholder" class="text-center py-16">
+                <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 mx-auto mb-4 text-2xl">
+                  <i class="fa-solid fa-laptop-code"></i>
+                </div>
+                <h4 class="font-bold text-slate-800 mb-1">No Evaluation Triggered Yet</h4>
+                <p class="text-slate-500 text-xs max-w-xs mx-auto">
+                  Click <strong>"Evaluate Code & Generate Report"</strong> to analyze memory, algorithmic complexity, bug patterns, and test coverage.
+                </p>
+              </div>
+
+              <!-- Active Report Output (Hidden Initially) -->
+              <div id="reportContent" class="hidden space-y-5">
+                
+                <!-- Overall Score Header -->
+                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
+                  <div>
+                    <div class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Overall Score</div>
+                    <div class="text-3xl font-extrabold text-slate-900 mt-1" id="scoreValue">--/100</div>
+                  </div>
+                  <div id="gradeBadge" class="w-12 h-12 rounded-xl bg-amber-500 text-white font-black text-xl flex items-center justify-center shadow">
+                    C
+                  </div>
+                </div>
+
+                <!-- Test Case Results Bar -->
+                <div>
+                  <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                    <span>Test Cases Passed</span>
+                    <span id="testCaseCount">2 / 4 Passed</span>
+                  </div>
+                  <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                    <div id="testCaseBar" class="bg-amber-500 h-2.5 rounded-full transition-all duration-500" style="width: 50%"></div>
+                  </div>
+                </div>
+
+                <!-- Detected Mistakes Analysis Box -->
+                <div class="border border-red-200 bg-red-50/50 rounded-xl p-4">
+                  <h4 class="text-xs font-bold text-red-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    <i class="fa-solid fa-bug text-red-600"></i> Identified Mistake & Root Cause
+                  </h4>
+                  <ul id="mistakesList" class="text-xs text-red-700 space-y-1.5 list-disc pl-4 font-medium">
+                    <!-- Populated dynamically -->
+                  </ul>
+                </div>
+
+                <!-- Algorithm Efficiency Metrics -->
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                    <span class="text-slate-500 text-[10px] font-bold uppercase block">Time Complexity</span>
+                    <span id="timeComplexity" class="text-xs font-bold text-slate-800 font-mono">O(N²)</span>
+                  </div>
+                  <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                    <span class="text-slate-500 text-[10px] font-bold uppercase block">Space Complexity</span>
+                    <span id="spaceComplexity" class="text-xs font-bold text-slate-800 font-mono">O(1)</span>
+                  </div>
+                </div>
+
+                <!-- Suggested AI Optimized Solution Preview -->
+                <div>
+                  <h4 class="text-xs font-bold text-slate-800 mb-1 flex items-center justify-between">
+                    <span>Suggested Fix Code</span>
+                    <span class="text-[10px] text-blue-600 font-normal">Optimal Time: O(N)</span>
+                  </h4>
+                  <pre class="bg-slate-900 text-slate-200 p-3 rounded-lg text-xs font-mono overflow-x-auto max-h-36 custom-scrollbar"><code id="solutionCode" class="language-python"># Fix solution will appear here</code></pre>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Report Footer Action -->
+            <div id="reportAction" class="hidden pt-4 border-t border-slate-200 mt-4">
+              <button onclick="applyFixCode()" class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg text-xs transition-colors flex items-center justify-center gap-2">
+                <i class="fa-solid fa-wrench"></i> Apply Suggested AI Fix To Editor
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <section id="score-history" class="py-12 bg-slate-50 border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-5">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">My Evaluation History</h2>
+          <p class="mt-1 text-sm text-slate-600">Scores from the reports this page generates, synced to your signed-in account.</p>
+        </div>
+        <div class="rounded-xl border border-blue-100 bg-white px-5 py-3 text-center shadow-sm">
+          <span id="interview-score-count" class="block text-2xl font-extrabold text-blue-600">0</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Reports saved</span>
+        </div>
+      </div>
+      <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-slate-100 text-xs uppercase tracking-wider text-slate-500">
+            <tr><th class="px-5 py-3">Problem</th><th class="px-5 py-3">Score</th><th class="px-5 py-3">Grade</th><th class="px-5 py-3">Evaluated</th></tr>
+          </thead>
+          <tbody id="interview-score-history">
+            <tr><td colspan="4" class="px-5 py-6 text-center text-slate-500">Sign in to see your live evaluation history.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Key Features Highlights -->
+  <section id="features" class="py-16 bg-white border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-12">
+        <h2 class="text-3xl font-bold text-slate-900">Engineered for Interview Success</h2>
+        <p class="mt-2 text-slate-600">Everything you need to move from basic practice to candidate performance perfection</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200">
+          <div class="w-10 h-10 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold mb-4 shadow-sm">
+            <i class="fa-solid fa-microchip"></i>
+          </div>
+          <h3 class="font-bold text-slate-900 text-lg mb-2">Automated Code Diagnostics</h3>
+          <p class="text-slate-600 text-sm leading-relaxed">
+            Instantly pinpoints syntax errors, edge-case failures, off-by-one loops, memory leaks, and inefficient time complexities.
+          </p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200">
+          <div class="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold mb-4 shadow-sm">
+            <i class="fa-solid fa-chart-line"></i>
+          </div>
+          <h3 class="font-bold text-slate-900 text-lg mb-2">Actionable Scorecards</h3>
+          <p class="text-slate-600 text-sm leading-relaxed">
+            Generates downloadable PDF-ready summary reports detailing code readiness, time spent, logic correctness, and line-by-line mistakes.
+          </p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200">
+          <div class="w-10 h-10 rounded-lg bg-purple-600 text-white flex items-center justify-center font-bold mb-4 shadow-sm">
+            <i class="fa-solid fa-graduation-cap"></i>
+          </div>
+          <h3 class="font-bold text-slate-900 text-lg mb-2">Multi-Language Support</h3>
+          <p class="text-slate-600 text-sm leading-relaxed">
+            Seamlessly evaluate candidate responses and algorithms written across Python, C++, Java, and modern JavaScript.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Virtual Lab / Educational Platform Style Footer -->
+  <footer class="bg-slate-900 text-slate-300 border-t border-slate-800 text-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
+        
+        <!-- Col 1: Platform Brand & Info -->
+        <div class="lg:col-span-2">
+          <div class="flex items-center space-x-3 mb-4">
+            <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold">
+              <i class="fa-solid fa-flask"></i>
+            </div>
+            <span class="font-extrabold text-xl tracking-tight text-white">Virtual AI <span class="text-blue-400">Lab Suite</span></span>
+          </div>
+          <p class="text-slate-400 text-xs leading-relaxed mb-4 max-w-sm">
+            An open educational infrastructure for virtual practical learning, interactive algorithm simulations, real-time code evaluation, and automated interview assessment diagnostics.
+          </p>
+          <div class="flex space-x-3">
+            <a href="#" class="w-8 h-8 rounded bg-slate-800 hover:bg-blue-600 text-slate-300 hover:text-white flex items-center justify-center transition-colors text-xs"><i class="fa-brands fa-github"></i></a>
+            <a href="#" class="w-8 h-8 rounded bg-slate-800 hover:bg-blue-600 text-slate-300 hover:text-white flex items-center justify-center transition-colors text-xs"><i class="fa-brands fa-twitter"></i></a>
+            <a href="#" class="w-8 h-8 rounded bg-slate-800 hover:bg-blue-600 text-slate-300 hover:text-white flex items-center justify-center transition-colors text-xs"><i class="fa-brands fa-linkedin"></i></a>
+            <a href="request_inter.html" class="w-8 h-8 rounded bg-slate-800 hover:bg-blue-600 text-slate-300 hover:text-white flex items-center justify-center transition-colors text-xs"><i class="fa-solid fa-envelope"></i></a>
+          </div>
+        </div>
+
+        <!-- Col 2: Virtual Labs -->
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-white mb-4">Virtual Labs</h4>
+          <ul class="space-y-2 text-xs text-slate-400">
+            <li><a href="#" class="hover:text-blue-400 transition-colors">Data Structures Lab</a></li>
+            <li><a href="#" class="hover:text-blue-400 transition-colors">Algorithms & Sorting</a></li>
+            <li><a href="#" class="hover:text-blue-400 transition-colors">Operating Systems Lab</a></li>
+            <li><a href="#" class="hover:text-blue-400 transition-colors">Database Management</a></li>
+            <li><a href="#" class="hover:text-blue-400 transition-colors">Machine Learning Lab</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 3: AI Interview Tools -->
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-white mb-4">Interview Modules</h4>
+          <ul class="space-y-2 text-xs text-slate-400">
+            <li><a href="#interview-modes" class="hover:text-blue-400 transition-colors">Visual AI Avatar</a></li>
+            <li><a href="#interview-modes" class="hover:text-blue-400 transition-colors">Adaptive Technical Q&A</a></li>
+            <li><a href="#code-evaluator" class="hover:text-blue-400 transition-colors">Real-time Code Assessor</a></li>
+            <li><a href="#code-evaluator" class="hover:text-blue-400 transition-colors">Mistake Analyzer</a></li>
+            <li><a href="#code-evaluator" class="hover:text-blue-400 transition-colors">Scorecard Generator</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 4: Institutional & Resources -->
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-white mb-4">Resources & Support</h4>
+          <ul class="space-y-2 text-xs text-slate-400">
+            <li><a href="#" class="hover:text-blue-400 transition-colors">Virtual Lab Manuals</a></li>
+            <li><a href="#" class="hover:text-blue-400 transition-colors">Documentation & API</a></li>
+            <li><a href="#" class="hover:text-blue-400 transition-colors">Academic Collaborations</a></li>
+            <li><a href="#" class="hover:text-blue-400 transition-colors">System Nodal Centers</a></li>
+            <li><a href="#" class="hover:text-blue-400 transition-colors">Helpdesk & Feedback</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Bottom Accreditation / Copyright Line -->
+      <div class="pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+        <div>
+          &copy; 2026 AI Virtual Learning & Interview Platform. All rights reserved.
+        </div>
+        <div class="flex items-center space-x-6">
+          <a href="#" class="hover:text-slate-400 transition-colors">Privacy Policy</a>
+          <a href="#" class="hover:text-slate-400 transition-colors">Terms of Practical Use</a>
+          <a href="#" class="hover:text-slate-400 transition-colors">Nodal Guidelines</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JavaScript Logic -->
+  <script>
+    // Problem Datasets & Presets with Intentional Errors for Analysis Demo
+    const problems = {
+      'two-sum': {
+        title: '1. Two Sum Problem',
+        difficulty: 'Medium',
+        diffClass: 'bg-amber-100 text-amber-800 border-amber-200',
+        description: 'Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target. Each input has one valid solution.',
+        code: {
+          python: `def twoSum(nums, target):\n    # Intentional Bug: Outer and inner loop start from same index causing self-pairing\n    for i in range(len(nums)):\n        for j in range(len(nums)): # Bug: should be range(i + 1, len(nums))\n            if nums[i] + nums[j] == target:\n                return [i, j]\n    return []`,
+          cpp: `vector<int> twoSum(vector<int>& nums, int target) {\n    // Bug: Self-element pairing\n    for(int i = 0; i < nums.size(); i++) {\n        for(int j = 0; j < nums.size(); j++) {\n            if(nums[i] + nums[j] == target)\n                return {i, j};\n        }\n    }\n    return {};\n}`,
+          java: `public int[] twoSum(int[] nums, int target) {\n    for (int i = 0; i < nums.length; i++) {\n        for (int j = 0; j < nums.length; j++) { // Bug: j starts at 0\n            if (nums[i] + nums[j] == target) {\n                return new int[] { i, j };\n            }\n        }\n    }\n    return new int[] {};\n}`,
+          javascript: `function twoSum(nums, target) {\n    for (let i = 0; i < nums.length; i++) {\n        for (let j = 0; j < nums.length; j++) {\n            if (nums[i] + nums[j] === target) return [i, j];\n        }\n    }\n    return [];\n}`
+        },
+        report: {
+          score: 55,
+          grade: 'D',
+          badgeClass: 'bg-amber-500 text-white',
+          status: 'Failed Edge Cases',
+          testPassed: '2 / 4 Passed',
+          barWidth: '50%',
+          barColor: 'bg-amber-500',
+          mistakes: [
+            '<strong>Line 4:</strong> Inner loop index <code>j</code> starts at 0 instead of <code>i + 1</code>.',
+            '<strong>Logic Error:</strong> Solution returns self-matching element index pairs (e.g. element paired with itself).',
+            '<strong>Efficiency Warning:</strong> Nested O(N²) time complexity. An O(N) Hash Map approach is optimal.'
+          ],
+          timeComplexity: 'O(N²) - Suboptimal',
+          spaceComplexity: 'O(1) - Optimal',
+          fixCode: {
+            python: `def twoSum(nums, target):\n    hash_map = {}\n    for i, num in enumerate(nums):\n        complement = target - num\n        if complement in hash_map:\n            return [hash_map[complement], i]\n        hash_map[num] = i\n    return []`,
+            cpp: `vector<int> twoSum(vector<int>& nums, int target) {\n    unordered_map<int, int> mp;\n    for(int i=0; i<nums.size(); i++) {\n        int comp = target - nums[i];\n        if(mp.count(comp)) return {mp[comp], i};\n        mp[nums[i]] = i;\n    }\n    return {};\n}`,
+            java: `public int[] twoSum(int[] nums, int target) {\n    Map<Integer, Integer> map = new HashMap<>();\n    for (int i = 0; i < nums.length; i++) {\n        int complement = target - nums[i];\n        if (map.containsKey(complement)) {\n            return new int[] { map.get(complement), i };\n        }\n        map.put(nums[i], i);\n    }\n    return new int[] {};\n}`,
+            javascript: `function twoSum(nums, target) {\n    const map = new Map();\n    for (let i = 0; i < nums.length; i++) {\n        const complement = target - nums[i];\n        if (map.has(complement)) return [map.get(complement), i];\n        map.set(nums[i], i);\n    }\n    return [];\n}`
+          }
+        }
+      },
+
+      'binary-search': {
+        title: '2. Binary Search Problem',
+        difficulty: 'Easy',
+        diffClass: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+        description: 'Given an array of integers nums sorted in ascending order, and an integer target, search target in nums. Return its index or -1 if not present.',
+        code: {
+          python: `def search(nums, target):\n    left, right = 0, len(nums)\n    while left < right: # Bug: off-by-one boundary condition\n        mid = (left + right) // 2\n        if nums[mid] == target:\n            return mid\n        elif nums[mid] < target:\n            left = mid # Bug: potential infinite loop\n        else:\n            right = mid - 1\n    return -1`,
+          cpp: `int search(vector<int>& nums, int target) {\n    int left = 0, right = nums.size();\n    while(left < right) {\n        int mid = left + (right - left) / 2;\n        if(nums[mid] == target) return mid;\n        else if(nums[mid] < target) left = mid; // Bug\n        else right = mid - 1;\n    }\n    return -1;\n}`,
+          java: `public int search(int[] nums, int target) {\n    int left = 0, right = nums.length;\n    while (left < right) {\n        int mid = left + (right - left) / 2;\n        if (nums[mid] == target) return mid;\n        else if (nums[mid] < target) left = mid;\n        else right = mid - 1;\n    }\n    return -1;\n}`,
+          javascript: `function search(nums, target) {\n    let left = 0, right = nums.length;\n    while (left < right) {\n        let mid = Math.floor((left + right) / 2);\n        if (nums[mid] === target) return mid;\n        else if (nums[mid] < target) left = mid;\n        else right = mid - 1;\n    }\n    return -1;\n}`
+        },
+        report: {
+          score: 40,
+          grade: 'F',
+          badgeClass: 'bg-red-500 text-white',
+          status: 'Infinite Loop Detected',
+          testPassed: '1 / 5 Passed',
+          barWidth: '20%',
+          barColor: 'bg-red-500',
+          mistakes: [
+            '<strong>Line 7:</strong> Setting <code>left = mid</code> causes an infinite loop when <code>left</code> and <code>right</code> differ by 1.',
+            '<strong>Boundary Bug:</strong> Loop condition <code>left < right</code> misses upper bound checks.',
+            '<strong>Fix Required:</strong> Set <code>left = mid + 1</code> and initialize <code>right = len(nums) - 1</code> with <code>left <= right</code>.'
+          ],
+          timeComplexity: 'Time Limit Exceeded (TLE)',
+          spaceComplexity: 'O(1)',
+          fixCode: {
+            python: `def search(nums, target):\n    left, right = 0, len(nums) - 1\n    while left <= right:\n        mid = (left + right) // 2\n        if nums[mid] == target:\n            return mid\n        elif nums[mid] < target:\n            left = mid + 1\n        else:\n            right = mid - 1\n    return -1`,
+            cpp: `int search(vector<int>& nums, int target) {\n    int left = 0, right = nums.size() - 1;\n    while(left <= right) {\n        int mid = left + (right - left) / 2;\n        if(nums[mid] == target) return mid;\n        else if(nums[mid] < target) left = mid + 1;\n        else right = mid - 1;\n    }\n    return -1;\n}`,
+            java: `public int search(int[] nums, int target) {\n    int left = 0, right = nums.length - 1;\n    while (left <= right) {\n        int mid = left + (right - left) / 2;\n        if (nums[mid] == target) return mid;\n        else if (nums[mid] < target) left = mid + 1;\n        else right = mid - 1;\n    }\n    return -1;\n}`,
+            javascript: `function search(nums, target) {\n    let left = 0, right = nums.length - 1;\n    while (left <= right) {\n        let mid = Math.floor((left + right) / 2);\n        if (nums[mid] === target) return mid;\n        else if (nums[mid] < target) left = mid + 1;\n        else right = mid - 1;\n    }\n    return -1;\n}`
+          }
+        }
+      },
+
+      'reverse-string': {
+        title: '3. String Reversal',
+        difficulty: 'Easy',
+        diffClass: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+        description: 'Write a function that reverses a string. The input string is given as an array of characters.',
+        code: {
+          python: `def reverseString(s):\n    # Bug: Loops through entire string length, reversing twice back to original\n    for i in range(len(s)):\n        temp = s[i]\n        s[i] = s[len(s) - 1 - i]\n        s[len(s) - 1 - i] = temp\n    return s`,
+          cpp: `void reverseString(vector<char>& s) {\n    for(int i = 0; i < s.size(); i++) {\n        swap(s[i], s[s.size() - 1 - i]);\n    }\n}`,
+          java: `public void reverseString(char[] s) {\n    for (int i = 0; i < s.length; i++) {\n        char temp = s[i];\n        s[i] = s[s.length - 1 - i];\n        s[s.length - 1 - i] = temp;\n    }\n}`,
+          javascript: `function reverseString(s) {\n    for (let i = 0; i < s.length; i++) {\n        let temp = s[i];\n        s[i] = s[s.length - 1 - i];\n        s[s.length - 1 - i] = temp;\n    }\n    return s;\n}`
+        },
+        report: {
+          score: 60,
+          grade: 'C',
+          badgeClass: 'bg-yellow-500 text-white',
+          status: 'Redundant Operations',
+          testPassed: '2 / 4 Passed',
+          barWidth: '50%',
+          barColor: 'bg-yellow-500',
+          mistakes: [
+            '<strong>Line 3:</strong> Loop runs for <code>len(s)</code> iterations instead of <code>len(s) // 2</code>.',
+            '<strong>Logic Issue:</strong> Swapping every element twice restores the array back to its initial original order.',
+            '<strong>Fix Required:</strong> Stop iteration at half length <code>len(s) // 2</code> or use two pointers.'
+          ],
+          timeComplexity: 'O(N)',
+          spaceComplexity: 'O(1)',
+          fixCode: {
+            python: `def reverseString(s):\n    left, right = 0, len(s) - 1\n    while left < right:\n        s[left], s[right] = s[right], s[left]\n        left += 1\n        right -= 1\n    return s`,
+            cpp: `void reverseString(vector<char>& s) {\n    int left = 0, right = s.size() - 1;\n    while(left < right) {\n        swap(s[left++], s[right--]);\n    }\n}`,
+            java: `public void reverseString(char[] s) {\n    int left = 0, right = s.length - 1;\n    while (left < right) {\n        char temp = s[left];\n        s[left++] = s[right];\n        s[right--] = temp;\n    }\n}`,
+            javascript: `function reverseString(s) {\n    let left = 0, right = s.length - 1;\n    while (left < right) { me\n        [s[left], s[right]] = [s[right], s[left]];\n        left++;\n        right--;\n    }\n    return s;\n}`
+          }
+        }
+      }
+    };
+
+    let currentProblemKey = 'two-sum';
+    let currentLanguage = 'python';
+
+    // Page Initialization
+    window.addEventListener('DOMContentLoaded', () => {
+      loadPresetProblem();
+    });
+
+    // Load Chosen Problem Preset into UI
+    function loadPresetProblem() {
+      const select = document.getElementById('problemSelect');
+      currentProblemKey = select.value;
+      const prob = problems[currentProblemKey];
+
+      document.getElementById('problemTitle').innerText = prob.title;
+      document.getElementById('problemDescription').innerText = prob.description;
+      
+      const diffBadge = document.getElementById('problemDifficulty');
+      diffBadge.innerText = prob.difficulty;
+      diffBadge.className = `px-2.5 py-1 rounded-full text-xs font-semibold ${prob.diffClass}`;
+
+      document.getElementById('codeEditor').value = prob.code[currentLanguage];
+
+      // Reset Report Area to Initial State
+      document.getElementById('reportPlaceholder').classList.remove('hidden');
+      document.getElementById('reportContent').classList.add('hidden');
+      document.getElementById('reportAction').classList.add('hidden');
+      document.getElementById('reportStatus').innerText = 'Awaiting Run';
+      document.getElementById('reportStatus').className = 'px-2.5 py-0.5 text-xs font-semibold rounded-full bg-slate-100 text-slate-600';
+    }
+
+    // Switch Editor Language
+    function changeLanguage() {
+      currentLanguage = document.getElementById('languageSelect').value;
+      document.getElementById('codeEditor').value = problems[currentProblemKey].code[currentLanguage];
+    }
+
+    // Reset Code to Original Bug State
+    function resetCode() {
+      document.getElementById('codeEditor').value = problems[currentProblemKey].code[currentLanguage];
+    }
+
+    // Scroll Helper
+    function scrollToSection(id) {
+      document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Action Trigger Placeholder Toast / Modal
+    function triggerPlaceholder(moduleTitle) {
+      alert(`[External Page Trigger]\n\nNavigating to: ${moduleTitle}.\nIn full deployment, this opens the dedicated session page or external file.`);
+    }
+
+    // Trigger AI Code Analysis & Diagnostic Report Generation
+    function runCodeAnalysis() {
+      const btn = document.getElementById('evalBtn');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Analyzing Code...`;
+      btn.disabled = true;
+
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+
+        const reportData = problems[currentProblemKey].report;
+
+        // Render Report Results
+        document.getElementById('reportPlaceholder').classList.add('hidden');
+        document.getElementById('reportContent').classList.remove('hidden');
+        document.getElementById('reportAction').classList.remove('hidden');
+
+        document.getElementById('scoreValue').innerText = `${reportData.score}/100`;
+        
+        const gradeBadge = document.getElementById('gradeBadge');
+        gradeBadge.innerText = reportData.grade;
+        gradeBadge.className = `w-12 h-12 rounded-xl font-black text-xl flex items-center justify-center shadow ${reportData.badgeClass}`;
+
+        document.getElementById('testCaseCount').innerText = reportData.testPassed;
+        const testBar = document.getElementById('testCaseBar');
+        testBar.style.width = reportData.barWidth;
+        testBar.className = `h-2.5 rounded-full transition-all duration-500 ${reportData.barColor}`;
+
+        // Populate Mistakes List
+        const mistakesContainer = document.getElementById('mistakesList');
+        mistakesContainer.innerHTML = reportData.mistakes.map(m => `<li>${m}</li>`).join('');
+
+        document.getElementById('timeComplexity').innerText = reportData.timeComplexity;
+        document.getElementById('spaceComplexity').innerText = reportData.spaceComplexity;
+
+        // Set Syntax Code for Recommended Fix
+        const solutionCodeElem = document.getElementById('solutionCode');
+        solutionCodeElem.textContent = reportData.fixCode[currentLanguage];
+        solutionCodeElem.className = `language-${currentLanguage}`;
+        Prism.highlightElement(solutionCodeElem);
+
+        // Update Report Status Badge
+        const reportStatus = document.getElementById('reportStatus');
+        reportStatus.innerText = reportData.status;
+        reportStatus.className = `px-2.5 py-0.5 text-xs font-semibold rounded-full bg-red-100 text-red-700`;
+
+        window.dispatchEvent(new CustomEvent('ai-report-generated', {
+          detail: {
+            title: problems[currentProblemKey].title,
+            score: reportData.score,
+            grade: reportData.grade,
+            testCasesPassed: reportData.testPassed,
+            language: currentLanguage
+          }
+        }));
+      }, 800);
+    }
+
+    // Apply Recommended AI Code to Code Editor
+    function applyFixCode() {
+      const fixCode = problems[currentProblemKey].report.fixCode[currentLanguage];
+      document.getElementById('codeEditor').value = fixCode;
+
+      // Update UI indicator to reflect applied fix
+      document.getElementById('reportStatus').innerText = 'AI Fix Applied!';
+      document.getElementById('reportStatus').className = 'px-2.5 py-0.5 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700';
+    }
+  </script>
+  <script type="module">
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { auth, recordProgress, subscribeProgress } from "/home/progress-tracker.js";
+
+    const historyBody = document.getElementById('interview-score-history');
+    const countLabel = document.getElementById('interview-score-count');
+    let currentUser;
+    let stopWatching;
+    let authStateError;
+    let resolveAuthState;
+    const authStateReady = new Promise((resolve) => {
+      resolveAuthState = resolve;
+    });
+
+    function showHistoryMessage(message) {
+      historyBody.replaceChildren();
+      const row = document.createElement('tr');
+      const cell = document.createElement('td');
+      cell.colSpan = 4;
+      cell.className = 'px-5 py-6 text-center text-slate-500';
+      cell.textContent = message;
+      row.append(cell);
+      historyBody.append(row);
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      currentUser = user;
+      resolveAuthState();
+      if (stopWatching) stopWatching();
+      if (!user) {
+        countLabel.textContent = '0';
+        showHistoryMessage('Sign in to see your live evaluation history.');
+        return;
+      }
+
+      stopWatching = subscribeProgress('ai-interviews', user.uid, (entries) => {
+        const reports = entries.filter((entry) => entry.eventType === 'interview_evaluated');
+        countLabel.textContent = String(reports.length);
+        if (!reports.length) {
+          showHistoryMessage('No evaluation reports saved yet. Generate a report to add it here.');
+          return;
+        }
+
+        historyBody.replaceChildren();
+        reports.forEach((entry) => {
+          const row = document.createElement('tr');
+          row.className = 'border-t border-slate-100';
+          for (const value of [
+            entry.title || 'Interview evaluation',
+            entry.score !== undefined ? `${entry.score}/100` : '—',
+            entry.grade || '—',
+            entry.createdAt?.toDate ? entry.createdAt.toDate().toLocaleString() : 'Saving...'
+          ]) {
+            const cell = document.createElement('td');
+            cell.className = 'px-5 py-3 text-slate-700';
+            cell.textContent = value;
+            row.append(cell);
+          }
+          historyBody.append(row);
+        });
+      }, (error) => {
+        console.error('AI interview history could not be loaded:', error);
+        showHistoryMessage('Could not load your live history. Check the Firestore database and security rules setup.');
+      });
+    }, (error) => {
+      console.error('Firebase authentication state could not be loaded for AI interview history:', error);
+      authStateError = error;
+      resolveAuthState();
+      countLabel.textContent = '0';
+      showHistoryMessage('Could not verify your sign-in. Refresh the page and try again.');
+    });
+
+    window.addEventListener('ai-report-generated', async (event) => {
+      await authStateReady;
+      if (!currentUser) {
+        window.alert(authStateError
+          ? 'Your report is ready, but your sign-in could not be verified. Refresh the page and try again.'
+          : 'Your report is ready. Sign in to save it to your score history.');
+        return;
+      }
+
+      try {
+        const result = await recordProgress('ai-interviews', currentUser, {
+          eventType: 'interview_evaluated',
+          title: event.detail.title,
+          score: event.detail.score,
+          grade: event.detail.grade,
+          testCasesPassed: event.detail.testCasesPassed,
+          language: event.detail.language,
+          url: window.location.pathname
+        });
+        if (result.emailError) {
+          window.alert(`Your score was saved, but its email notification could not be sent: ${result.emailError}`);
+        }
+      } catch (error) {
+        console.error('AI interview report could not be saved:', error);
+        window.alert('The report is ready, but it could not be saved to your history. Check your connection and Firestore setup.');
+      }
+    });
+  </script>
+</body>
+</html>

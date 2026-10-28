@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #8: Chemical Equilibrium & Le Chatelier's Principle</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fdf4ff',
+                            100: '#fae8ff',
+                            500: '#d946ef',
+                            600: '#c026d3',
+                            700: '#a21caf',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.02); }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col selection:bg-purple-100 selection:text-purple-700">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-purple-600 text-white p-2.5 rounded-xl shadow-md flex items-center justify-center">
+                    <i class="fa-solid fa-scale-balanced text-xl"></i>
+                </div>
+                <div>
+                    <span class="text-xs font-semibold tracking-wider text-purple-600 uppercase bg-purple-50 px-2 py-0.5 rounded-full">Virtual Chemistry Lab #8</span>
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">Chemical Equilibrium & Le Chatelier</h1>
+                </div>
+            </div>
+            
+            <nav class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 overflow-x-auto max-w-full">
+                <button onclick="switchTab('equilibrium')" id="tab-btn-equilibrium" class="px-4 py-2 text-sm font-semibold rounded-lg bg-white text-purple-600 shadow-sm transition-all flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-flask"></i>
+                    <span>Equilibrium Simulator</span>
+                </button>
+                <button onclick="switchTab('constants')" id="tab-btn-constants" class="px-4 py-2 text-sm font-medium rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 transition-all flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-calculator"></i>
+                    <span>$K_c$ & $Q$ Calculator</span>
+                </button>
+                <button onclick="switchTab('visualizer')" id="tab-btn-visualizer" class="px-4 py-2 text-sm font-medium rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 transition-all flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-atom"></i>
+                    <span>Particle View</span>
+                </button>
+                <button onclick="switchTab('quiz')" id="tab-btn-quiz" class="px-4 py-2 text-sm font-medium rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 transition-all flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-clipboard-question"></i>
+                    <span>Post-Lab Quiz</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6">
+
+        <!-- ================= TAB 1: EQUILIBRIUM SIMULATOR ================= -->
+        <section id="tab-equilibrium" class="space-y-6">
+            <!-- Intro Card -->
+            <div class="bg-gradient-to-r from-purple-600 to-indigo-700 text-white rounded-2xl p-6 shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold">Le Chatelier's Principle Interactive Lab</h2>
+                    <p class="text-purple-100 text-sm mt-1 max-w-2xl">
+                        Perturb systems at dynamic equilibrium. Observe how changes in concentration, pressure/volume, and temperature shift the equilibrium position to counteract the stress according to Le Chatelier's Principle.
+                    </p>
+                </div>
+                <div class="flex items-center space-x-3 bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-xl border border-white/20">
+                    <div class="text-right">
+                        <div class="text-xs text-purple-200">Equilibrium Law</div>
+                        <div class="text-sm font-mono font-bold">$K_c = \frac{[C]^c[D]^d}{[A]^a[B]^b}$</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workspace Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Controls & Stress Application (Col 5) -->
+                <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
+                    <h3 class="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center justify-between">
+                        <span><i class="fa-solid fa-sliders text-purple-600 mr-2"></i>System Stresses</span>
+                        <span id="equilibrium-status" class="text-xs px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 font-medium">At Equilibrium</span>
+                    </h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Select Equilibrium System</label>
+                            <select id="system-select" onchange="updateSystemParams()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500 font-medium">
+                                <option value="chromate">1. Chromate / Dichromate ($2CrO_4^{2-} + 2H^+ \rightleftharpoons Cr_2O_7^{2-} + H_2O$)</option>
+                                <option value="cobalt">2. Cobalt Chloride Complex ($[Co(H_2O)_6]^{2+} + 4Cl^- \rightleftharpoons [CoCl_4]^{2-} + 6H_2O$)</option>
+                                <option value="haber">3. Haber Process ($N_2 + 3H_2 \rightleftharpoons 2NH_3$, $\Delta H &lt; 0$)</option>
+                                <option value="no2_n2o4">4. Nitrogen Dioxide Dimerization ($2NO_2 \rightleftharpoons N_2O_4$, $\Delta H &lt; 0$)</option>
+                            </select>
+                            <p id="system-desc" class="text-xs text-slate-500 mt-1.5 italic"></p>
+                        </div>
+
+                        <!-- Stress Action Panels -->
+                        <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-3">
+                            <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Apply Stress</h4>
+                            
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="applyStress('add_reactants')" class="bg-white hover:bg-purple-50 border border-slate-300 hover:border-purple-300 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg shadow-sm transition-all text-left">
+                                    <i class="fa-solid fa-plus text-purple-600 mr-1"></i> Add Reactant
+                                </button>
+                                <button onclick="applyStress('add_products')" class="bg-white hover:bg-purple-50 border border-slate-300 hover:border-purple-300 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg shadow-sm transition-all text-left">
+                                    <i class="fa-solid fa-plus text-purple-600 mr-1"></i> Add Product
+                                </button>
+                                <button onclick="applyStress('remove_reactants')" class="bg-white hover:bg-purple-50 border border-slate-300 hover:border-purple-300 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg shadow-sm transition-all text-left">
+                                    <i class="fa-solid fa-minus text-amber-600 mr-1"></i> Remove Reactant
+                                </button>
+                                <button onclick="applyStress('remove_products')" class="bg-white hover:bg-purple-50 border border-slate-300 hover:border-purple-300 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg shadow-sm transition-all text-left">
+                                    <i class="fa-solid fa-minus text-amber-600 mr-1"></i> Remove Product
+                                </button>
+                            </div>
+
+                            <div class="pt-2 border-t border-slate-200 grid grid-cols-2 gap-2">
+                                <button onclick="applyStress('increase_temp')" class="bg-white hover:bg-red-50 border border-slate-300 hover:border-red-300 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg shadow-sm transition-all text-left">
+                                    <i class="fa-solid fa-fire text-red-600 mr-1"></i> Heat System
+                                </button>
+                                <button onclick="applyStress('decrease_temp')" class="bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-300 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg shadow-sm transition-all text-left">
+                                    <i class="fa-solid fa-snowflake text-blue-600 mr-1"></i> Cool System
+                                </button>
+                            </div>
+
+                            <div class="pt-2 border-t border-slate-200 flex space-x-2">
+                                <button onclick="applyStress('increase_pressure')" class="flex-1 bg-white hover:bg-purple-50 border border-slate-300 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg shadow-sm transition-all text-center">
+                                    <i class="fa-solid fa-compress text-purple-600 mr-1"></i> Increase Pressure
+                                </button>
+                                <button onclick="applyStress('decrease_pressure')" class="flex-1 bg-white hover:bg-purple-50 border border-slate-300 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg shadow-sm transition-all text-center">
+                                    <i class="fa-solid fa-expand text-purple-600 mr-1"></i> Decrease Pressure
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-3">
+                        <button onclick="resetEquilibrium()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold py-2.5 px-4 rounded-xl transition-all flex items-center justify-center space-x-2 text-sm">
+                            <i class="fa-solid fa-rotate-right"></i>
+                            <span>Reset System to Equilibrium</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Visualization & Graph (Col 7) -->
+                <div class="lg:col-span-7 flex flex-col space-y-6">
+                    <!-- Visual Test Tube / Reactor & Color Display -->
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 relative flex flex-col md:flex-row items-center justify-around gap-6">
+                        <!-- Reaction Flask / Container Visualizer -->
+                        <div class="relative w-40 h-52 flex items-center justify-center">
+                            <!-- Erlenmeyer Flask SVG / Container -->
+                            <div class="absolute w-36 h-48 bg-gradient-to-b from-slate-100 to-slate-200 border-2 border-slate-300 rounded-b-full shadow-inner flex flex-col justify-end items-center overflow-hidden">
+                                <!-- Solution Color Fill representing equilibrium state -->
+                                <div id="flask-solution" class="w-full h-3/4 bg-amber-300/80 transition-all duration-700 relative flex items-center justify-center">
+                                    <div id="flask-bubbles" class="absolute inset-0 flex items-center justify-center opacity-40">
+                                        <i class="fa-solid fa-bubbles text-white text-xl animate-pulse"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Flask Neck -->
+                            <div class="absolute top-1 w-12 h-10 bg-slate-200 border-2 border-slate-300 border-b-0 rounded-t-md"></div>
+                        </div>
+
+                        <!-- Real-time Concentrations Box -->
+                        <div class="flex-1 space-y-3 w-full">
+                            <h4 class="font-bold text-slate-900 flex items-center space-x-2">
+                                <i class="fa-solid fa-chart-pie text-purple-600"></i>
+                                <span>Species Concentrations & Quotient ($Q$)</span>
+                            </h4>
+                            <div class="space-y-2 text-sm bg-slate-50 p-4 rounded-xl border border-slate-200 font-mono">
+                                <div class="flex justify-between">
+                                    <span id="label-reactant-conc" class="text-slate-600 font-sans">[Reactants]:</span>
+                                    <span id="val-reactant-conc" class="font-bold text-slate-900">1.00 M</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span id="label-product-conc" class="text-slate-600 font-sans">[Products]:</span>
+                                    <span id="val-product-conc" class="font-bold text-slate-900">1.00 M</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-600 font-sans">Reaction Quotient ($Q_c$):</span>
+                                    <span id="val-qc" class="font-bold text-purple-600">1.00</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-600 font-sans">Equilibrium Constant ($K_c$):</span>
+                                    <span id="val-kc" class="font-bold text-slate-900">1.00</span>
+                                </div>
+                                <div class="border-t border-slate-200 pt-2 flex justify-between text-base">
+                                    <span class="text-slate-800 font-sans font-bold">Shift Direction:</span>
+                                    <span id="val-shift" class="font-bold text-emerald-600">None (Equilibrium)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Concentration vs Time Chart -->
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="font-bold text-slate-900 flex items-center space-x-2">
+                                <i class="fa-solid fa-chart-area text-purple-600"></i>
+                                <span>Concentration vs. Time Shift Profile</span>
+                            </h4>
+                            <span class="text-xs text-slate-500 font-medium">Real-time Kinetics</span>
+                        </div>
+                        <div class="h-64 relative">
+                            <canvas id="equilibriumChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 2: Kc & Q CALCULATOR ================= -->
+        <section id="tab-constants" class="hidden space-y-6">
+            <div class="bg-gradient-to-r from-indigo-600 to-blue-700 text-white rounded-2xl p-6 shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold">Equilibrium Constant ($K_c$) & Reaction Quotient ($Q_c$) Calculator</h2>
+                    <p class="text-indigo-100 text-sm mt-1 max-w-2xl">
+                        Compare $Q_c$ to $K_c$ to determine the direction in which a reversible reaction will proceed to reach equilibrium.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Inputs (Col 6) -->
+                <div class="lg:col-span-6 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
+                    <h3 class="font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center space-x-2">
+                        <i class="fa-solid fa-calculator text-indigo-600"></i>
+                        <span>Generic Reaction: $aA + bB \rightleftharpoons cC + dD$</span>
+                    </h3>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Stoichiometric Coeff $a$</label>
+                            <input type="number" id="calc-a" value="1" min="1" max="5" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Reactant $[A]$ (M)</label>
+                            <input type="number" id="calc-A-conc" value="0.50" min="0.01" max="10" step="0.01" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-medium">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Stoichiometric Coeff $c$</label>
+                            <input type="number" id="calc-c" value="1" min="1" max="5" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Product $[C]$ (M)</label>
+                            <input type="number" id="calc-C-conc" value="0.20" min="0.01" max="10" step="0.01" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-medium">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Known Equilibrium Constant ($K_c$)</label>
+                        <input type="number" id="calc-kc" value="1.50" min="0.001" max="1000" step="0.01" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-medium">
+                    </div>
+
+                    <button onclick="calculateReactionQuotient()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md transition-all">
+                        Calculate $Q_c$ & Predict Shift
+                    </button>
+                </div>
+
+                <!-- Results (Col 6) -->
+                <div class="lg:col-span-6 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center space-x-2">
+                            <i class="fa-solid fa-square-poll-vertical text-indigo-600"></i>
+                            <span>Prediction & Analysis</span>
+                        </h3>
+                        <div class="space-y-4 mt-4 font-mono">
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex justify-between items-center">
+                                <span class="text-slate-600 font-sans">Calculated Reaction Quotient ($Q_c$):</span>
+                                <span id="res-qc" class="text-xl font-bold text-indigo-600">0.40</span>
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex justify-between items-center">
+                                <span class="text-slate-600 font-sans">Comparison ($Q_c$ vs $K_c$):</span>
+                                <span id="res-compare" class="text-lg font-bold text-slate-900">$Q_c &lt; K_c$</span>
+                            </div>
+                            <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-200 space-y-2">
+                                <div class="text-xs font-bold text-indigo-900 uppercase font-sans">Shift Conclusion</div>
+                                <div id="res-conclusion" class="text-sm text-indigo-950 font-sans">
+                                    Since $Q_c$ is less than $K_c$, the reaction will proceed to the <strong>right (toward products)</strong> until equilibrium is established.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 3: PARTICLE VIEW ================= -->
+        <section id="tab-visualizer" class="hidden space-y-6">
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-2xl p-6 shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold">Molecular Particle Collision & Equilibrium Simulator</h2>
+                    <p class="text-emerald-100 text-sm mt-1 max-w-2xl">
+                        Visualize reactant molecules ($A$, blue) and product molecules ($B$, red) continuously colliding and interconverting at dynamic equilibrium ($A \rightleftharpoons B$).
+                    </p>
+                </div>
+                <div class="flex items-center space-x-3 bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-xl border border-white/20">
+                    <button onclick="toggleParticleSimulation()" id="particle-toggle-btn" class="bg-white text-emerald-700 font-bold px-4 py-1.5 rounded-lg text-xs shadow">Pause / Play</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col items-center space-y-4">
+                <div class="w-full flex justify-between items-center">
+                    <h3 class="font-bold text-slate-900 flex items-center space-x-2">
+                        <i class="fa-solid fa-atom text-emerald-600"></i>
+                        <span>Particle Box ($A \rightleftharpoons B$)</span>
+                    </h3>
+                    <div class="flex space-x-6 text-xs font-mono font-bold">
+                        <span class="text-blue-600">Reactants ($A$): <span id="count-a">25</span></span>
+                        <span class="text-red-600">Products ($B$): <span id="count-b">25</span></span>
+                    </div>
+                </div>
+                <div class="w-full h-96 bg-slate-900 rounded-2xl relative overflow-hidden shadow-inner border border-slate-800">
+                    <canvas id="particleCanvas" class="w-full h-full"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 4: POST-LAB QUIZ ================= -->
+        <section id="tab-quiz" class="hidden space-y-6">
+            <div class="bg-gradient-to-r from-amber-600 to-orange-700 text-white rounded-2xl p-6 shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold">Post-Lab Assessment & Knowledge Check</h2>
+                    <p class="text-amber-100 text-sm mt-1 max-w-2xl">
+                        Test your understanding of Le Chatelier's Principle, equilibrium constants, and stress responses.
+                    </p>
+                </div>
+                <div id="quiz-score-badge" class="bg-white/10 backdrop-blur-md px-5 py-2.5 rounded-xl border border-white/20 text-center hidden">
+                    <div class="text-xs text-amber-200">Final Score</div>
+                    <div id="quiz-score-val" class="text-lg font-bold font-mono">0 / 5</div>
+                </div>
+            </div>
+
+            <div id="quiz-container" class="space-y-6">
+                <!-- Dynamically populated quiz questions -->
+            </div>
+
+            <div class="flex justify-end">
+                <button onclick="submitQuiz()" id="btn-submit-quiz" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-xl shadow-md transition-all flex items-center space-x-2">
+                    <i class="fa-solid fa-check-double"></i>
+                    <span>Submit Quiz Answers</span>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <main class="w-full">
+        <footer class="bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-500">
+            <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-3">
+                <div>Lab #8: Chemical Equilibrium & Le Chatelier &bull; Chemistry Virtual Lab Suite</div>
+                <div class="flex space-x-4">
+                    <a href="#" class="hover:text-purple-600">Safety Protocol</a>
+                    <a href="#" class="hover:text-purple-600">Constants Table</a>
+                    <a href="#" class="hover:text-purple-600">Export Report</a>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // ================= TAB NAVIGATION =================
+        function switchTab(tabId) {
+            const tabs = ['equilibrium', 'constants', 'visualizer', 'quiz'];
+            tabs.forEach(t => {
+                const sec = document.getElementById('tab-' + t);
+                if (sec) sec.classList.add('hidden');
+                const btn = document.getElementById('tab-btn-' + t);
+                if (btn) btn.className = "px-4 py-2 text-sm font-medium rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 transition-all flex items-center space-x-2 whitespace-nowrap";
+            });
+
+            const activeSec = document.getElementById('tab-' + tabId);
+            if (activeSec) activeSec.classList.remove('hidden');
+            const activeBtn = document.getElementById('tab-btn-' + tabId);
+            if (activeBtn) activeBtn.className = "px-4 py-2 text-sm font-semibold rounded-lg bg-white text-purple-600 shadow-sm transition-all flex items-center space-x-2 whitespace-nowrap";
+
+            if (tabId === 'equilibrium' && equilibriumChartInstance === null) {
+                initEquilibriumChart();
+                updateSystemParams();
+            } else if (tabId === 'visualizer' && particleAnimationId === null) {
+                initParticleSimulation();
+            } else if (tabId === 'quiz' && quizLoaded === false) {
+                initQuiz();
+            }
+        }
+
+        // ================= EQUILIBRIUM SIMULATOR LOGIC =================
+        let equilibriumChartInstance = null;
+        let currentSystem = 'chromate';
+
+        const systemsData = {
+            chromate: {
+                name: "Chromate / Dichromate Equilibrium",
+                desc: "2CrO4²⁻ (Yellow) + 2H⁺ ⇌ Cr2O7²⁻ (Orange) + H2O",
+                reactantsLabel: "[CrO₄²⁻]",
+                productsLabel: "[Cr₂O₇²⁻]",
+                initialReactant: 1.0,
+                initialProduct: 1.0,
+                kc: 1.0,
+                colorReactant: "bg-yellow-300/80",
+                colorProduct: "bg-orange-500/80"
+            },
+            cobalt: {
+                name: "Cobalt Chloride Complex",
+                desc: "[Co(H2O)6]²⁺ (Pink) + 4Cl⁻ ⇌ [CoCl4]²⁻ (Blue) + 6H2O",
+                reactantsLabel: "[Co(H₂O)₆²⁺]",
+                productsLabel: "[CoCl₄²⁻]",
+                initialReactant: 1.2,
+                initialProduct: 0.8,
+                kc: 1.5,
+                colorReactant: "bg-pink-300/80",
+                colorProduct: "bg-blue-600/80"
+            },
+            haber: {
+                name: "Haber Process (Ammonia Synthesis)",
+                desc: "N2 + 3H2 ⇌ 2NH3 (Exothermic, ΔH < 0)",
+                reactantsLabel: "[N₂] + [H₂]",
+                productsLabel: "[NH₃]",
+                initialReactant: 1.5,
+                initialProduct: 0.5,
+                kc: 0.8,
+                colorReactant: "bg-slate-300/80",
+                colorProduct: "bg-emerald-400/80"
+            },
+            no2_n2o4: {
+                name: "Nitrogen Dioxide Dimerization",
+                desc: "2NO2 (Brown Gas) ⇌ N2O4 (Colorless) (Exothermic)",
+                reactantsLabel: "[NO₂]",
+                productsLabel: "[N₂O₄]",
+                initialReactant: 1.0,
+                initialProduct: 1.0,
+                kc: 1.0,
+                colorReactant: "bg-amber-700/70",
+                colorProduct: "bg-slate-100/80"
+            }
+        };
+
+        let reactantConc = 1.0;
+        let productConc = 1.0;
+
+        function updateSystemParams() {
+            const key = document.getElementById('system-select').value;
+            currentSystem = key;
+            const sys = systemsData[key];
+            document.getElementById('system-desc').innerText = sys.desc;
+            document.getElementById('label-reactant-conc').innerText = sys.reactantsLabel + ":";
+            document.getElementById('label-product-conc').innerText = sys.productsLabel + ":";
+            
+            reactantConc = sys.initialReactant;
+            productConc = sys.initialProduct;
+
+            updateDisplayValues();
+            initEquilibriumChart();
+        }
+
+        function updateDisplayValues() {
+            const sys = systemsData[currentSystem];
+            document.getElementById('val-reactant-conc').innerText = reactantConc.toFixed(2) + " M";
+            document.getElementById('val-product-conc').innerText = productConc.toFixed(2) + " M";
+            
+            let Qc = productConc / reactantConc;
+            document.getElementById('val-qc').innerText = Qc.toFixed(2);
+            document.getElementById('val-kc').innerText = sys.kc.toFixed(2);
+
+            let flaskSol = document.getElementById('flask-solution');
+            if (reactantConc > productConc * 1.5) {
+                flaskSol.className = `w-full h-3/4 ${sys.colorReactant} transition-all duration-700 relative flex items-center justify-center`;
+            } else if (productConc > reactantConc * 1.5) {
+                flaskSol.className = `w-full h-3/4 ${sys.colorProduct} transition-all duration-700 relative flex items-center justify-center`;
+            } else {
+                flaskSol.className = "w-full h-3/4 bg-purple-300/80 transition-all duration-700 relative flex items-center justify-center";
+            }
+        }
+
+        function initEquilibriumChart() {
+            const ctx = document.getElementById('equilibriumChart').getContext('2d');
+            if (equilibriumChartInstance) equilibriumChartInstance.destroy();
+
+            equilibriumChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                    datasets: [
+                        {
+                            label: 'Reactants',
+                            data: [1.2, 1.1, 1.0, 1.0, 1.0, 1.4, 1.2, 1.1, 1.0, 1.0, 1.0],
+                            borderColor: '#c026d3',
+                            backgroundColor: 'rgba(192, 38, 211, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Products',
+                            data: [0.8, 0.9, 1.0, 1.0, 1.0, 0.6, 0.8, 0.9, 1.0, 1.0, 1.0],
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            grid: { color: '#f1f5f9' },
+                            ticks: { font: { family: 'monospace' } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            title: { display: true, text: 'Time / Perturbation Steps', font: { size: 12 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function applyStress(action) {
+            let shiftText = "";
+            if (action === 'add_reactants') {
+                reactantConc += 0.5;
+                productConc += 0.2;
+                shiftText = "Shift Right (Product favored)";
+            } else if (action === 'add_products') {
+                productConc += 0.5;
+                reactantConc += 0.2;
+                shiftText = "Shift Left (Reactant favored)";
+            } else if (action === 'remove_reactants') {
+                reactantConc = Math.max(0.1, reactantConc - 0.4);
+                productConc -= 0.2;
+                shiftText = "Shift Left (Reactant favored)";
+            } else if (action === 'remove_products') {
+                productConc = Math.max(0.1, productConc - 0.4);
+                reactantConc -= 0.2;
+                shiftText = "Shift Right (Product favored)";
+            } else if (action === 'increase_temp') {
+                reactantConc += 0.3;
+                productConc = Math.max(0.1, productConc - 0.3);
+                shiftText = "Shift Left (Endothermic direction)";
+            } else if (action === 'decrease_temp') {
+                reactantConc = Math.max(0.1, reactantConc - 0.3);
+                productConc += 0.3;
+                shiftText = "Shift Right (Exothermic direction)";
+            } else if (action === 'increase_pressure') {
+                reactantConc += 0.2;
+                productConc += 0.2;
+                shiftText = "Shift toward fewer moles of gas";
+            } else if (action === 'decrease_pressure') {
+                reactantConc = Math.max(0.1, reactantConc - 0.2);
+                productConc = Math.max(0.1, productConc - 0.2);
+                shiftText = "Shift toward more moles of gas";
+            }
+
+            document.getElementById('val-shift').innerText = shiftText;
+            document.getElementById('equilibrium-status').innerText = "Perturbed & Re-establishing Equilibrium";
+            document.getElementById('equilibrium-status').className = "text-xs px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 font-medium animate-pulse";
+
+            updateDisplayValues();
+
+            // Push to chart data
+            if (equilibriumChartInstance) {
+                let labels = equilibriumChartInstance.data.labels;
+                let nextLabel = labels.length;
+                labels.push(nextLabel);
+                equilibriumChartInstance.data.datasets[0].data.push(parseFloat(reactantConc.toFixed(2)));
+                equilibriumChartInstance.data.datasets[1].data.push(parseFloat(productConc.toFixed(2)));
+                equilibriumChartInstance.update();
+            }
+
+            setTimeout(() => {
+                document.getElementById('equilibrium-status').innerText = "At Equilibrium";
+                document.getElementById('equilibrium-status').className = "text-xs px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 font-medium";
+            }, 1200);
+        }
+
+        function resetEquilibrium() {
+            updateSystemParams();
+            document.getElementById('val-shift').innerText = "None (Equilibrium)";
+            document.getElementById('equilibrium-status').innerText = "At Equilibrium";
+            document.getElementById('equilibrium-status').className = "text-xs px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 font-medium";
+        }
+
+        // ================= CALCULATOR LOGIC =================
+        function calculateReactionQuotient() {
+            let a = parseFloat(document.getElementById('calc-a').value);
+            let c = parseFloat(document.getElementById('calc-c').value);
+            let A = parseFloat(document.getElementById('calc-A-conc').value);
+            let C = parseFloat(document.getElementById('calc-C-conc').value);
+            let Kc = parseFloat(document.getElementById('calc-kc').value);
+
+            let Qc = Math.pow(C, c) / Math.pow(A, a);
+            document.getElementById('res-qc').innerText = Qc.toFixed(3);
+
+            let compareText = "";
+            let conclusionText = "";
+
+            if (Math.abs(Qc - Kc) < 0.01) {
+                compareText = "$Q_c \\approx K_c$";
+                conclusionText = "The system is already at <strong>equilibrium</strong>. No net shift will occur.";
+            } else if (Qc < Kc) {
+                compareText = "$Q_c &lt; K_c$";
+                conclusionText = "Since $Q_c$ is less than $K_c$, the reaction will proceed to the <strong>right (toward products)</strong> until equilibrium is established.";
+            } else {
+                compareText = "$Q_c &gt; K_c$";
+                conclusionText = "Since $Q_c$ is greater than $K_c$, the reaction will proceed to the <strong>left (toward reactants)</strong> until equilibrium is established.";
+            }
+
+            document.getElementById('res-compare').innerHTML = compareText;
+            document.getElementById('res-conclusion').innerHTML = conclusionText;
+        }
+
+        // ================= PARTICLE SIMULATOR LOGIC =================
+        let particleAnimationId = null;
+        let isPaused = false;
+        let particles = [];
+
+        function initParticleSimulation() {
+            const canvas = document.getElementById('particleCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.clientWidth - 20;
+            canvas.height = 360;
+
+            particles = [];
+            for (let i = 0; i < 30; i++) {
+                particles.push({x: Math.random() * canvas.width, y: Math.random() * canvas.height, vx: (Math.random() - 0.5) * 3, vy: (Math.random() - 0.5) * 3, type: 'A'});
+                particles.push({x: Math.random() * canvas.width, y: Math.random() * canvas.height, vx: (Math.random() - 0.5) * 3, vy: (Math.random() - 0.5) * 3, type: 'B'});
+            }
+
+            if (particleAnimationId) cancelAnimationFrame(particleAnimationId);
+            animateParticles(canvas, ctx);
+        }
+
+        function animateParticles(canvas, ctx) {
+            if (!isPaused) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                let countA = 0;
+                let countB = 0;
+
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.x < 10 || p.x > canvas.width - 10) p.vx *= -1;
+                    if (p.y < 10 || p.y > canvas.height - 10) p.vy *= -1;
+
+                    if (Math.random() < 0.005) {
+                        p.type = p.type === 'A' ? 'B' : 'A';
+                    }
+
+                    if (p.type === 'A') countA++; else countB++;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
+                    ctx.fillStyle = p.type === 'A' ? '#3b82f6' : '#c026d3';
+                    ctx.fill();
+                    ctx.closePath();
+                });
+
+                document.getElementById('count-a').innerText = countA;
+                document.getElementById('count-b').innerText = countB;
+            }
+
+            particleAnimationId = requestAnimationFrame(() => animateParticles(canvas, ctx));
+        }
+
+        function toggleParticleSimulation() {
+            isPaused = !isPaused;
+        }
+
+        // ================= POST-LAB QUIZ =================
+        let quizLoaded = false;
+        const quizQuestions = [
+            {
+                q: "1. According to Le Chatelier's Principle, if a stress (such as increasing temperature) is applied to a system at equilibrium, the system shifts to:",
+                options: ["Favor the forward reaction indefinitely", "Counteract and minimize the applied stress", "Stop all molecular collisions", "Increase the equilibrium constant Kc"],
+                answer: 1,
+                explanation: "Le Chatelier's Principle states that a dynamic equilibrium subjected to a stress will shift in a way that counteracts or neutralizes that stress."
+            },
+            {
+                q: "2. In an exothermic equilibrium reaction ($\Delta H &lt; 0$), heating the reaction container causes the equilibrium to shift:",
+                options: ["To the right (toward products)", "To the left (toward reactants)", "No shift occurs", "Kc increases"],
+                answer: 1,
+                explanation: "Heat can be treated as a product in exothermic reactions. Increasing temperature (adding heat) shifts the equilibrium to the left."
+            },
+            {
+                q: "3. When the reaction quotient $Q_c$ is greater than the equilibrium constant $K_c$ ($Q_c > K_c$), the reaction will proceed:",
+                options: ["Forward to form more products", "Backward to form more reactants", "It is already at equilibrium", "None of the above"],
+                answer: 1,
+                explanation: "When $Q_c > K_c$, there are too many products relative to reactants, so the reaction proceeds in reverse (left)."
+            },
+            {
+                q: "4. For the gas-phase equilibrium $N_2(g) + 3H_2(g) \rightleftharpoons 2NH_3(g)$, increasing the overall system pressure by decreasing volume causes a shift:",
+                options: ["Toward the side with fewer moles of gas (products)", "Toward the side with more moles of gas (reactants)", "No shift occurs", "Kc decreases"],
+                answer: 0,
+                explanation: "Increasing pressure shifts equilibrium toward the side with fewer moles of gas (2 moles of NH₃ vs 4 moles of reactants)."
+            },
+            {
+                q: "5. What effect does adding a catalyst have on the position of chemical equilibrium?",
+                options: ["Shifts equilibrium toward products", "Shifts equilibrium toward reactants", "No shift in equilibrium position (only speeds rate)", "Increases Kc value"],
+                answer: 2,
+                explanation: "Catalysts accelerate both forward and reverse reaction rates equally, thus having zero effect on the equilibrium position or Kc."
+            }
+        ];
+
+        function initQuiz() {
+            quizLoaded = true;
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+
+            quizQuestions.forEach((q, idx) => {
+                let optsHTML = '';
+                q.options.forEach((opt, oIdx) => {
+                    optsHTML += `
+                        <label class="flex items-center space-x-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition-all">
+                            <input type="radio" name="q${idx}" value="${oIdx}" class="text-purple-600 accent-purple-600">
+                            <span class="text-sm text-slate-800">${opt}</span>
+                        </label>
+                    `;
+                });
+
+                container.innerHTML += `
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+                        <h4 class="font-bold text-slate-900 text-base">${q.q}</h4>
+                        <div class="space-y-2">${optsHTML}</div>
+                        <div id="quiz-feedback-${idx}" class="hidden text-xs p-3 rounded-xl"></div>
+                    </div>
+                `;
+            });
+        }
+
+        function submitQuiz() {
+            let score = 0;
+            quizQuestions.forEach((q, idx) => {
+                const selected = document.querySelector(`input[name="q${idx}"]:checked`);
+                const feedbackDiv = document.getElementById(`quiz-feedback-${idx}`);
+                feedbackDiv.classList.remove('hidden');
+
+                if (selected && parseInt(selected.value) === q.answer) {
+                    score++;
+                    feedbackDiv.className = "text-xs p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 font-medium";
+                    feedbackDiv.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1.5"></i> Correct! ${q.explanation}`;
+                } else {
+                    feedbackDiv.className = "text-xs p-3 rounded-xl bg-red-50 border border-red-200 text-red-900 font-medium";
+                    feedbackDiv.innerHTML = `<i class="fa-solid fa-circle-xmark text-red-600 mr-1.5"></i> Incorrect. Correct answer: <strong>${q.options[q.answer]}</strong>. ${q.explanation}`;
+                }
+            });
+
+            document.getElementById('quiz-score-badge').classList.remove('hidden');
+            document.getElementById('quiz-score-val').innerText = `${score} / 5`;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            initEquilibriumChart();
+            updateSystemParams();
+        });
+    </script>
+</body>
+</html>

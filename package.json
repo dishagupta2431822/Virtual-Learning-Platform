@@ -1,0 +1,25 @@
+{
+  "name": "virtual-learning-platform",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "express": "^5.3.0",
+    "firebase-admin": "^14.5.0",
+    "google-auth-library": "^11.3.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.11.4",
+    "node-cron": "^4.6.0",
+    "node-fetch": "^3.3.2"
+  }
+}

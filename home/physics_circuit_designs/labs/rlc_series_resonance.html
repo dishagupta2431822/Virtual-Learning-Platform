@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #7: RLC Series Resonance Lab | Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="/home/physics_circuit_designs/index.html" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors" title="Back to Physics Labs">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </a>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Lab #7</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">RLC Series Resonance</span>
+                </div>
+            </div>
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-600">
+                <a href="#simulator" class="hover:text-indigo-600 transition-colors">Simulator</a>
+                <a href="#tutorial" class="hover:text-indigo-600 transition-colors">Tutorial & Theory</a>
+                <a href="#bandwidth" class="hover:text-indigo-600 transition-colors">Bandwidth Analysis</a>
+            </nav>
+            <div class="flex items-center space-x-3">
+                <a href="/home/physics_circuit_designs/index.html" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-xl text-sm shadow-sm transition-all shadow-indigo-500/20">
+                    All Labs
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Lab Container -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left 2 Columns: Interactive Simulator & Workbench -->
+        <div id="simulator" class="lg:col-span-2 space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+                    <div>
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-violet-50 text-violet-700">AC Circuit Lab &bull; Frequency Response</span>
+                        <h1 class="text-2xl font-bold text-slate-900 mt-1">RLC Series Resonance Workbench</h1>
+                    </div>
+                    <button onclick="resetLab()" class="text-slate-400 hover:text-slate-600 text-xs font-medium bg-slate-100 px-3 py-1.5 rounded-lg transition-colors">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> Reset
+                    </button>
+                </div>
+
+                <!-- Parameter Sliders -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Resistance (R): <span id="valR" class="text-indigo-600 font-bold">20 Ω</span></label>
+                        <input type="range" id="sliderR" min="5" max="100" step="5" value="20" oninput="updateParameters()" class="w-full accent-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Inductance (L): <span id="valL" class="text-indigo-600 font-bold">50 mH</span></label>
+                        <input type="range" id="sliderL" min="10" max="200" step="10" value="50" oninput="updateParameters()" class="w-full accent-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Capacitance (C): <span id="valC" class="text-indigo-600 font-bold">10 µF</span></label>
+                        <input type="range" id="sliderC" min="1" max="50" step="1" value="10" oninput="updateParameters()" class="w-full accent-indigo-600">
+                    </div>
+                </div>
+
+                <!-- Frequency Sweep Control -->
+                <div class="mb-6 bg-slate-900 p-4 rounded-xl text-white">
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-xs font-mono text-slate-400 uppercase tracking-widest">AC Generator Frequency (f)</label>
+                        <span id="valFreq" class="text-indigo-400 font-mono font-bold">225.0 Hz</span>
+                    </div>
+                    <input type="range" id="sliderFreq" min="50" max="800" step="5" value="225" oninput="updateFrequency()" class="w-full accent-indigo-500">
+                    <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                        <span>50 Hz</span>
+                        <span id="resonantFreqBadge" class="text-emerald-400 font-bold">Resonant Frequency (fr): 225.1 Hz</span>
+                        <span>800 Hz</span>
+                    </div>
+                </div>
+
+                <!-- Oscilloscope / Bode Plot Board -->
+                <div class="bg-slate-950 rounded-2xl p-6 text-white relative overflow-hidden shadow-inner border border-slate-800">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-xs font-mono text-slate-400 uppercase tracking-widest">
+                            Frequency Response Curve &bull; <span class="text-emerald-400 font-bold">CURRENT (I) vs FREQUENCY</span>
+                        </div>
+                        <div class="text-xs font-mono bg-slate-900 px-3 py-1 rounded-lg border border-slate-800 text-indigo-400">
+                            Quality Factor (Q): <span id="qFactorVal" class="font-bold text-white">3.54</span>
+                        </div>
+                    </div>
+
+                    <!-- Visual Graph Representation -->
+                    <div class="h-56 relative border-l border-b border-slate-700 flex items-end px-2 pt-2 pb-0">
+                        <!-- Grid lines background -->
+                        <div class="absolute inset-0 grid grid-cols-5 grid-rows-4 pointer-events-none opacity-20">
+                            <div class="border-r border-b border-slate-500"></div>
+                            <div class="border-r border-b border-slate-500"></div>
+                            <div class="border-r border-b border-slate-500"></div>
+                            <div class="border-r border-b border-slate-500"></div>
+                            <div class="border-b border-slate-500"></div>
+                            <div class="border-r border-b border-slate-500"></div>
+                            <div class="border-r border-b border-slate-500"></div>
+                            <div class="border-r border-b border-slate-500"></div>
+                            <div class="border-r border-b border-slate-500"></div>
+                            <div class="border-b border-slate-500"></div>
+                        </div>
+
+                        <!-- SVG Resonance Curve Overlay -->
+                        <svg class="absolute inset-0 w-full h-full overflow-visible p-2" preserveAspectRatio="none" viewBox="0 0 500 200">
+                            <path id="resonanceCurve" d="M 0 200 Q 250 10 500 200" fill="none" stroke="#6366f1" stroke-width="3" stroke-linecap="round" />
+                        </svg>
+
+                        <!-- Live Frequency Probing Marker -->
+                        <div id="freqMarker" class="absolute w-4 h-4 bg-emerald-400 rounded-full shadow-lg shadow-emerald-400/50 -translate-x-1/2 translate-y-1/2 transition-all" style="left: 50%; bottom: 50%;"></div>
+                    </div>
+
+                    <!-- Live Telemetry Readout -->
+                    <div class="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-slate-800/80 text-center">
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Circuit Impedance (Z)</span>
+                            <span id="readoutZ" class="text-lg font-bold text-indigo-400 font-mono">20.0 Ω</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Peak Current (I_rms)</span>
+                            <span id="readoutCurrent" class="text-lg font-bold text-emerald-400 font-mono">0.50 A</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Phase Angle (&theta;)</span>
+                            <span id="readoutPhase" class="text-lg font-bold text-amber-400 font-mono">0.0°</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulation Action Controls -->
+                <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+                    <div class="text-xs text-slate-500">
+                        Formula: <code class="bg-slate-100 px-2 py-1 rounded text-slate-700 font-mono font-bold">fr = 1 / (2&pi; &radic;(LC))</code>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="tuneToResonance()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium px-4 py-2 rounded-xl shadow-sm transition-all">
+                            <i class="fa-solid fa-crosshairs mr-1"></i> Tune to Exact fr
+                        </button>
+                        <button onclick="alert('Lab #7 RLC resonance report exported successfully as CSV.')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium px-4 py-2 rounded-xl transition-colors">
+                            <i class="fa-solid fa-download mr-1"></i> Export Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bandwidth & Selectivity Table -->
+            <div id="bandwidth" class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <h3 class="font-bold text-slate-900 text-lg mb-2">Bandwidth & Half-Power Points</h3>
+                <p class="text-xs text-slate-500 mb-4">Lower and upper cut-off frequencies ($f_1, f_2$) at 70.7% peak current ($0.707 I_{max}$).</p>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
+                                <th class="py-3 px-4 font-semibold">Parameter</th>
+                                <th class="py-3 px-4 font-semibold">Frequency Formula</th>
+                                <th class="py-3 px-4 font-semibold">Calculated Value</th>
+                                <th class="py-3 px-4 font-semibold">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bandwidthRows" class="divide-y divide-slate-100 text-xs">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right 1 Column: Tutorial & Theory Panel -->
+        <div id="tutorial" class="space-y-6">
+            <!-- Lab Overview Card -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-wave-square"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Tutorial & Theory</h3>
+                        <span class="text-xs text-slate-400">AC Series Resonance</span>
+                    </div>
+                </div>
+                <div class="space-y-4 text-xs text-slate-600 leading-relaxed">
+                    <p>
+                        An RLC series circuit enters <strong>resonance</strong> when inductive reactance ($X_L = 2\pi f L$) exactly cancels capacitive reactance ($X_C = \frac{1}{2\pi f C}$).
+                    </p>
+                    <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl">
+                        <h4 class="font-bold text-indigo-900 text-xs mb-1 uppercase tracking-wider">Minimum Impedance ($Z = R$)</h4>
+                        <p class="text-indigo-800">At resonance, total circuit impedance reaches its absolute minimum value equal solely to resistance $R$, producing maximum AC current.</p>
+                    </div>
+                    <div class="bg-violet-50 border border-violet-100 p-4 rounded-xl">
+                        <h4 class="font-bold text-violet-900 text-xs mb-1 uppercase tracking-wider">Quality Factor ($Q$)</h4>
+                        <p class="text-violet-800">The Q-factor ($Q = \frac{X_L}{R}$) measures circuit sharpness and voltage magnification across reactive components.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Experiment Objectives -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <h3 class="font-bold text-slate-900 text-base mb-3">Experiment Objectives</h3>
+                <ul class="space-y-2.5 text-xs text-slate-600">
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Determine resonant frequency $f_r$ experimentally by finding peak current.</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Analyze bandwidth ($\Delta f = f_2 - f_1$) and quality factor $Q$.</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Verify phase angle $\theta = 0^\circ$ at resonance point.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Need Assistance? -->
+            <div class="bg-gradient-to-br from-violet-950 to-slate-900 text-white rounded-2xl p-6 shadow-md">
+                <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white mb-3">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+                <h4 class="font-bold text-sm mb-1">Need Lab Support?</h4>
+                <p class="text-xs text-slate-300 leading-relaxed mb-4">Review phasor diagrams and AC resonance formulas in your physics manual.</p>
+                <a href="physics-labs.html#contact" class="inline-block bg-white text-violet-950 font-bold px-4 py-2 rounded-xl text-xs hover:bg-slate-100 transition-colors">
+                    Contact Instructor
+                </a>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Site Footer -->
+    <footer class="bg-slate-900 text-slate-300 py-8 border-t border-slate-800 mt-16 text-center text-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            &copy; 2026 Virtual Learning Labs Platform &bull; Lab #7: RLC Series Resonance Lab
+        </div>
+    </footer>
+
+    <!-- Interactive Simulation Script -->
+    <script>
+        const V_RMS = 10.0; // 10V AC source
+
+        function updateParameters() {
+            const rOhms = parseFloat(document.getElementById('sliderR').value);
+            const lMh = parseFloat(document.getElementById('sliderL').value); // mH
+            const cUf = parseFloat(document.getElementById('sliderC').value);   // µF
+
+            document.getElementById('valR').innerText = rOhms + ' Ω';
+            document.getElementById('valL').innerText = lMh + ' mH';
+            document.getElementById('valC').innerText = cUf + ' µF';
+
+            const L = lMh * 1e-3;   // Henrys
+            const C = cUf * 1e-6;   // Farads
+
+            // Resonant frequency fr = 1 / (2 * pi * sqrt(L * C))
+            const fr = 1 / (2 * Math.PI * Math.sqrt(L * C));
+            document.getElementById('resonantFreqBadge').innerText = `Resonant Frequency (fr): ${fr.toFixed(1)} Hz`;
+
+            // Update frequency slider max bounds relative to resonant frequency
+            const freqSlider = document.getElementById('sliderFreq');
+            freqSlider.min = Math.max(10, Math.floor(fr * 0.2));
+            freqSlider.max = Math.min(2000, Math.ceil(fr * 3.0));
+
+            updateFrequency();
+        }
+
+        function updateFrequency() {
+            const freq = parseFloat(document.getElementById('sliderFreq').value);
+            document.getElementById('valFreq').innerText = freq.toFixed(1) + ' Hz';
+
+            const rOhms = parseFloat(document.getElementById('sliderR').value);
+            const L = parseFloat(document.getElementById('sliderL').value) * 1e-3;
+            const C = parseFloat(document.getElementById('sliderC').value) * 1e-6;
+
+            const fr = 1 / (2 * Math.PI * Math.sqrt(L * C));
+            const Xl = 2 * Math.PI * freq * L;
+            const Xc = 1 / (2 * Math.PI * freq * C);
+            const X_net = Xl - Xc;
+            const Z = Math.sqrt(Math.pow(rOhms, 2) + Math.pow(X_net, 2));
+            const I = V_RMS / Z;
+            const theta = Math.atan(X_net / rOhms) * (180 / Math.PI); // degrees
+            const Q = (2 * Math.PI * fr * L) / rOhms;
+
+            document.getElementById('qFactorVal').innerText = Q.toFixed(2);
+            document.getElementById('readoutZ').innerText = Z.toFixed(1) + ' Ω';
+            document.getElementById('readoutCurrent').innerText = I.toFixed(2) + ' A';
+            document.getElementById('readoutPhase').innerText = theta.toFixed(1) + '°';
+
+            // Update graph curve and marker position
+            renderResonanceCurve(fr, rOhms, L, C);
+        }
+
+        function renderResonanceCurve(fr, rOhms, L, C) {
+            const curve = document.getElementById('resonanceCurve');
+            const freqMin = parseFloat(document.getElementById('sliderFreq').min);
+            const freqMax = parseFloat(document.getElementById('sliderFreq').max);
+            const currentFreq = parseFloat(document.getElementById('sliderFreq').value);
+
+            let pathString = "";
+            let maxI = V_RMS / rOhms;
+
+            for (let x = 0; x <= 500; x += 10) {
+                const f = freqMin + (x / 500) * (freqMax - freqMin);
+                const Xl = 2 * Math.PI * f * L;
+                const Xc = 1 / (2 * Math.PI * f * C);
+                const Z = Math.sqrt(Math.pow(rOhms, 2) + Math.pow(Xl - Xc, 2));
+                const I = V_RMS / Z;
+                const ratio = Math.min(1.0, I / maxI);
+                const y = 200 - (ratio * 180);
+
+                if (x === 0) pathString += `M ${x} ${y} `;
+                else pathString += `L ${x} ${y} `;
+            }
+            curve.setAttribute('d', pathString);
+
+            // Marker position
+            const markerX = ((currentFreq - freqMin) / (freqMax - freqMin)) * 500;
+            const Xl = 2 * Math.PI * currentFreq * L;
+            const Xc = 1 / (2 * Math.PI * currentFreq * C);
+            const Z = Math.sqrt(Math.pow(rOhms, 2) + Math.pow(Xl - Xc, 2));
+            const I = V_RMS / Z;
+            const markerRatio = Math.min(1.0, I / maxI);
+            const markerY = 200 - (markerRatio * 180);
+
+            const marker = document.getElementById('freqMarker');
+            marker.style.left = (markerX / 500 * 100) + '%';
+            marker.style.bottom = ((200 - markerY) / 200 * 100) + '%';
+
+            // Update Bandwidth Table
+            const bandwidth = rOhms / (2 * Math.PI * L);
+            const f1 = fr - (bandwidth / 2);
+            const f2 = fr + (bandwidth / 2);
+            const Q = (2 * Math.PI * fr * L) / rOhms;
+
+            const tbody = document.getElementById('bandwidthRows');
+            tbody.innerHTML = `
+                <tr class="border-b border-slate-100 text-slate-600">
+                    <td class="py-3 px-4 font-semibold text-slate-900">Resonant Frequency (fr)</td>
+                    <td class="py-3 px-4 font-mono">1 / (2&pi;&radic;(LC))</td>
+                    <td class="py-3 px-4 font-mono font-bold text-indigo-600">${fr.toFixed(1)} Hz</td>
+                    <td class="py-3 px-4">Maximum current & zero phase shift point</td>
+                </tr>
+                <tr class="border-b border-slate-100 text-slate-600">
+                    <td class="py-3 px-4 font-semibold text-slate-900">Lower Cut-off (f1)</td>
+                    <td class="py-3 px-4 font-mono">fr - (R / 4&pi;L)</td>
+                    <td class="py-3 px-4 font-mono font-bold text-emerald-600">${Math.max(10, f1).toFixed(1)} Hz</td>
+                    <td class="py-3 px-4">70.7% peak current (-3dB point)</td>
+                </tr>
+                <tr class="border-b border-slate-100 text-slate-600">
+                    <td class="py-3 px-4 font-semibold text-slate-900">Upper Cut-off (f2)</td>
+                    <td class="py-3 px-4 font-mono">fr + (R / 4&pi;L)</td>
+                    <td class="py-3 px-4 font-mono font-bold text-emerald-600">${f2.toFixed(1)} Hz</td>
+                    <td class="py-3 px-4">70.7% peak current (-3dB point)</td>
+                </tr>
+                <tr class="border-b border-slate-100 text-slate-600">
+                    <td class="py-3 px-4 font-semibold text-slate-900">Bandwidth (&Delta;f)</td>
+                    <td class="py-3 px-4 font-mono">f2 - f1 = R / (2&pi;L)</td>
+                    <td class="py-3 px-4 font-mono font-bold text-amber-600">${bandwidth.toFixed(1)} Hz</td>
+                    <td class="py-3 px-4">Frequency span between half-power points</td>
+                </tr>
+                <tr class="border-b border-slate-100 text-slate-600">
+                    <td class="py-3 px-4 font-semibold text-slate-900">Quality Factor (Q)</td>
+                    <td class="py-3 px-4 font-mono">fr / &Delta;f</td>
+                    <td class="py-3 px-4 font-mono font-bold text-violet-600">${Q.toFixed(2)}</td>
+                    <td class="py-3 px-4">Circuit selectivity and sharpness index</td>
+                </tr>
+            `;
+        }
+
+        function tuneToResonance() {
+            const L = parseFloat(document.getElementById('sliderL').value) * 1e-3;
+            const C = parseFloat(document.getElementById('sliderC').value) * 1e-6;
+            const fr = 1 / (2 * Math.PI * Math.sqrt(L * C));
+            document.getElementById('sliderFreq').value = fr.toFixed(1);
+            updateFrequency();
+        }
+
+        function resetLab() {
+            document.getElementById('sliderR').value = 20;
+            document.getElementById('sliderL').value = 50;
+            document.getElementById('sliderC').value = 10;
+            updateParameters();
+            tuneToResonance();
+        }
+
+        // Initialize
+        updateParameters();
+        tuneToResonance();
+    </script>
+</body>
+</html>

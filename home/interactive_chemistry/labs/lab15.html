@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #15: Elimination Reactions (E1 & E2) | Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Three.js for 3D Elimination Mechanism Animation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="../index.html" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 hover:opacity-90 transition-opacity">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </a>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Virtual Lab #15</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">Organic Elimination Pathways</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Zaitsev & E1/E2 Simulator
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+        <!-- Lab Header Info -->
+        <div class="mb-8">
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Elimination Reactions (E1 & E2)</h1>
+            <p class="text-sm text-slate-500 mt-1">Compare Zaitsev's rule, base strengths, anti-periplanar geometry, and alkene formation pathways in real-time 3D.</p>
+        </div>
+
+        <!-- Simulation Grid Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Control Panel -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between space-y-6">
+                <div>
+                    <h2 class="font-bold text-slate-900 text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-indigo-600"></i> Reaction Parameters
+                    </h2>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Mechanism Type</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="setMechanism('e2', this)" id="btnE2" class="mech-btn py-2.5 px-3 rounded-xl border border-indigo-500 bg-indigo-50 text-indigo-700 font-medium text-xs transition-all">
+                                    E2 (Bimolecular)
+                                </button>
+                                <button onclick="setMechanism('e1', this)" id="btnE1" class="mech-btn py-2.5 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs transition-all">
+                                    E1 (Unimolecular)
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Base Strength & Type</label>
+                            <select id="baseSelect" onchange="updateSimulation()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:border-indigo-500">
+                                <option value="strong_small">Strong Small Base (NaOMe, NaOEt -> Zaitsev)</option>
+                                <option value="strong_bulky">Strong Bulky Base (tert-BuOK -> Hofmann)</option>
+                                <option value="weak">Weak Base / Solvent (H2O, EtOH -> E1)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Substrate Structure</label>
+                            <select id="substrateSelect" onchange="updateSimulation()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:border-indigo-500">
+                                <option value="tertiary">Tertiary Alkyl Halide (3° - High Substitution)</option>
+                                <option value="secondary">Secondary Alkyl Halide (2° - Moderate)</option>
+                                <option value="primary">Primary Alkyl Halide (1° - Requires Bulky Base for E2)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Reaction Temperature</label>
+                            <select id="tempSelect" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:border-indigo-500">
+                                <option value="high">High Temperature (Favors Elimination over Substitution)</option>
+                                <option value="room">Room Temperature (Competitive Substitution)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 text-xs text-slate-400">
+                    <i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i> Hint: E2 requires anti-periplanar conformation between the beta-proton and leaving group for concerted elimination.
+                </div>
+            </div>
+
+            <!-- Right 3D Viewport & Analysis Panel -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- 3D Mechanism Viewport -->
+                <div class="bg-slate-900 rounded-2xl border border-slate-800 p-2 shadow-inner relative overflow-hidden h-[340px] flex items-center justify-center">
+                    <div id="canvasContainer" class="w-full h-full rounded-xl cursor-grab active:cursor-grabbing"></div>
+                    <div class="absolute top-4 left-4 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-700 text-[11px] font-mono text-slate-300">
+                        <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span> 3D Alkene Formation Simulation (Drag to Rotate)
+                    </div>
+                </div>
+
+                <!-- Overview Card -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 id="simTitle" class="font-bold text-slate-900 text-lg">E2 Elimination Pathway</h3>
+                        <span id="simRateBadge" class="text-xs font-mono font-bold bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full">Rate = k [Substrate][Base]</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Reaction Kinetics</div>
+                            <div id="simKinetics" class="text-base font-bold text-slate-800 font-mono">Second-Order Overall</div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Regioselectivity</div>
+                            <div id="simRegio" class="text-base font-bold text-indigo-600 font-mono">Zaitsev's Product (Major)</div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Stereoelectronic Requirement</div>
+                            <div id="simStereo" class="text-base font-bold text-emerald-600 font-mono">Anti-Periplanar ($180^\circ$)</div>
+                        </div>
+                    </div>
+
+                    <p id="simDesc" class="text-xs text-slate-600 leading-relaxed mb-4">
+                        The E2 mechanism is a concerted, single-step elimination where a strong base removes a proton from the beta-carbon simultaneously with the departure of the leaving group, yielding a substituted alkene.
+                    </p>
+                </div>
+
+                <!-- Step-by-Step Mechanism Visualizer Card -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <h3 class="font-bold text-slate-900 text-base mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-fire text-indigo-600"></i> Mechanism Breakdown & Regioselectivity
+                    </h3>
+                    
+                    <div id="mechanismSteps" class="space-y-3 text-xs">
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-[11px] flex-shrink-0">1</span>
+                            <div>
+                                <span class="font-bold text-slate-800 block mb-1">Proton Abstraction & Anti-Periplanar Alignment</span>
+                                <span class="text-slate-600">The base abstracts a proton from the beta-carbon while the C-H and C-X bonds are in a strict $180^\circ$ anti-periplanar arrangement.</span>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-[11px] flex-shrink-0">2</span>
+                            <div>
+                                <span class="font-bold text-slate-800 block mb-1">Zaitsev's Rule (Thermodynamic Product)</span>
+                                <span class="text-slate-600">Elimination predominantly yields the more substituted, thermodynamically stable alkene due to partial double-bond character in the transition state.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs border-t border-slate-800">
+        &copy; 2026 Virtual Learning Platform. All rights reserved.
+    </footer>
+
+    <!-- Three.js 3D Simulation & Control Script -->
+    <script>
+        let currentMech = 'e2';
+
+        // Three.js Setup
+        const container = document.getElementById('canvasContainer');
+        const width = container.clientWidth || 600;
+        const height = container.clientHeight || 320;
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
+        camera.position.z = 6;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(width, height);
+        container.appendChild(renderer.domElement);
+
+        scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+        const pointLight = new THREE.PointLight(0xffffff, 1);
+        pointLight.position.set(5, 5, 5);
+        scene.add(pointLight);
+
+        let molecularGroup = new THREE.Group();
+        scene.add(molecularGroup);
+
+        const carbonMat = new THREE.MeshPhongMaterial({ color: 0x334155, shininess: 80 });
+        const bromineMat = new THREE.MeshPhongMaterial({ color: 0x854d0e, shininess: 80 }); // Leaving group (Br)
+        const baseMat = new THREE.MeshPhongMaterial({ color: 0x22c55e, shininess: 80 });     // Base / Nucleophile (RO-)
+        const hydrogenMat = new THREE.MeshPhongMaterial({ color: 0xf8fafc, shininess: 50 });
+        const bondMat = new THREE.MeshPhongMaterial({ color: 0x6366f1, shininess: 60 });
+
+        function clearModel() {
+            while(molecularGroup.children.length > 0){ 
+                molecularGroup.remove(molecularGroup.children[0]); 
+            }
+        }
+
+        function addAtom(x, y, z, radius, material) {
+            const geom = new THREE.SphereGeometry(radius, 32, 32);
+            const mesh = new THREE.Mesh(geom, material);
+            mesh.position.set(x, y, z);
+            molecularGroup.add(mesh);
+        }
+
+        function addBond(x1, y1, z1, x2, y2, z2, radius = 0.08) {
+            const start = new THREE.Vector3(x1, y1, z1);
+            const end = new THREE.Vector3(x2, y2, z2);
+            const distance = start.distanceTo(end);
+            const geom = new THREE.CylinderGeometry(radius, radius, distance, 16);
+            const mesh = new THREE.Mesh(geom, bondMat);
+            mesh.position.copy(start).add(end).multiplyScalar(0.5);
+            mesh.lookAt(end);
+            mesh.rotateX(Math.PI / 2);
+            molecularGroup.add(mesh);
+        }
+
+        function buildE2Model() {
+            clearModel();
+            // C1 (Alpha Carbon with Leaving Group Br)
+            addAtom(0.7, 0, 0, 0.38, carbonMat);
+            addAtom(2.2, 0, 0, 0.48, bromineMat); // Br leaving group
+            addBond(0.7, 0, 0, 2.2, 0, 0, 0.1);
+
+            // C2 (Beta Carbon with H being abstracted)
+            addAtom(-0.7, 0, 0, 0.38, carbonMat);
+            // Double bond network preview between C1 and C2
+            addBond(-0.7, 0.08, 0, 0.7, 0.08, 0, 0.07);
+            addBond(-0.7, -0.08, 0, 0.7, -0.08, 0, 0.07);
+
+            // Beta Hydrogen pointing anti-periplanar
+            addAtom(-1.6, 0.8, 0, 0.22, hydrogenMat);
+            addBond(-0.7, 0, 0, -1.6, 0.8, 0);
+
+            // Base approaching Beta Hydrogen
+            addAtom(-2.4, 1.4, 0, 0.38, baseMat);
+            addBond(-2.4, 1.4, 0, -1.6, 0.8, 0, 0.07);
+
+            // Additional substituents on carbons
+            addAtom(1.2, 1.1, 0, 0.22, hydrogenMat);
+            addBond(0.7, 0, 0, 1.2, 1.1, 0);
+            addAtom(-1.2, -1.1, 0, 0.22, hydrogenMat);
+            addBond(-0.7, 0, 0, -1.2, -1.1, 0);
+        }
+
+        function buildE1Model() {
+            clearModel();
+            // Carbocation intermediate (sp2 planar)
+            addAtom(0, 0, 0, 0.4, carbonMat);
+            // Departed Leaving Group (Br-)
+            addAtom(2.2, 1.2, 0, 0.48, bromineMat);
+            // Weak base / solvent (H2O) approaching beta position
+            addAtom(-1.8, -1.2, 0, 0.38, baseMat);
+
+            // Planar substituents
+            const sub = [[0, 1.3, 0], [-1.2, -0.5, 0], [1.2, -0.5, 0]];
+            sub.forEach(p => {
+                addAtom(p[0], p[1], p[2], 0.22, hydrogenMat);
+                addBond(0, 0, 0, p[0], p[1], p[2]);
+            });
+        }
+
+        function setMechanism(mech, btn) {
+            currentMech = mech;
+            document.querySelectorAll('.mech-btn').forEach(b => {
+                b.className = "mech-btn py-2.5 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs transition-all";
+            });
+            if (btn) {
+                btn.className = "mech-btn py-2.5 px-3 rounded-xl border border-indigo-500 bg-indigo-50 text-indigo-700 font-medium text-xs transition-all";
+            }
+
+            if (mech === 'e2') {
+                document.getElementById('baseSelect').value = 'strong_small';
+            } else {
+                document.getElementById('baseSelect').value = 'weak';
+            }
+            updateSimulation();
+        }
+
+        function updateSimulation() {
+            const baseType = document.getElementById('baseSelect').value;
+            const substrate = document.getElementById('substrateSelect').value;
+            const temp = document.getElementById('tempSelect').value;
+
+            const title = document.getElementById('simTitle');
+            const rateBadge = document.getElementById('simRateBadge');
+            const kinetics = document.getElementById('simKinetics');
+            const regio = document.getElementById('simRegio');
+            const stereo = document.getElementById('simStereo');
+            const desc = document.getElementById('simDesc');
+            const steps = document.getElementById('mechanismSteps');
+
+            if (currentMech === 'e2') {
+                title.textContent = "E2 Elimination Pathway";
+                rateBadge.textContent = "Rate = k [Substrate][Base]";
+                kinetics.textContent = "Second-Order Overall";
+                
+                if (baseType === 'strong_bulky') {
+                    regio.textContent = "Hofmann's Product (Less Substituted)";
+                    desc.textContent = "When a bulky base (like tert-butoxide) is used, steric hindrance prevents abstraction of internal hindered protons, yielding the less substituted Hofmann alkene as the major product.";
+                } else {
+                    regio.textContent = "Zaitsev's Product (More Substituted)";
+                    desc.textContent = "The E2 mechanism is a concerted, single-step elimination where a strong base removes a beta-proton simultaneously with leaving group departure, favoring the Zaitsev alkene.";
+                }
+                stereo.textContent = "Anti-Periplanar (180°)";
+
+                steps.innerHTML = `
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex items-start gap-3">
+                        <span class="w-6 h-6 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-[11px] flex-shrink-0">1</span>
+                        <div>
+                            <span class="font-bold text-slate-800 block mb-1">Concerted Proton Abstraction</span>
+                            <span class="text-slate-600">Base removes beta-H synchronously with halide departure through a synchronized transition state.</span>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex items-start gap-3">
+                        <span class="w-6 h-6 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-[11px] flex-shrink-0">2</span>
+                        <div>
+                            <span class="font-bold text-slate-800 block mb-1">Regioselectivity Control</span>
+                            <span class="text-slate-600">Small bases give Zaitsev (stable) products; bulky bases give Hofmann (accessible) products.</span>
+                        </div>
+                    </div>
+                `;
+                buildE2Model();
+            } else {
+                title.textContent = "E1 Elimination Pathway";
+                rateBadge.textContent = "Rate = k [Substrate]";
+                kinetics.textContent = "First-Order (Unimolecular)";
+                regio.textContent = "Zaitsev's Product (Thermodynamic)";
+                stereo.textContent = "Non-Stereospecific (Carbocation)";
+                desc.textContent = "The E1 mechanism proceeds via a two-step ionization process. The leaving group departs first to form a carbocation intermediate, followed by weak base deprotonation.";
+                steps.innerHTML = `
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex items-start gap-3">
+                        <span class="w-6 h-6 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-[11px] flex-shrink-0">1</span>
+                        <div>
+                            <span class="font-bold text-slate-800 block mb-1">Spontaneous Ionization (RDS)</span>
+                            <span class="text-slate-600">Leaving group departs first, forming a planar carbocation intermediate in the rate-determining step.</span>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex items-start gap-3">
+                        <span class="w-6 h-6 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-[11px] flex-shrink-0">2</span>
+                        <div>
+                            <span class="font-bold text-slate-800 block mb-1">Weak Base Deprotonation</span>
+                            <span class="text-slate-600">A weak solvent molecule removes a beta-proton to yield the most stable Zaitsev alkene.</span>
+                        </div>
+                    </div>
+                `;
+                buildE1Model();
+            }
+        }
+
+        // Mouse Drag Interaction for 3D Rotation
+        let isDragging = false;
+        let prevMouseX = 0, prevMouseY = 0;
+
+        container.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            prevMouseX = e.clientX;
+            prevMouseY = e.clientY;
+        });
+
+        window.addEventListener('mouseup', () => { isDragging = false; });
+
+        container.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const deltaX = e.clientX - prevMouseX;
+            const deltaY = e.clientY - prevMouseY;
+            molecularGroup.rotation.y += deltaX * 0.01;
+            molecularGroup.rotation.x += deltaY * 0.01;
+            prevMouseX = e.clientX;
+            prevMouseY = e.clientY;
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (!isDragging) {
+                molecularGroup.rotation.y += 0.005;
+            }
+            renderer.render(scene, camera);
+        }
+
+        buildE2Model();
+        animate();
+
+        window.addEventListener('resize', () => {
+            const w = container.clientWidth || 600;
+            const h = container.clientHeight || 320;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+        });
+    </script>
+</body>
+</html>

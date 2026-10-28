@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #21: Radioactive Decay & Half-Life Kinetics | Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="../index.html" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 hover:opacity-90 transition-opacity">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </a>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Virtual Lab #21</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">Radioactive Decay & Half-Life Kinetics</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Exponential Decay Simulator
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+        <!-- Lab Header Info -->
+        <div class="mb-8">
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Radioactive Decay & Half-Life Kinetics</h1>
+            <p class="text-sm text-slate-500 mt-1">Simulate alpha, beta, and gamma decay chains, track carbon-14 dating half-lives, and analyze parent-daughter ratios.</p>
+        </div>
+
+        <!-- Simulation Grid Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Control Panel -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between space-y-6">
+                <div>
+                    <h2 class="font-bold text-slate-900 text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-radiation text-indigo-600"></i> Isotope & Decay Parameters
+                    </h2>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Select Radioactive Isotope</label>
+                            <select id="isotopeSelect" onchange="updateSimulation()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:border-indigo-500">
+                                <option value="c14">Carbon-14 (t1/2 = 5,730 years - Beta-)</option>
+                                <option value="i131">Iodine-131 (t1/2 = 8.02 days - Beta-/Gamma)</option>
+                                <option value="u238">Uranium-238 (t1/2 = 4.47 billion yrs - Alpha)</option>
+                                <option value="ra226">Radium-226 (t1/2 = 1,600 years - Alpha/Gamma)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Initial Parent Nuclei (N0)</label>
+                            <input type="range" id="initialNuclei" min="500" max="5000" step="500" value="1000" oninput="updateSimulation()" class="w-full accent-indigo-600">
+                            <div class="flex justify-between text-[11px] text-slate-400 font-mono mt-1">
+                                <span>500</span>
+                                <span id="initialVal" class="text-indigo-600 font-bold">1,000 Nuclei</span>
+                                <span>5,000</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Elapsed Time Slider</label>
+                            <input type="range" id="timeSlider" min="0" max="5" step="0.1" value="0" oninput="updateSimulation()" class="w-full accent-indigo-600">
+                            <div class="flex justify-between text-[11px] text-slate-400 font-mono mt-1">
+                                <span>0 Half-Lives</span>
+                                <span id="timeElapsedVal" class="text-indigo-600 font-bold">0.0 Half-Lives</span>
+                                <span>5.0 Half-Lives</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <button onclick="resetLab()" class="text-xs text-slate-500 hover:text-slate-700 font-medium underline">
+                        Reset Clock
+                    </button>
+                    <span class="text-xs text-slate-400"><i class="fa-solid fa-atom text-indigo-600 mr-1"></i> First-Order Kinetics</span>
+                </div>
+            </div>
+
+            <!-- Right Visualizer & Analysis Panel -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Main Decay Visualization Card -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 id="panelTitle" class="font-bold text-slate-900 text-base">Carbon-14 Radioactive Decay Curve</h3>
+                        <span id="statusBadge" class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">100.0% Parent Remaining</span>
+                    </div>
+
+                    <!-- Visual Progress Bar for Parent vs Daughter -->
+                    <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 mb-6 space-y-3">
+                        <div class="flex justify-between text-xs font-semibold text-slate-600">
+                            <span>Parent Nuclei vs. Daughter Product Ratio</span>
+                            <span id="ratioDisplay" class="text-indigo-600 font-bold font-mono text-xs">Parent: 100% | Daughter: 0%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 h-4 rounded-full overflow-hidden flex shadow-inner border border-slate-300">
+                            <div id="parentBar" class="bg-indigo-600 h-full transition-all duration-300" style="width: 100%;"></div>
+                            <div id="daughterBar" class="bg-emerald-500 h-full transition-all duration-300" style="width: 0%;"></div>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-indigo-600"></span> Radioactive Parent</span>
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Stable Daughter Product</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Remaining Parent ($N$)</div>
+                            <div id="remainingNucleiVal" class="text-base font-bold text-indigo-600 font-mono">1,000 Nuclei</div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Elapsed Time</div>
+                            <div id="elapsedTimeVal" class="text-base font-bold text-slate-800 font-mono">0 Years</div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Decay Mode</div>
+                            <div id="decayModeVal" class="text-base font-bold text-emerald-600 font-mono">Beta- Decay</div>
+                        </div>
+                    </div>
+
+                    <p id="labDesc" class="text-xs text-slate-600 leading-relaxed">
+                        Radioactive decay follows first-order kinetics where the rate of disintegration is directly proportional to the number of radioactive nuclei present. Every half-life period reduces the remaining parent isotope by exactly 50 percent.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs border-t border-slate-800">
+        &copy; 2026 Virtual Learning Platform. All rights reserved.
+    </footer>
+
+    <!-- Simulation Script -->
+    <script>
+        const isotopes = {
+            c14: {
+                name: "Carbon-14 (C-14)",
+                halfLifeYears: 5730,
+                decayMode: "Beta- Decay",
+                desc: "Carbon-14 is continuously formed in the upper atmosphere via cosmic ray bombardment. Upon organism death, absorption ceases and C-14 decays with a half-life of 5,730 years, serving as a cornerstone for radiocarbon dating."
+            },
+            i131: {
+                name: "Iodine-131 (I-131)",
+                halfLifeYears: 0.022, // ~8.02 days in years
+                actualHalfLife: "8.02 Days",
+                decayMode: "Beta- and Gamma Decay",
+                desc: "Iodine-131 is an important medical radioisotope used in treating thyroid disorders and cancer, characterized by a rapid half-life of approximately 8 days."
+            },
+            u238: {
+                name: "Uranium-238 (U-238)",
+                halfLifeYears: 4470000000, // 4.47 billion years
+                decayMode: "Alpha Decay Chain",
+                desc: "Uranium-238 is the most abundant uranium isotope in nature, decaying via alpha emission through a multi-step series into stable lead-206 with a half-life of 4.47 billion years."
+            },
+            ra226: {
+                name: "Radium-226 (Ra-226)",
+                halfLifeYears: 1600,
+                decayMode: "Alpha & Gamma Decay",
+                desc: "Radium-226 is a decay product of uranium series with a half-life of 1,600 years, historically utilized in luminous dials and early radiation therapy."
+            }
+        };
+
+        function resetLab() {
+            document.getElementById('timeSlider').value = 0;
+            updateSimulation();
+        }
+
+        function updateSimulation() {
+            const isoKey = document.getElementById('isotopeSelect').value;
+            const iso = isotopes[isoKey];
+            const initialN = parseInt(document.getElementById('initialNuclei').value);
+            const halfLives = parseFloat(document.getElementById('timeSlider').value);
+
+            document.getElementById('initialVal').textContent = initialN.toLocaleString() + " Nuclei";
+            document.getElementById('timeElapsedVal').textContent = halfLives.toFixed(1) + " Half-Lives";
+            document.getElementById('panelTitle').textContent = `${iso.name} Radioactive Decay Curve`;
+            document.getElementById('decayModeVal').textContent = iso.decayMode;
+
+            // N(t) = N0 * (1/2)^n
+            const remainingN = Math.round(initialN * Math.pow(0.5, halfLives));
+            const decayedN = initialN - remainingN;
+            const remainingPct = (Math.pow(0.5, halfLives) * 100).toFixed(1);
+            const decayedPct = (100 - remainingPct).toFixed(1);
+
+            document.getElementById('parentBar').style.width = remainingPct + "%";
+            document.getElementById('daughterBar').style.width = decayedPct + "%";
+            document.getElementById('ratioDisplay').textContent = `Parent: ${remainingPct}% | Daughter: ${decayedPct}%`;
+            document.getElementById('remainingNucleiVal').textContent = remainingN.toLocaleString() + " Nuclei";
+
+            let timeStr = "";
+            if (isoKey === 'i131') {
+                const days = Math.round(halfLives * 8.02);
+                timeStr = `${days} Days`;
+            } else {
+                const totalYears = Math.round(halfLives * iso.halfLifeYears);
+                if (totalYears > 1000000) {
+                    timeStr = (totalYears / 1000000).toFixed(1) + " Million Years";
+                } else {
+                    timeStr = totalYears.toLocaleString() + " Years";
+                }
+            }
+
+            document.getElementById('elapsedTimeVal').textContent = timeStr;
+            document.getElementById('statusBadge').textContent = `${remainingPct}% Parent Remaining`;
+            document.getElementById('labDesc').textContent = iso.desc + ` After ${halfLives.toFixed(1)} half-lives elapsed (${timeStr}), exactly ${remainingN.toLocaleString()} parent nuclei remain out of ${initialN.toLocaleString()}.`;
+        }
+
+        // Initial load
+        updateSimulation();
+    </script>
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #17: Molecular Orbital Theory (MO Diagrams) | Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="../index.html" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 hover:opacity-90 transition-opacity">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </a>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Virtual Lab #17</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">Molecular Orbital Theory</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> MO Energy Diagram Simulator
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+        <!-- Lab Header Info -->
+        <div class="mb-8">
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Molecular Orbital Theory (MO Diagrams)</h1>
+            <p class="text-sm text-slate-500 mt-1">Construct bonding and antibonding molecular orbitals, populate electron configurations, and calculate bond orders.</p>
+        </div>
+
+        <!-- Simulation Grid Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Control Panel -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between space-y-6">
+                <div>
+                    <h2 class="font-bold text-slate-900 text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-atom text-indigo-600"></i> Select Diatomic Molecule
+                    </h2>
+
+                    <div class="space-y-2 mb-6">
+                        <button onclick="loadMolecule('h2', this)" class="mol-btn w-full text-left px-4 py-3 rounded-xl border border-indigo-500 bg-indigo-50 text-indigo-700 font-medium text-xs flex items-center justify-between transition-all">
+                            <span>Hydrogen (H2 - 2 e-)</span>
+                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </button>
+                        <button onclick="loadMolecule('he2', this)" class="mol-btn w-full text-left px-4 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs flex items-center justify-between transition-all">
+                            <span>Helium (He2 - 4 e-)</span>
+                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </button>
+                        <button onclick="loadMolecule('b2', this)" class="mol-btn w-full text-left px-4 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs flex items-center justify-between transition-all">
+                            <span>Boron (B2 - 6 valence e-)</span>
+                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </button>
+                        <button onclick="loadMolecule('c2', this)" class="mol-btn w-full text-left px-4 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs flex items-center justify-between transition-all">
+                            <span>Carbon (C2 - 8 valence e-)</span>
+                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </button>
+                        <button onclick="loadMolecule('n2', this)" class="mol-btn w-full text-left px-4 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs flex items-center justify-between transition-all">
+                            <span>Nitrogen (N2 - 10 valence e-)</span>
+                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </button>
+                        <button onclick="loadMolecule('o2', this)" class="mol-btn w-full text-left px-4 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs flex items-center justify-between transition-all">
+                            <span>Oxygen (O2 - 12 valence e-)</span>
+                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </button>
+                        <button onclick="loadMolecule('f2', this)" class="mol-btn w-full text-left px-4 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs flex items-center justify-between transition-all">
+                            <span>Fluorine (F2 - 14 valence e-)</span>
+                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 text-xs text-slate-400">
+                    <i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i> Hint: Bond Order = (Bonding Electrons - Antibonding Electrons) / 2.
+                </div>
+            </div>
+
+            <!-- Right MO Visualizer & Analysis Panel -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- MO Energy Diagram Viewport -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 id="molTitle" class="font-bold text-slate-900 text-base">Hydrogen Molecule (H2) Molecular Orbitals</h3>
+                        <span id="molConfig" class="text-xs font-mono font-bold bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full">Config: (\sigma_{1s})^2</span>
+                    </div>
+
+                    <!-- Diagram Canvas / Visualizer -->
+                    <div id="moDiagramContainer" class="p-6 bg-slate-900 rounded-2xl border border-slate-800 text-white font-mono text-xs flex flex-col justify-between h-80 overflow-y-auto">
+                        <!-- Rendered via JS -->
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 mb-4">
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Bond Order</div>
+                            <div id="bondOrderVal" class="text-base font-bold text-indigo-600 font-mono">1.0 (Single Bond)</div>
+                        </div>
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Magnetic Property</div>
+                            <div id="magneticVal" class="text-base font-bold text-emerald-600 font-mono">Diamagnetic (All Paired)</div>
+                        </div>
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Stability Indicator</div>
+                            <div id="stabilityVal" class="text-base font-bold text-slate-800 font-mono">Stable Diatomic Species</div>
+                        </div>
+                    </div>
+
+                    <p id="molDesc" class="text-xs text-slate-600 leading-relaxed">
+                        In H2, two 1s atomic orbitals combine to form a lower-energy bonding sigma molecular orbital ($\sigma_{1s}$) and a higher-energy antibonding molecular orbital ($\sigma^*_{1s}$). Both electrons occupy the bonding orbital, yielding a bond order of 1.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs border-t border-slate-800">
+        &copy; 2026 Virtual Learning Platform. All rights reserved.
+    </footer>
+
+    <!-- MO Simulation & Data Script -->
+    <script>
+        const molecules = {
+            h2: {
+                name: "Hydrogen Molecule (H2)",
+                config: "Config: (σ1s)²",
+                bondOrder: "1.0 (Single Bond)",
+                magnetic: "Diamagnetic (All Paired)",
+                stability: "Stable Diatomic Species",
+                desc: "In H2, two 1s atomic orbitals combine to form a lower-energy bonding sigma molecular orbital (σ1s) and a higher-energy antibonding molecular orbital (σ*1s). Both electrons occupy the bonding orbital, yielding a bond order of 1.",
+                levels: [
+                    { name: "σ*1s (Antibonding)", electrons: 0, energy: "High" },
+                    { name: "σ1s (Bonding)", electrons: 2, energy: "Low" }
+                ]
+            },
+            he2: {
+                name: "Helium Molecule (He2 - Hypothetical)",
+                config: "Config: (σ1s)² (σ*1s)²",
+                bondOrder: "0.0 (No Bond)",
+                magnetic: "Diamagnetic (All Paired)",
+                stability: "Unstable / Does Not Exist",
+                desc: "He2 has 4 total electrons, completely filling both the bonding σ1s and antibonding σ*1s orbitals. Equal bonding and antibonding electrons result in a bond order of 0, explaining why He2 does not exist.",
+                levels: [
+                    { name: "σ*1s (Antibonding)", electrons: 2, energy: "High" },
+                    { name: "σ1s (Bonding)", electrons: 2, energy: "Low" }
+                ]
+            },
+            b2: {
+                name: "Boron Molecule (B2)",
+                config: "Config: (σ2s)² (σ*2s)² (π2px)¹ (π2py)¹",
+                bondOrder: "1.0 (Single Bond)",
+                magnetic: "Paramagnetic (2 Unpaired Electrons)",
+                stability: "Stable at High Temperatures",
+                desc: "B2 features 6 valence electrons. Due to s-p mixing, the degenerate π2p orbitals lie lower in energy than the σ2p orbital. The last two electrons occupy separate π2p orbitals with parallel spins, making B2 paramagnetic.",
+                levels: [
+                    { name: "σ*2s (Antibonding)", electrons: 2, energy: "Mid-High" },
+                    { name: "π2p / σ2p", electrons: 2, energy: "Mid" },
+                    { name: "σ2s (Bonding)", electrons: 2, energy: "Low" }
+                ]
+            },
+            c2: {
+                name: "Carbon Molecule (C2)",
+                config: "Config: (σ2s)² (σ*2s)² (π2px)² (π2py)²",
+                bondOrder: "2.0 (Double Bond)",
+                magnetic: "Diamagnetic (All Paired)",
+                stability: "Stable Vapor Species",
+                desc: "C2 contains 8 valence electrons. With fully paired electrons in both the bonding σ2s and π2p orbitals and no electrons in antibonding 2p orbitals, C2 exhibits a double bond and diamagnetic behavior.",
+                levels: [
+                    { name: "σ*2s (Antibonding)", electrons: 2, energy: "Mid-High" },
+                    { name: "π2p (Bonding)", electrons: 4, energy: "Mid" },
+                    { name: "σ2s (Bonding)", electrons: 2, energy: "Low" }
+                ]
+            },
+            n2: {
+                name: "Nitrogen Molecule (N2)",
+                config: "Config: (σ2s)² (σ*2s)² (π2p)⁴ (σ2p)²",
+                bondOrder: "3.0 (Triple Bond)",
+                magnetic: "Diamagnetic (All Paired)",
+                stability: "Extremely Stable (Triple Bond)",
+                desc: "N2 has 10 valence electrons filling bonding σ2s, π2p, and σ2p orbitals. The resulting bond order of 3 accounts for its exceptional chemical inertness and high bond dissociation energy.",
+                levels: [
+                    { name: "σ2p (Bonding)", electrons: 2, energy: "Mid-High" },
+                    { name: "π2p (Bonding)", electrons: 4, energy: "Mid" },
+                    { name: "σ*2s / σ2s", electrons: 4, energy: "Low" }
+                ]
+            },
+            o2: {
+                name: "Oxygen Molecule (O2)",
+                config: "Config: (σ2s)² (σ*2s)² (σ2p)² (π2p)⁴ (π*2p)²",
+                bondOrder: "2.0 (Double Bond)",
+                magnetic: "Paramagnetic (2 Unpaired Electrons in π*)",
+                stability: "Stable & Reactive",
+                desc: "O2 has 12 valence electrons. Without significant s-p mixing, the σ2p orbital drops below π2p. The final two electrons occupy degenerate antibonding π*2p orbitals singly with parallel spins, predicting O2's experimentally observed paramagnetism.",
+                levels: [
+                    { name: "π*2p (Antibonding)", electrons: 2, energy: "High" },
+                    { name: "π2p / σ2p", electrons: 6, energy: "Mid" },
+                    { name: "σ*2s / σ2s", electrons: 4, energy: "Low" }
+                ]
+            },
+            f2: {
+                name: "Fluorine Molecule (F2)",
+                config: "Config: (σ2s)² (σ*2s)² (σ2p)² (π2p)⁴ (π*2p)⁴",
+                bondOrder: "1.0 (Single Bond)",
+                magnetic: "Diamagnetic (All Paired)",
+                stability: "Reactive Halogen Gas",
+                desc: "F2 possesses 14 valence electrons, completely filling all bonding and first-level antibonding π* orbitals. The net bond order is 1, corresponding to a relatively weak single bond.",
+                levels: [
+                    { name: "π*2p (Antibonding)", electrons: 4, energy: "High" },
+                    { name: "π2p / σ2p", electrons: 6, energy: "Mid" },
+                    { name: "σ*2s / σ2s", electrons: 4, energy: "Low" }
+                ]
+            }
+        };
+
+        function loadMolecule(key, btn) {
+            const data = molecules[key];
+
+            document.querySelectorAll('.mol-btn').forEach(b => {
+                b.className = "mol-btn w-full text-left px-4 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs flex items-center justify-between transition-all";
+            });
+            if (btn) {
+                btn.className = "mol-btn w-full text-left px-4 py-3 rounded-xl border border-indigo-500 bg-indigo-50 text-indigo-700 font-medium text-xs flex items-center justify-between transition-all";
+            }
+
+            document.getElementById('molTitle').textContent = data.name + " Molecular Orbitals";
+            document.getElementById('molConfig').textContent = data.config;
+            document.getElementById('bondOrderVal').textContent = data.bondOrder;
+            document.getElementById('magneticVal').textContent = data.magnetic;
+            document.getElementById('stabilityVal').textContent = data.stability;
+            document.getElementById('molDesc').textContent = data.desc;
+
+            const container = document.getElementById('moDiagramContainer');
+            container.innerHTML = '';
+
+            data.levels.forEach(lvl => {
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between border-b border-slate-800 py-3";
+                
+                let arrows = "";
+                for(let i=0; i<lvl.electrons; i++) {
+                    arrows += `<span class="inline-block px-1 text-emerald-400 font-bold">↑↓</span>`;
+                }
+                if(lvl.electrons === 0) arrows = `<span class="text-slate-500 italic">Empty</span>`;
+
+                row.innerHTML = `
+                    <span class="font-bold text-indigo-300">${lvl.name}</span>
+                    <span class="bg-slate-800 px-3 py-1 rounded-lg border border-slate-700 text-emerald-400 font-mono tracking-widest">${arrows}</span>
+                    <span class="text-slate-400 text-[11px]">Energy: ${lvl.energy}</span>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        // Initial load
+        loadMolecule('h2');
+    </script>
+</body>
+</html>

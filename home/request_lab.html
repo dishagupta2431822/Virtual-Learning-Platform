@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request a Custom Lab — Virtual Labs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            800: '#5b21b6',
+                            900: '#4c1d95',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-brand-500 selection:text-white min-h-screen flex flex-col justify-between">
+
+    <!-- Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-brand-500/25 group-hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-atom text-lg"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-lg font-extrabold tracking-tight text-slate-900 leading-none">Virtual Labs</span>
+                    <span class="text-[10px] font-bold tracking-widest text-brand-600 uppercase mt-1">Interactive Learning</span>
+                </div>
+            </a>
+            
+            <nav class="hidden md:flex items-center gap-8 font-medium text-sm text-slate-600">
+                <a href="mainHome.html" class="hover:text-brand-600 transition-colors">Home</a>
+                <a href="mainHome.html#specializations" class="hover:text-brand-600 transition-colors">Specializations</a>
+                <a href="mainHome.html#benefits" class="hover:text-brand-600 transition-colors">Key Benefits</a>
+                <a href="mainHome.html#demos" class="hover:text-brand-600 transition-colors">Interactive Demos</a>
+                <a href="mainHome.html#contact" class="hover:text-brand-600 transition-colors">Contact</a>
+            </nav>
+
+            <div class="flex items-center gap-3">
+                <!-- Empty placeholder for right side -->
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Section -->
+    <main class="flex-grow py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <!-- Background decorative blobs -->
+        <div class="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-brand-200/40 to-indigo-200/30 blur-3xl rounded-full -z-10 pointer-events-none"></div>
+
+        <div class="max-w-4xl mx-auto">
+            
+            <!-- Heading Card -->
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-50 border border-brand-100 text-brand-700 text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Tailored Interactive Modules
+                </div>
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Request a Custom Lab</h1>
+                <p class="text-slate-600 mt-3 text-base">We build custom interactive lab modules for universities, colleges, and corporate technical training[cite: 1]. Tell us your requirements below.</p>
+            </div>
+
+            <!-- Form Card container -->
+            <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/60 border border-slate-200/80 overflow-hidden backdrop-blur-sm">
+                
+                <!-- Card Header Banner -->
+                <div class="bg-gradient-to-r from-brand-900 via-brand-800 to-indigo-900 px-8 py-6 text-white flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold">Custom Lab Specification Form</h2>
+                        <p class="text-xs text-brand-200 mt-0.5">Directly delivered to <span class="font-semibold text-white">creativeaaru1828@gmail.com</span></p>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-brand-300 border border-white/10">
+                        <i class="fa-solid fa-file-shield text-xl"></i>
+                    </div>
+                </div>
+
+                <!-- Form Body -->
+                <form action="https://api.web3forms.com/submit" method="POST" id="customLabForm" class="p-8 sm:p-10 space-y-6">
+                    
+                    <!-- PASTE YOUR WEB3FORMS ACCESS KEY BELOW -->
+                    <input type="hidden" name="access_key" value="804ec889-3ae4-4cc4-ab06-d98d2c258f3b">
+                    <input type="hidden" name="subject" value="New Custom Lab Request from Virtual Labs">
+                    <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <!-- Full Name -->
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Your Full Name <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                                    <i class="fa-regular fa-user"></i>
+                                </span>
+                                <input type="text" name="name" required placeholder="e.g. Dr. Robert Smith" class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition-all">
+                            </div>
+                        </div>
+
+                        <!-- Email Address -->
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Email Address <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                                    <i class="fa-regular fa-envelope"></i>
+                                </span>
+                                <input type="email" name="email" required placeholder="robert@university.edu" class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition-all">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <!-- Institution / Organization -->
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Institution / Company <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                                    <i class="fa-regular fa-building"></i>
+                                </span>
+                                <input type="text" name="institution" required placeholder="e.g. Institute of Technology" class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition-all">
+                            </div>
+                        </div>
+
+                        <!-- Lab Domain / Subject -->
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Primary Domain / Discipline <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                                    <i class="fa-solid fa-book-bookmark"></i>
+                                </span>
+                                <select name="domain" required class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition-all appearance-none">
+                                    <option value="" disabled selected>Select domain area</option>
+                                    <option value="Computer Science & Algorithms">Computer Science & Algorithms</option>
+                                    <option value="Physics & Circuit Design">Physics & Circuit Design</option>
+                                    <option value="Data Science & AI Sandbox">Data Science & AI Sandbox</option>
+                                    <option value="Chemistry & Molecular Modeling">Chemistry & Molecular Modeling</option>
+                                    <option value="Other Technical Training">Other Technical Training</option>
+                                </select>
+                                <span class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-400">
+                                    <i class="fa-solid fa-chevron-down text-xs"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Requirements -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Lab Description & Requirements <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <textarea name="description" rows="5" required placeholder="Describe what concepts, simulations, or interactive elements you need built into your custom lab module..." class="w-full p-4 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition-all resize-none"></textarea>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1.5">Provide specific details regarding target student level, expected learning outcomes, or simulation features.</p>
+                    </div>
+
+                    <!-- Submit Button & Status Note -->
+                    <div class="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-100">
+                        <div class="flex items-center gap-2 text-xs text-slate-500">
+                            <i class="fa-solid fa-shield-halved text-brand-600"></i>
+                            <span>Secure & direct submission to creativeaaru1828@gmail.com</span>
+                        </div>
+                        <button type="submit" id="submitBtn" class="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm shadow-xl shadow-brand-600/30 transition-all hover:shadow-brand-700/40 active:scale-95 flex items-center justify-center gap-2">
+                            <span>Submit Lab Request</span>
+                            <i class="fa-solid fa-arrow-right-long"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Back Link -->
+            <div class="text-center mt-8">
+                <a href="#" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-brand-600 transition-colors">
+                    <i class="fa-solid fa-arrow-left text-xs"></i> Back to Virtual Labs Home
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200/80 py-8 text-center text-xs text-slate-500">
+        <p>&copy; 2026 Virtual Labs Interactive Learning. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const form = document.getElementById('customLabForm');
+        form.addEventListener('submit', function(e) {
+            const accessKeyInput = form.querySelector('input[name="access_key"]');
+            if (accessKeyInput.value === 'YOUR_WEB3FORMS_ACCESS_KEY') {
+                e.preventDefault();
+                alert('Please replace "YOUR_WEB3FORMS_ACCESS_KEY" in the code with your actual Web3Forms access key!');
+            }
+        });
+    </script>
+</body>
+</html>

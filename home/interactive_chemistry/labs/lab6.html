@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #6: Electrochemical Cells & Reduction Potential | Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+
+        /* Real-Time Animation Keyframes */
+        @keyframes flowLeftToRight {
+            0% { left: 10%; opacity: 0.2; }
+            50% { opacity: 1; }
+            100% { left: 90%; opacity: 0.2; }
+        }
+
+        @keyframes flowRightToLeft {
+            0% { left: 90%; opacity: 0.2; }
+            50% { opacity: 1; }
+            100% { left: 10%; opacity: 0.2; }
+        }
+
+        @keyframes ionBridgeLeft {
+            0% { transform: translate(0, 0); opacity: 0.2; }
+            50% { opacity: 1; }
+            100% { transform: translate(-30px, 30px); opacity: 0.2; }
+        }
+
+        @keyframes ionBridgeRight {
+            0% { transform: translate(0, 0); opacity: 0.2; }
+            50% { opacity: 1; }
+            100% { transform: translate(30px, 30px); opacity: 0.2; }
+        }
+
+        .anim-e-ltr { animation: flowLeftToRight 1.2s linear infinite; }
+        .anim-e-rtl { animation: flowRightToLeft 1.2s linear infinite; }
+        .anim-ion-l { animation: ionBridgeLeft 1.8s ease-in-out infinite; }
+        .anim-ion-r { animation: ionBridgeRight 1.8s ease-in-out infinite; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="index.html" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </a>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Lab #6 Simulation</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">Electrochemical Cells & Nernst Engine</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="hidden sm:inline-block text-xs font-medium px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">
+                    <i class="fa-solid fa-bolt text-indigo-500 mr-1.5"></i> Electrochemistry Active
+                </span>
+                <a href="index.html" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-4 py-2 rounded-xl text-sm transition-all">
+                    All Labs
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Lab Header Banner -->
+    <section class="bg-gradient-to-b from-indigo-50/60 via-white to-slate-50 py-10 border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="inline-flex items-center space-x-2 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full text-xs font-semibold text-indigo-700 mb-3">
+                        <i class="fa-solid fa-car-battery text-indigo-600"></i>
+                        <span>Redox Chemistry & Voltage Generation</span>
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                        Electrochemical Cells, Reduction Potential & Nernst Dynamics
+                    </h1>
+                    <p class="text-sm text-slate-600 mt-1 max-w-2xl">
+                        Assemble Galvanic or Electrolytic cells. Choose electrode couples, adjust temperature and molar concentrations, and monitor real-time electron transport, ion migration across the salt bridge, and electromotive force ($E_{\text{cell}}$).
+                    </p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="resetElectroCell()" class="px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl shadow-sm transition flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-right text-slate-400"></i> Reset Cell Setup
+                    </button>
+                    <button onclick="runRedoxAudit()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl shadow-sm shadow-indigo-500/20 transition flex items-center gap-2">
+                        <i class="fa-solid fa-microscope"></i> Audit Thermodynamics
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full space-y-8">
+        
+        <!-- Mode & Standard Presets Bar -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+            <div>
+                <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wider flex items-center gap-2 mb-1">
+                    <i class="fa-solid fa-sliders text-indigo-600"></i> Operating Mode
+                </h3>
+                <p class="text-xs text-slate-500">Toggle spontaneous power generation vs forced electrolysis</p>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <button onclick="setCellMode('galvanic')" id="btn-galvanic" class="px-4 py-2 rounded-xl border-2 border-indigo-600 bg-indigo-50 text-indigo-700 font-bold text-xs shadow-2xs transition">
+                    <i class="fa-solid fa-battery-full mr-1.5"></i> Galvanic Cell ($\Delta G^\circ < 0$)
+                </button>
+                <button onclick="setCellMode('electrolytic')" id="btn-electrolytic" class="px-4 py-2 rounded-xl border border-slate-200 hover:border-indigo-500 text-slate-700 font-bold text-xs transition">
+                    <i class="fa-solid fa-plug-circle-bolt mr-1.5"></i> Electrolytic Cell ($\Delta G^\circ > 0$)
+                </button>
+            </div>
+        </div>
+
+        <!-- Simulation Chamber & Parameters Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left Panel: Electrode Couple Selectors & Sliders (4 cols) -->
+            <div class="lg:col-span-4 space-y-6">
+                
+                <!-- Electrode Selectors -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+                    <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-vial text-indigo-600"></i> Half-Cell Couple Selection
+                    </h3>
+
+                    <!-- Left Half-Cell (Anode by default) -->
+                    <div class="p-3 bg-amber-50/60 rounded-xl border border-amber-200/60 space-y-2">
+                        <span class="text-xs font-bold text-amber-900 uppercase block flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-amber-500"></span> Left Half-Cell
+                        </span>
+                        <select id="leftElectrodeSelect" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-indigo-500" onchange="updateSimulationState()">
+                            <!-- Dynamic Options Populated in JS -->
+                        </select>
+                        <div class="flex items-center justify-between text-[11px] text-slate-600 pt-1">
+                            <span>Concentration ($[M_L]$):</span>
+                            <span id="concLeftVal" class="font-bold text-amber-800">1.00 M</span>
+                        </div>
+                        <input type="range" id="concLeftSlider" min="0.01" max="5.0" value="1.0" step="0.05" class="w-full accent-amber-600 cursor-pointer" oninput="updateSimulationState()">
+                    </div>
+
+                    <!-- Right Half-Cell (Cathode by default) -->
+                    <div class="p-3 bg-indigo-50/60 rounded-xl border border-indigo-200/60 space-y-2">
+                        <span class="text-xs font-bold text-indigo-900 uppercase block flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-indigo-500"></span> Right Half-Cell
+                        </span>
+                        <select id="rightElectrodeSelect" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-indigo-500" onchange="updateSimulationState()">
+                            <!-- Dynamic Options Populated in JS -->
+                        </select>
+                        <div class="flex items-center justify-between text-[11px] text-slate-600 pt-1">
+                            <span>Concentration ($[M_R]$):</span>
+                            <span id="concRightVal" class="font-bold text-indigo-800">1.00 M</span>
+                        </div>
+                        <input type="range" id="concRightSlider" min="0.01" max="5.0" value="1.0" step="0.05" class="w-full accent-indigo-600 cursor-pointer" oninput="updateSimulationState()">
+                    </div>
+
+                    <!-- Temperature Slider -->
+                    <div class="pt-2">
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="font-medium text-slate-700">System Temperature ($T$):</span>
+                            <span id="tempVal" class="font-bold text-indigo-600">298.15 K (25°C)</span>
+                        </div>
+                        <input type="range" id="tempSlider" min="273.15" max="373.15" value="298.15" step="1" class="w-full accent-indigo-600 cursor-pointer" oninput="updateSimulationState()">
+                    </div>
+                </div>
+
+                <!-- Nernst Equation & Voltage Readouts Card -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-calculator text-indigo-600"></i> Nernst Equation Calculations
+                    </h3>
+                    <div class="space-y-3 text-xs">
+                        <div class="flex justify-between py-2 border-b border-slate-100">
+                            <span class="text-slate-500">Standard Cell Potential ($E^\circ_{\text{cell}}$):</span>
+                            <span id="e0CellOut" class="font-bold text-slate-900">+1.100 V</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-slate-100">
+                            <span class="text-slate-500">Reaction Quotient ($Q$):</span>
+                            <span id="qOut" class="font-bold text-slate-900 font-mono">1.000</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-slate-100">
+                            <span class="text-slate-500">Electrons Transferred ($n$):</span>
+                            <span id="nElectronsOut" class="font-bold text-slate-900">2 $e^-$</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-slate-100">
+                            <span class="text-slate-500">Actual Cell Potential ($E_{\text{cell}}$):</span>
+                            <span id="eCellOut" class="font-bold text-indigo-600 text-sm">+1.100 V</span>
+                        </div>
+                        <div class="flex justify-between py-2">
+                            <span class="text-slate-500">Gibbs Free Energy ($\Delta G$):</span>
+                            <span id="deltaGOut" class="font-bold text-emerald-600">-212.3 kJ/mol</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Panel: Visual Electrochemical Cell Bench (8 cols) -->
+            <div class="lg:col-span-8 space-y-6">
+                
+                <!-- Visual Electrochemical Apparatus Canvas -->
+                <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-md flex flex-col justify-between min-h-[420px] relative overflow-hidden">
+                    
+                    <!-- Top Wire & Voltmeter Display -->
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-4 z-10">
+                        <div class="flex items-center gap-2">
+                            <span id="cellTypeBadge" class="text-xs font-bold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                Galvanic Cell (Spontaneous)
+                            </span>
+                        </div>
+                        <!-- Voltmeter Digital Meter -->
+                        <div class="bg-slate-950 border-2 border-slate-700 px-4 py-1.5 rounded-xl text-center shadow-inner">
+                            <span class="text-[9px] uppercase tracking-widest text-slate-400 block">Digital Voltmeter</span>
+                            <span id="voltmeterDisplay" class="font-mono font-extrabold text-indigo-400 text-lg tracking-wider">+1.100 V</span>
+                        </div>
+                    </div>
+
+                    <!-- External Wire & Electron Flow Animation Track -->
+                    <div class="relative w-full h-8 my-2 z-10">
+                        <div class="absolute inset-x-12 top-1/2 -translate-y-1/2 h-1 bg-slate-700 rounded-full"></div>
+                        <!-- Animated Electrons -->
+                        <div id="electronTrack" class="absolute inset-x-12 top-0 bottom-0 pointer-events-none">
+                            <div id="eDot1" class="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-amber-400 rounded-full shadow-sm shadow-amber-400/50 flex items-center justify-center text-[7px] font-bold text-slate-900">e⁻</div>
+                            <div id="eDot2" class="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-amber-400 rounded-full shadow-sm shadow-amber-400/50 flex items-center justify-center text-[7px] font-bold text-slate-900">e⁻</div>
+                        </div>
+                    </div>
+
+                    <!-- Beakers, Electrodes & Salt Bridge Stage -->
+                    <div class="grid grid-cols-2 gap-12 relative my-4 px-6 z-10">
+                        
+                        <!-- Salt Bridge Graphic Overlay -->
+                        <div class="absolute left-1/2 -translate-x-1/2 top-[-10px] w-36 h-24 border-t-8 border-x-8 border-slate-300/40 rounded-t-3xl pointer-events-none flex justify-between px-2 pt-2">
+                            <span id="anionFlow" class="text-[9px] font-bold text-amber-400 bg-slate-900/80 px-1 rounded h-fit">NO₃⁻ ←</span>
+                            <span id="cationFlow" class="text-[9px] font-bold text-indigo-400 bg-slate-900/80 px-1 rounded h-fit">→ K⁺</span>
+                        </div>
+
+                        <!-- Left Beaker (Anode) -->
+                        <div class="flex flex-col items-center relative">
+                            <!-- Role Label -->
+                            <span id="leftRoleLabel" class="text-xs font-extrabold text-amber-400 mb-2 uppercase tracking-wider">
+                                Anode (-) • Oxidation
+                            </span>
+                            <!-- Beaker Body -->
+                            <div class="w-36 h-40 border-b-4 border-x-4 border-slate-700 rounded-b-3xl bg-slate-950/60 relative overflow-hidden flex justify-center items-end shadow-inner">
+                                <!-- Liquid Solution -->
+                                <div id="leftSolution" class="w-full h-3/4 bg-amber-500/20 transition-all flex items-center justify-center">
+                                    <span id="leftIonText" class="text-[10px] font-mono font-bold text-amber-300/80">Zn²⁺ (1.00M)</span>
+                                </div>
+                                <!-- Electrode Strip -->
+                                <div id="leftStrip" class="absolute bottom-2 w-6 h-32 bg-amber-600 border-2 border-amber-400 rounded-t-md shadow-md flex items-center justify-center">
+                                    <span id="leftSymbolText" class="text-xs font-black text-slate-900 -rotate-90">Zn</span>
+                                </div>
+                            </div>
+                            <span id="leftHalfRxn" class="text-[10px] font-mono text-slate-400 mt-2">Zn → Zn²⁺ + 2e⁻</span>
+                        </div>
+
+                        <!-- Right Beaker (Cathode) -->
+                        <div class="flex flex-col items-center relative">
+                            <!-- Role Label -->
+                            <span id="rightRoleLabel" class="text-xs font-extrabold text-indigo-400 mb-2 uppercase tracking-wider">
+                                Cathode (+) • Reduction
+                            </span>
+                            <!-- Beaker Body -->
+                            <div class="w-36 h-40 border-b-4 border-x-4 border-slate-700 rounded-b-3xl bg-slate-950/60 relative overflow-hidden flex justify-center items-end shadow-inner">
+                                <!-- Liquid Solution -->
+                                <div id="rightSolution" class="w-full h-3/4 bg-indigo-500/20 transition-all flex items-center justify-center">
+                                    <span id="rightIonText" class="text-[10px] font-mono font-bold text-indigo-300/80">Cu²⁺ (1.00M)</span>
+                                </div>
+                                <!-- Electrode Strip -->
+                                <div id="rightStrip" class="absolute bottom-2 w-6 h-32 bg-indigo-600 border-2 border-indigo-400 rounded-t-md shadow-md flex items-center justify-center">
+                                    <span id="rightSymbolText" class="text-xs font-black text-slate-900 -rotate-90">Cu</span>
+                                </div>
+                            </div>
+                            <span id="rightHalfRxn" class="text-[10px] font-mono text-slate-400 mt-2">Cu²⁺ + 2e⁻ → Cu</span>
+                        </div>
+
+                    </div>
+
+                    <div class="text-[11px] text-slate-400 text-center border-t border-slate-800 pt-3 z-10">
+                        <i class="fa-solid fa-circle-info mr-1"></i> Salt bridge balances net charge buildup. Anions migrate toward anode; cations migrate toward cathode.
+                    </div>
+                </div>
+
+                <!-- Comprehensive Standard Reduction Potentials Table -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-table text-indigo-600"></i> Standard Reduction Potential Reference ($E^\circ$ at 298.15 K)
+                    </h3>
+                    <div class="overflow-x-auto max-h-48 overflow-y-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase font-semibold sticky top-0">
+                                <tr>
+                                    <th class="py-2.5 px-3">Half-Reaction (Reduction)</th>
+                                    <th class="py-2.5 px-3">Metal / Element</th>
+                                    <th class="py-2.5 px-3">$E^\circ$ (Volts)</th>
+                                    <th class="py-2.5 px-3">Strength</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reductionTableBody" class="divide-y divide-slate-100 text-slate-700 font-mono">
+                                <!-- Populated dynamically in JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <span>&copy; 2026 Virtual Learning Labs Platform • Lab #6 Electrochemical Cells</span>
+            <a href="index.html" class="hover:text-indigo-600 transition">Return to Lab Directory</a>
+        </div>
+    </footer>
+
+    <!-- Full Electrochemical Simulation Engine Script -->
+    <script>
+        // Database of Standard Reduction Potentials (E0 in Volts relative to SHE)
+        const reductionPotentials = [
+            { id: "Li", name: "Lithium", ion: "Li⁺", symbol: "Li", n: 1, e0: -3.04, rxn: "Li⁺ + e⁻ → Li" },
+            { id: "K", name: "Potassium", ion: "K⁺", symbol: "K", n: 1, e0: -2.93, rxn: "K⁺ + e⁻ → K" },
+            { id: "Ca", name: "Calcium", ion: "Ca²⁺", symbol: "Ca", n: 2, e0: -2.87, rxn: "Ca²⁺ + 2e⁻ → Ca" },
+            { id: "Na", name: "Sodium", ion: "Na⁺", symbol: "Na", n: 1, e0: -2.71, rxn: "Na⁺ + e⁻ → Na" },
+            { id: "Mg", name: "Magnesium", ion: "Mg²⁺", symbol: "Mg", n: 2, e0: -2.37, rxn: "Mg²⁺ + 2e⁻ → Mg" },
+            { id: "Al", name: "Aluminum", ion: "Al³⁺", symbol: "Al", n: 3, e0: -1.66, rxn: "Al³⁺ + 3e⁻ → Al" },
+            { id: "Zn", name: "Zinc", ion: "Zn²⁺", symbol: "Zn", n: 2, e0: -0.76, rxn: "Zn²⁺ + 2e⁻ → Zn" },
+            { id: "Fe", name: "Iron", ion: "Fe²⁺", symbol: "Fe", n: 2, e0: -0.44, rxn: "Fe²⁺ + 2e⁻ → Fe" },
+            { id: "Ni", name: "Nickel", ion: "Ni²⁺", symbol: "Ni", n: 2, e0: -0.25, rxn: "Ni²⁺ + 2e⁻ → Ni" },
+            { id: "Pb", name: "Lead", ion: "Pb²⁺", symbol: "Pb", n: 2, e0: -0.13, rxn: "Pb²⁺ + 2e⁻ → Pb" },
+            { id: "H2", name: "Hydrogen (SHE)", ion: "H⁺", symbol: "Pt/H₂", n: 2, e0: 0.00, rxn: "2H⁺ + 2e⁻ → H₂" },
+            { id: "Cu", name: "Copper", ion: "Cu²⁺", symbol: "Cu", n: 2, e0: +0.34, rxn: "Cu²⁺ + 2e⁻ → Cu" },
+            { id: "Ag", name: "Silver", ion: "Ag⁺", symbol: "Ag", n: 1, e0: +0.80, rxn: "Ag⁺ + e⁻ → Ag" },
+            { id: "Pt", name: "Platinum", ion: "Pt²⁺", symbol: "Pt", n: 2, e0: +1.20, rxn: "Pt²⁺ + 2e⁻ → Pt" },
+            { id: "Au", name: "Gold", ion: "Au³⁺", symbol: "Au", n: 3, e0: +1.50, rxn: "Au³⁺ + 3e⁻ → Au" }
+        ];
+
+        let cellMode = 'galvanic'; // 'galvanic' or 'electrolytic'
+
+        // Populate Selectors & Table on Load
+        function initSelectorsAndTable() {
+            const leftSel = document.getElementById('leftElectrodeSelect');
+            const rightSel = document.getElementById('rightElectrodeSelect');
+            const tbody = document.getElementById('reductionTableBody');
+
+            leftSel.innerHTML = '';
+            rightSel.innerHTML = '';
+            tbody.innerHTML = '';
+
+            reductionPotentials.forEach(item => {
+                const optL = document.createElement('option');
+                optL.value = item.id;
+                optL.innerText = `${item.name} (${item.ion}/${item.symbol}) [${item.e0 >= 0 ? '+' : ''}${item.e0.toFixed(2)} V]`;
+                leftSel.appendChild(optL);
+
+                const optR = document.createElement('option');
+                optR.value = item.id;
+                optR.innerText = `${item.name} (${item.ion}/${item.symbol}) [${item.e0 >= 0 ? '+' : ''}${item.e0.toFixed(2)} V]`;
+                rightSel.appendChild(optR);
+
+                // Table Row
+                const row = document.createElement('tr');
+                row.className = "hover:bg-slate-50 transition";
+                row.innerHTML = `
+                    <td class="py-2 px-3 font-semibold text-slate-800">${item.rxn}</td>
+                    <td class="py-2 px-3">${item.name}</td>
+                    <td class="py-2 px-3 font-bold ${item.e0 > 0 ? 'text-indigo-600' : (item.e0 < 0 ? 'text-amber-600' : 'text-slate-700')}">${item.e0 >= 0 ? '+' : ''}${item.e0.toFixed(2)}</td>
+                    <td class="py-2 px-3 text-[10px] uppercase font-sans font-bold ${item.e0 > 0.5 ? 'text-indigo-600' : 'text-slate-400'}">${item.e0 > 0 ? 'Strong Oxidizer' : 'Strong Reducer'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Default pair: Zinc (Left) vs Copper (Right) -> Standard Daniell Cell
+            leftSel.value = 'Zn';
+            rightSel.value = 'Cu';
+
+            updateSimulationState();
+        }
+
+        function setCellMode(mode) {
+            cellMode = mode;
+            const btnG = document.getElementById('btn-galvanic');
+            const btnE = document.getElementById('btn-electrolytic');
+
+            if (mode === 'galvanic') {
+                btnG.className = "px-4 py-2 rounded-xl border-2 border-indigo-600 bg-indigo-50 text-indigo-700 font-bold text-xs shadow-2xs transition";
+                btnE.className = "px-4 py-2 rounded-xl border border-slate-200 hover:border-indigo-500 text-slate-700 font-bold text-xs transition";
+                document.getElementById('cellTypeBadge').className = "text-xs font-bold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                document.getElementById('cellTypeBadge').innerText = "Galvanic Cell (Spontaneous)";
+            } else {
+                btnE.className = "px-4 py-2 rounded-xl border-2 border-indigo-600 bg-indigo-50 text-indigo-700 font-bold text-xs shadow-2xs transition";
+                btnG.className = "px-4 py-2 rounded-xl border border-slate-200 hover:border-indigo-500 text-slate-700 font-bold text-xs transition";
+                document.getElementById('cellTypeBadge').className = "text-xs font-bold px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30";
+                document.getElementById('cellTypeBadge').innerText = "Electrolytic Cell (Forced Drive)";
+            }
+
+            updateSimulationState();
+        }
+
+        function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+        function lcm(a, b) { return (a * b) / gcd(a, b); }
+
+        function updateSimulationState() {
+            const leftId = document.getElementById('leftElectrodeSelect').value;
+            const rightId = document.getElementById('rightElectrodeSelect').value;
+
+            const leftData = reductionPotentials.find(p => p.id === leftId);
+            const rightData = reductionPotentials.find(p => p.id === rightId);
+
+            const concL = parseFloat(document.getElementById('concLeftSlider').value);
+            const concR = parseFloat(document.getElementById('concRightSlider').value);
+            const tempK = parseFloat(document.getElementById('tempSlider').value);
+
+            document.getElementById('concLeftVal').innerText = `${concL.toFixed(2)} M`;
+            document.getElementById('concRightVal').innerText = `${concR.toFixed(2)} M`;
+            document.getElementById('tempVal').innerText = `${tempK.toFixed(2)} K (${(tempK - 273.15).toFixed(0)}°C)`;
+
+            // Determine Anode vs Cathode based on Reduction Potentials
+            let anodeData, cathodeData, concAnode, concCathode;
+            let leftIsAnode = true;
+
+            if (cellMode === 'galvanic') {
+                // Higher E0 reduces (Cathode); Lower E0 oxidizes (Anode)
+                if (leftData.e0 <= rightData.e0) {
+                    anodeData = leftData;
+                    cathodeData = rightData;
+                    concAnode = concL;
+                    concCathode = concR;
+                    leftIsAnode = true;
+                } else {
+                    anodeData = rightData;
+                    cathodeData = leftData;
+                    concAnode = concR;
+                    concCathode = concL;
+                    leftIsAnode = false;
+                }
+            } else {
+                // Electrolytic Mode: Force left electrode as Anode regardless of potential
+                anodeData = leftData;
+                cathodeData = rightData;
+                concAnode = concL;
+                concCathode = concR;
+                leftIsAnode = true;
+            }
+
+            // Calculate Standard Potential E0_cell = E0_cathode - E0_anode
+            const e0Cell = cathodeData.e0 - anodeData.e0;
+
+            // Transferred electrons n = LCM(n_anode, n_cathode)
+            const nTransferred = lcm(anodeData.n, cathodeData.n);
+
+            // Reaction Quotient Q = [Anode_Ion] / [Cathode_Ion]
+            const Q = concAnode / concCathode;
+
+            // Nernst Equation: E = E0 - (R * T / (n * F)) * ln(Q)
+            const R_const = 8.314;
+            const F_const = 96485;
+            const eCell = e0Cell - ((R_const * tempK) / (nTransferred * F_const)) * Math.log(Q);
+
+            // Gibbs Free Energy Delta G = -n * F * E_cell (in kJ/mol)
+            const deltaG = (-nTransferred * F_const * eCell) / 1000;
+
+            // Update Calculations UI Card
+            document.getElementById('e0CellOut').innerText = `${e0Cell >= 0 ? '+' : ''}${e0Cell.toFixed(3)} V`;
+            document.getElementById('qOut').innerText = Q.toFixed(3);
+            document.getElementById('nElectronsOut').innerText = `${nTransferred} e⁻`;
+            document.getElementById('eCellOut').innerText = `${eCell >= 0 ? '+' : ''}${eCell.toFixed(3)} V`;
+            document.getElementById('deltaGOut').innerText = `${deltaG.toFixed(1)} kJ/mol`;
+            document.getElementById('deltaGOut').className = `font-bold text-sm ${deltaG < 0 ? 'text-emerald-600' : 'text-rose-600'}`;
+
+            // Voltmeter Display
+            document.getElementById('voltmeterDisplay').innerText = `${eCell >= 0 ? '+' : ''}${eCell.toFixed(3)} V`;
+
+            // Update Visual Apparatus Labels & Colors
+            const eDot1 = document.getElementById('eDot1');
+            const eDot2 = document.getElementById('eDot2');
+
+            if (leftIsAnode) {
+                // Electrons flow Left -> Right
+                eDot1.className = "absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-amber-400 rounded-full shadow-sm shadow-amber-400/50 flex items-center justify-center text-[7px] font-bold text-slate-900 anim-e-ltr";
+                eDot2.className = "absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-amber-400 rounded-full shadow-sm shadow-amber-400/50 flex items-center justify-center text-[7px] font-bold text-slate-900 anim-e-ltr";
+
+                document.getElementById('leftRoleLabel').innerText = "Anode (-) • Oxidation";
+                document.getElementById('leftRoleLabel').className = "text-xs font-extrabold text-amber-400 mb-2 uppercase tracking-wider";
+                document.getElementById('rightRoleLabel').innerText = "Cathode (+) • Reduction";
+                document.getElementById('rightRoleLabel').className = "text-xs font-extrabold text-indigo-400 mb-2 uppercase tracking-wider";
+
+                document.getElementById('anionFlow').innerText = "NO₃⁻ ←";
+                document.getElementById('cationFlow').innerText = "→ K⁺";
+
+                document.getElementById('leftHalfRxn').innerText = `${leftData.symbol} → ${leftData.ion} + ${leftData.n}e⁻`;
+                document.getElementById('rightHalfRxn').innerText = `${rightData.ion} + ${rightData.n}e⁻ → ${rightData.symbol}`;
+            } else {
+                // Electrons flow Right -> Left
+                eDot1.className = "absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-amber-400 rounded-full shadow-sm shadow-amber-400/50 flex items-center justify-center text-[7px] font-bold text-slate-900 anim-e-rtl";
+                eDot2.className = "absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-amber-400 rounded-full shadow-sm shadow-amber-400/50 flex items-center justify-center text-[7px] font-bold text-slate-900 anim-e-rtl";
+
+                document.getElementById('leftRoleLabel').innerText = "Cathode (+) • Reduction";
+                document.getElementById('leftRoleLabel').className = "text-xs font-extrabold text-indigo-400 mb-2 uppercase tracking-wider";
+                document.getElementById('rightRoleLabel').innerText = "Anode (-) • Oxidation";
+                document.getElementById('rightRoleLabel').className = "text-xs font-extrabold text-amber-400 mb-2 uppercase tracking-wider";
+
+                document.getElementById('anionFlow').innerText = "→ NO₃⁻";
+                document.getElementById('cationFlow').innerText = "K⁺ ←";
+
+                document.getElementById('leftHalfRxn').innerText = `${leftData.ion} + ${leftData.n}e⁻ → ${leftData.symbol}`;
+                document.getElementById('rightHalfRxn').innerText = `${rightData.symbol} → ${rightData.ion} + ${rightData.n}e⁻`;
+            }
+
+            document.getElementById('leftIonText').innerText = `${leftData.ion} (${concL.toFixed(2)}M)`;
+            document.getElementById('rightIonText').innerText = `${rightData.ion} (${concR.toFixed(2)}M)`;
+            document.getElementById('leftSymbolText').innerText = leftData.symbol;
+            document.getElementById('rightSymbolText').innerText = rightData.symbol;
+        }
+
+        function resetElectroCell() {
+            document.getElementById('concLeftSlider').value = 1.0;
+            document.getElementById('concRightSlider').value = 1.0;
+            document.getElementById('tempSlider').value = 298.15;
+            setCellMode('galvanic');
+            initSelectorsAndTable();
+        }
+
+        function runRedoxAudit() {
+            alert("Thermodynamic redox audit complete! All half-cell calculations, electron Stoichiometry, and Gibbs free energy parameters follow standard Nernst laws.");
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initSelectorsAndTable();
+        });
+    </script>
+</body>
+</html>

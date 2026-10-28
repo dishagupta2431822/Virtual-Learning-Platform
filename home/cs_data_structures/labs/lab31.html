@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #31: LRU Cache Operations & Doubly Linked List</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        code, .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .cache-node { transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <div>
+        <!-- Navbar -->
+        <header class="bg-white border-b border-slate-100 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="#" class="bg-indigo-600 text-white p-2 rounded-xl shadow-md shadow-indigo-100">
+                        <i class="fa-solid fa-flask text-base"></i>
+                    </a>
+                    <div>
+                        <span class="font-bold text-slate-900 text-sm block leading-snug">Virtual Labs</span>
+                        <span class="text-[10px] text-indigo-600 font-bold uppercase tracking-wider block">CS & DATA STRUCTURES</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <span class="bg-indigo-50 text-indigo-700 text-xs font-semibold px-3 py-1 rounded-full border border-indigo-100">
+                        Lab #31 of 32
+                    </span>
+                    <button onclick="resetLRUState()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Reset Cache
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Lab Title Banner -->
+        <div class="bg-white border-b border-slate-100 py-6 px-6">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center space-x-2 text-xs text-indigo-600 font-semibold mb-1">
+                        <span>Data Structures & Caching</span>
+                        <i class="fa-solid fa-chevron-right text-[9px] text-slate-400"></i>
+                        <span class="text-slate-500">Hash Map + Doubly Linked List</span>
+                    </div>
+                    <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">
+                        Lab #31: LRU Cache Operations & Doubly Linked List
+                    </h1>
+                    <p class="text-xs text-slate-500 mt-1">
+                        Trace O(1) hash map lookups paired with head/tail node promotions in double-linked lists.
+                    </p>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-semibold text-slate-600 bg-indigo-50 text-indigo-700 border border-indigo-200/80 px-3 py-1 rounded-full">
+                        <i class="fa-solid fa-database mr-1"></i> LRU Studio
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Workbench Area -->
+        <main class="max-w-7xl mx-auto px-6 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+            <!-- Control & Status Panel -->
+            <div class="space-y-5 lg:col-span-1">
+                
+                <!-- Parameters & Operations -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Cache Controls</h3>
+                    
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 block mb-1">Cache Capacity</label>
+                        <input type="number" id="capacityInput" value="3" min="1" max="5" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 outline-none focus:border-indigo-500 font-mono transition">
+                    </div>
+
+                    <div class="space-y-2 pt-2 border-t border-slate-100">
+                        <label class="text-[10px] font-bold text-slate-500 block">Put Operation (Key, Value)</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="putKey" placeholder="Key" class="bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs text-slate-800 outline-none focus:border-indigo-500 font-mono uppercase text-center">
+                            <input type="text" id="putVal" placeholder="Value" class="bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs text-slate-800 outline-none focus:border-indigo-500 font-mono text-center">
+                        </div>
+                        <button onclick="handlePut()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2 rounded-xl transition shadow-xs">
+                            Cache Put(key, val)
+                        </button>
+                    </div>
+
+                    <div class="space-y-2 pt-2 border-t border-slate-100">
+                        <label class="text-[10px] font-bold text-slate-500 block">Get Operation (Key)</label>
+                        <input type="text" id="getKey" placeholder="Key" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs text-slate-800 outline-none focus:border-indigo-500 font-mono uppercase text-center">
+                        <button onclick="handleGet()" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-2 rounded-xl transition shadow-xs">
+                            Cache Get(key)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Execution Log -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Cache Trace Log</h3>
+                    <div id="logContainer" class="bg-slate-900 text-slate-300 p-3 rounded-xl font-mono text-[11px] h-40 overflow-y-auto space-y-1">
+                        <div class="text-slate-500">// Engine ready. Perform Put or Get operations.</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Visualization Canvas -->
+            <div class="lg:col-span-3 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between relative min-h-[550px] overflow-hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Doubly Linked List Recency Chain (Head = MRU, Tail = LRU)</span>
+                    <div class="flex items-center space-x-3 text-[11px] text-slate-500 font-medium">
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-indigo-600 rounded-full inline-block mr-1"></span> Head (MRU)</span>
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-rose-500 rounded-full inline-block mr-1"></span> Tail (LRU)</span>
+                    </div>
+                </div>
+
+                <!-- Canvas Container -->
+                <div class="relative w-full h-[500px] border border-slate-100 rounded-xl bg-slate-50/50 overflow-auto flex flex-col items-center justify-center p-6 space-y-8">
+                    
+                    <!-- DLL Chain Container -->
+                    <div class="w-full text-center space-y-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block">Linked List Nodes</span>
+                        <div id="dllContainer" class="flex flex-wrap justify-center items-center gap-3 min-h-[120px]">
+                            <span class="text-xs font-mono text-slate-400 italic">[ Cache is Empty ]</span>
+                        </div>
+                    </div>
+
+                    <!-- Hash Map State View -->
+                    <div class="w-full text-center border-t border-slate-200 pt-6">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-3">Hash Map O(1) Index Reference</span>
+                        <div id="mapContainer" class="flex flex-wrap justify-center gap-2"></div>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-100 py-6 text-center text-xs text-slate-400">
+        <span>&copy; 2026 Virtual Labs • LRU Cache Studio Suite</span>
+    </footer>
+
+    <!-- Script implementing LRU Cache Logic -->
+    <script>
+        class Node {
+            constructor(key, val) {
+                this.key = key;
+                this.val = val;
+                this.prev = null;
+                this.next = null;
+            }
+        }
+
+        let capacity = 3;
+        let map = new Map();
+        let head = null;
+        let tail = null;
+
+        function resetLRUState() {
+            capacity = parseInt(document.getElementById('capacityInput').value) || 3;
+            map.clear();
+            head = null;
+            tail = null;
+            document.getElementById('logContainer').innerHTML = '<div class="text-slate-500">// Engine ready. Perform Put or Get operations.</div>';
+            renderCache();
+            logTrace(`Initialized LRU Cache with capacity ${capacity}`);
+        }
+
+        function handlePut() {
+            let key = document.getElementById('putKey').value.trim().toUpperCase();
+            let val = document.getElementById('putVal').value.trim();
+
+            if (!key || !val) {
+                logTrace("Error: Please provide both Key and Value.", 'err');
+                return;
+            }
+
+            capacity = parseInt(document.getElementById('capacityInput').value) || 3;
+
+            if (map.has(key)) {
+                let node = map.get(key);
+                node.val = val;
+                moveToHead(node);
+                logTrace(`Put: Key [${key}] updated to value [${val}], promoted to MRU head.`, 'match');
+            } else {
+                if (map.size >= capacity) {
+                    let lruKey = tail.key;
+                    logTrace(`Capacity reached (${capacity}). Evicting LRU tail node [Key: ${lruKey}]`, 'err');
+                    removeTail();
+                    map.delete(lruKey);
+                }
+                let newNode = new Node(key, val);
+                map.set(key, newNode);
+                addToHead(newNode);
+                logTrace(`Put: Inserted new Key [${key}] with value [${val}] at head.`);
+            }
+
+            document.getElementById('putKey').value = '';
+            document.getElementById('putVal').value = '';
+            renderCache();
+        }
+
+        function handleGet() {
+            let key = document.getElementById('getKey').value.trim().toUpperCase();
+            if (!key) {
+                logTrace("Error: Please provide a Key to look up.", 'err');
+                return;
+            }
+
+            if (map.has(key)) {
+                let node = map.get(key);
+                moveToHead(node);
+                logTrace(`Get([${key}]): Found value [${node.val}], promoted to MRU head.`, 'highlight');
+            } else {
+                logTrace(`Get([${key}]): Key not found in cache (Cache Miss).`, 'err');
+            }
+
+            document.getElementById('getKey').value = '';
+            renderCache();
+        }
+
+        function moveToHead(node) {
+            if (node === head) return;
+
+            // Remove from current position
+            if (node === tail) {
+                tail = tail.prev;
+                tail.next = null;
+            } else {
+                node.prev.next = node.next;
+                node.next.prev = node.prev;
+            }
+
+            // Insert at head
+            node.next = head;
+            node.prev = null;
+            if (head) head.prev = node;
+            head = node;
+            if (!tail) tail = head;
+        }
+
+        function addToHead(node) {
+            if (!head) {
+                head = node;
+                tail = node;
+            } else {
+                node.next = head;
+                head.prev = node;
+                head = node;
+            }
+        }
+
+        function removeTail() {
+            if (!tail) return;
+            if (head === tail) {
+                head = null;
+                tail = null;
+            } else {
+                tail = tail.prev;
+                tail.next = null;
+            }
+        }
+
+        function logTrace(msg, type = 'info') {
+            const container = document.getElementById('logContainer');
+            let color = 'text-slate-300';
+            if (type === 'match') color = 'text-amber-300 font-semibold';
+            if (type === 'highlight') color = 'text-emerald-300 font-bold';
+            if (type === 'err') color = 'text-rose-400 font-bold';
+
+            container.innerHTML += `<div class="${color}">&gt; ${msg}</div>`;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function renderCache() {
+            // Render DLL Nodes
+            const dllContainer = document.getElementById('dllContainer');
+            dllContainer.innerHTML = '';
+
+            if (!head) {
+                dllContainer.innerHTML = `<span class="text-xs font-mono text-slate-400 italic">[ Cache is Empty ]</span>`;
+            } else {
+                let curr = head;
+                while (curr) {
+                    let isHead = (curr === head);
+                    let isTail = (curr === tail);
+                    let badgeClass = isHead ? 'bg-indigo-600 text-white' : (isTail ? 'bg-rose-500 text-white' : 'bg-slate-200 text-slate-700');
+                    let badgeText = isHead ? 'HEAD (MRU)' : (isTail ? 'TAIL (LRU)' : 'NODE');
+
+                    let div = document.createElement('div');
+                    div.className = 'w-36 h-24 rounded-xl border border-slate-200 bg-white shadow-xs flex flex-col justify-between p-2 font-mono cache-node';
+                    div.innerHTML = `
+                        <div class="flex justify-between items-center text-[9px] font-bold">
+                            <span class="${badgeClass} px-1.5 py-0.5 rounded">${badgeText}</span>
+                        </div>
+                        <div class="text-center">
+                            <span class="text-xs text-slate-400 block">K: <strong class="text-slate-800">${curr.key}</strong></span>
+                            <span class="text-xs text-slate-400 block">V: <strong class="text-indigo-600">${curr.val}</strong></span>
+                        </div>
+                        <div class="text-[9px] text-slate-400 text-center">⇄ link</div>
+                    `;
+                    dllContainer.appendChild(div);
+                    curr = curr.next;
+                }
+            }
+
+            // Render Map State
+            const mapContainer = document.getElementById('mapContainer');
+            mapContainer.innerHTML = '';
+            if (map.size === 0) {
+                mapContainer.innerHTML = `<span class="text-xs font-mono text-slate-400 italic">Map empty</span>`;
+            } else {
+                map.forEach((node, key) => {
+                    let mDiv = document.createElement('div');
+                    mDiv.className = 'px-3 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50 font-mono text-xs font-bold text-indigo-700 shadow-xs flex items-center space-x-1';
+                    mDiv.innerHTML = `<span>${key}</span><span class="text-slate-400">&rarr;</span><span>${node.val}</span>`;
+                    mapContainer.appendChild(mDiv);
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            resetLRUState();
+        });
+    </script>
+</body>
+</html>

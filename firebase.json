@@ -1,0 +1,16 @@
+{
+  "firestore": [
+    {
+      "database": "virtual-labs",
+      "rules": "firestore.virtual-labs.rules"
+    },
+    {
+      "database": "ai-interviews",
+      "rules": "firestore.ai-interviews.rules"
+    },
+    {
+      "database": "e-library",
+      "rules": "firestore.e-library.rules"
+    }
+  ]
+}

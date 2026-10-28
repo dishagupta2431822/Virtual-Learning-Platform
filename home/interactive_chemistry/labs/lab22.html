@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #22: Spectroscopy (UV-Vis & IR) | Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="../index.html" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 hover:opacity-90 transition-opacity">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </a>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Virtual Lab #22</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">UV-Vis & IR Spectroscopy</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Beer-Lambert & IR Spectrum
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+        <!-- Lab Header Info -->
+        <div class="mb-8">
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Spectroscopy (UV-Vis & IR Absorption)</h1>
+            <p class="text-sm text-slate-500 mt-1">Analyze Beer-Lambert law absorbance curves, functional group IR fingerprints, and transmittance spectrum peaks.</p>
+        </div>
+
+        <!-- Simulation Grid Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Control Panel -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between space-y-6">
+                <div>
+                    <h2 class="font-bold text-slate-900 text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-indigo-600"></i> Mode & Sample Select
+                    </h2>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Spectroscopy Mode</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="setMode('uv', this)" id="btnUV" class="mode-btn py-2.5 px-3 rounded-xl border border-indigo-500 bg-indigo-50 text-indigo-700 font-medium text-xs transition-all">
+                                    UV-Vis (Beer-Lambert)
+                                </button>
+                                <button onclick="setMode('ir', this)" id="btnIR" class="mode-btn py-2.5 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs transition-all">
+                                    IR (Functional Groups)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- UV-Vis Mode Controls -->
+                        <div id="uvControls" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Sample Chromophore</label>
+                                <select id="uvSampleSelect" onchange="updateSimulation()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:border-indigo-500">
+                                    <option value="permanganate">Potassium Permanganate (KMnO4 - 525 nm)</option>
+                                    <option value="copper">Copper(II) Sulfate (CuSO4 - 810 nm)</option>
+                                    <option value="dichromate">Potassium Dichromate (K2Cr2O7 - 350 nm)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Concentration (mM)</label>
+                                <input type="range" id="concSlider" min="0.1" max="2.0" step="0.1" value="1.0" oninput="updateSimulation()" class="w-full accent-indigo-600">
+                                <div class="flex justify-between text-[11px] text-slate-400 font-mono mt-1">
+                                    <span>0.1 mM</span>
+                                    <span id="concVal" class="text-indigo-600 font-bold">1.0 mM</span>
+                                    <span>2.0 mM</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Cuvette Path Length ($b$)</label>
+                                <select id="pathLengthSelect" onchange="updateSimulation()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:border-indigo-500">
+                                    <option value="1.0">1.0 cm (Standard Cuvette)</option>
+                                    <option value="0.5">0.5 cm (Micro Cuvette)</option>
+                                    <option value="2.0">2.0 cm (Long Path Cuvette)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- IR Mode Controls -->
+                        <div id="irControls" class="space-y-4 hidden">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Select Functional Group</label>
+                                <select id="irSampleSelect" onchange="updateSimulation()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:border-indigo-500">
+                                    <option value="alcohol">Alcohol (Ethanol - Broad O-H Stretch)</option>
+                                    <option value="carbonyl">Ketone / Carbonyl (Acetone - Sharp C=O Stretch)</option>
+                                    <option value="amine">Primary Amine (Ethylamine - N-H Doublet)</option>
+                                    <option value="aromatic">Aromatic Ring (Toluene - C=C & C-H Overtones)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <button onclick="resetLab()" class="text-xs text-slate-500 hover:text-slate-700 font-medium underline">
+                        Reset Parameters
+                    </button>
+                    <span class="text-xs text-slate-400"><i class="fa-solid fa-wave-square text-indigo-600 mr-1"></i> $A = \epsilon \cdot b \cdot c$</span>
+                </div>
+            </div>
+
+            <!-- Right Visualizer & Analysis Panel -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Main Spectrum Display Card -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 id="panelTitle" class="font-bold text-slate-900 text-base">UV-Vis Absorbance Spectrum</h3>
+                        <span id="spectrumBadge" class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">Absorbance Peak: 0.85 AU</span>
+                    </div>
+
+                    <!-- Dynamic Visual Spectrum Canvas / Chart Container -->
+                    <div class="p-5 bg-slate-900 rounded-2xl border border-slate-800 text-white font-mono text-xs mb-6">
+                        <div id="spectrumVisual" class="h-44 flex items-end justify-between gap-1 p-2 bg-slate-950/80 rounded-xl border border-slate-800 overflow-x-auto">
+                            <!-- Injected via JS -->
+                        </div>
+                        <div id="spectrumXAxis" class="flex justify-between text-[10px] text-slate-400 mt-2 px-1">
+                            <span>200 nm</span>
+                            <span>500 nm</span>
+                            <span>800 nm</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Peak Wavelength ($\lambda_{\text{max}}$ / $\tilde{\nu}$)</div>
+                            <div id="peakWavelengthVal" class="text-base font-bold text-indigo-600 font-mono">525 nm</div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Measured Value</div>
+                            <div id="primaryMeasurementVal" class="text-base font-bold text-slate-800 font-mono">Absorbance: 0.85 AU</div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Characteristic Feature</div>
+                            <div id="featureVal" class="text-base font-bold text-emerald-600 font-mono">Visible Purple Absorption</div>
+                        </div>
+                    </div>
+
+                    <p id="labDesc" class="text-xs text-slate-600 leading-relaxed">
+                        Beer-Lambert Law dictates that light absorbance ($A$) is directly proportional to molar absorptivity ($\epsilon$), optical path length ($b$), and solute concentration ($c$).
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs border-t border-slate-800">
+        &copy; 2026 Virtual Learning Platform. All rights reserved.
+    </footer>
+
+    <!-- Simulation Script -->
+    <script>
+        let currentMode = 'uv';
+
+        const uvSamples = {
+            permanganate: {
+                name: "Potassium Permanganate (KMnO4)",
+                lambdaMax: 525,
+                molarAbsorptivity: 0.85,
+                colorName: "Deep Purple / Violet",
+                feature: "d-d Transition Charge Transfer",
+                desc: "KMnO4 exhibits a strong absorption band centered at 525 nm in the green-yellow region of the spectrum, transmitting intense purple light."
+            },
+            copper: {
+                name: "Copper(II) Sulfate (CuSO4)",
+                lambdaMax: 810,
+                molarAbsorptivity: 0.35,
+                colorName: "Cyan / Sky Blue",
+                feature: "Octahedral d-d Transition",
+                desc: "CuSO4 absorbs red/near-IR light around 810 nm due to Jahn-Teller distorted octahedral d-d transitions, giving the solution its characteristic sky blue hue."
+            },
+            dichromate: {
+                name: "Potassium Dichromate (K2Cr2O7)",
+                lambdaMax: 350,
+                molarAbsorptivity: 0.95,
+                colorName: "Bright Orange",
+                feature: "Ligand-to-Metal Charge Transfer",
+                desc: "K2Cr2O7 features intense UV/near-blue absorption near 350 nm driven by LMCT, producing a rich orange solution."
+            }
+        };
+
+        const irSamples = {
+            alcohol: {
+                name: "Ethanol (O-H Stretch)",
+                peakRange: "3200 - 3550 cm⁻¹",
+                feature: "Strong, Broad O-H Band",
+                desc: "Intermolecular hydrogen bonding causes the O-H stretching vibration to broaden significantly across the 3200-3550 cm⁻¹ region.",
+                peaks: [3350, 2950, 1050]
+            },
+            carbonyl: {
+                name: "Acetone (C=O Stretch)",
+                peakRange: "1715 cm⁻¹",
+                feature: "Intense, Sharp C=O Peak",
+                desc: "The carbonyl C=O group creates a prominent, sharp absorption peak at 1715 cm⁻¹ due to a large dipole moment change during stretching.",
+                peaks: [1715, 2960, 1360]
+            },
+            amine: {
+                name: "Ethylamine (N-H Doublet)",
+                peakRange: "3300 - 3500 cm⁻¹",
+                feature: "Twin-Peak N-H Stretch",
+                desc: "Primary amines exhibit two distinct N-H stretching absorption bands corresponding to symmetric and asymmetric stretching modes.",
+                peaks: [3400, 3300, 2920, 1600]
+            },
+            aromatic: {
+                name: "Toluene (C=C & C-H Aromatic)",
+                peakRange: "3030 cm⁻¹ & 1600 cm⁻¹",
+                feature: "sp² C-H & Ring Overtones",
+                desc: "Aromatic rings feature sp² C-H stretching above 3000 cm⁻¹, coupled with characteristic C=C ring stretching bands near 1600 cm⁻¹ and weak overtone patterns.",
+                peaks: [3030, 2920, 1600, 1495, 730]
+            }
+        };
+
+        function setMode(mode, btn) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(b => {
+                b.className = "mode-btn py-2.5 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs transition-all";
+            });
+            if (btn) {
+                btn.className = "mode-btn py-2.5 px-3 rounded-xl border border-indigo-500 bg-indigo-50 text-indigo-700 font-medium text-xs transition-all";
+            }
+
+            if (mode === 'uv') {
+                document.getElementById('uvControls').classList.remove('hidden');
+                document.getElementById('irControls').classList.add('hidden');
+            } else {
+                document.getElementById('uvControls').classList.add('hidden');
+                document.getElementById('irControls').classList.remove('hidden');
+            }
+            updateSimulation();
+        }
+
+        function resetLab() {
+            document.getElementById('concSlider').value = 1.0;
+            updateSimulation();
+        }
+
+        function updateSimulation() {
+            const container = document.getElementById('spectrumVisual');
+            const xAxis = document.getElementById('spectrumXAxis');
+            container.innerHTML = '';
+
+            if (currentMode === 'uv') {
+                const sampleKey = document.getElementById('uvSampleSelect').value;
+                const sample = uvSamples[sampleKey];
+                const conc = parseFloat(document.getElementById('concSlider').value);
+                const pathLength = parseFloat(document.getElementById('pathLengthSelect').value);
+
+                document.getElementById('concVal').textContent = conc.toFixed(1) + " mM";
+
+                // Beer-Lambert Law: A = e * b * c
+                const absorbance = (sample.molarAbsorptivity * pathLength * conc).toFixed(2);
+
+                document.getElementById('panelTitle').textContent = `${sample.name} UV-Vis Spectrum`;
+                document.getElementById('spectrumBadge').textContent = `Absorbance Peak: ${absorbance} AU`;
+                document.getElementById('peakWavelengthVal').textContent = `${sample.lambdaMax} nm`;
+                document.getElementById('primaryMeasurementVal').textContent = `Absorbance: ${absorbance} AU`;
+                document.getElementById('featureVal').textContent = sample.feature;
+                document.getElementById('labDesc').textContent = sample.desc + ` Under Beer-Lambert's Law (A = ε·b·c), increasing concentration to ${conc.toFixed(1)} mM yields an absorbance of ${absorbance} AU.`;
+
+                xAxis.innerHTML = `<span>200 nm</span><span>${sample.lambdaMax} nm (Peak)</span><span>800 nm</span>`;
+
+                // Draw UV absorbance peak curve
+                for (let i = 0; i < 30; i++) {
+                    const bar = document.createElement('div');
+                    const distFromCenter = Math.abs(i - 15);
+                    const factor = Math.max(0.05, 1 - (distFromCenter * 0.08));
+                    const heightPct = Math.min(100, Math.round(factor * (absorbance / 2.0) * 100));
+
+                    bar.className = "flex-grow bg-indigo-500 rounded-t-sm transition-all duration-300";
+                    bar.style.height = `${heightPct}%`;
+                    container.appendChild(bar);
+                }
+
+            } else {
+                const sampleKey = document.getElementById('irSampleSelect').value;
+                const sample = irSamples[sampleKey];
+
+                document.getElementById('panelTitle').textContent = `${sample.name} Infrared Spectrum`;
+                document.getElementById('spectrumBadge').textContent = `Peak Range: ${sample.peakRange}`;
+                document.getElementById('peakWavelengthVal').textContent = sample.peakRange;
+                document.getElementById('primaryMeasurementVal').textContent = `Transmittance (%)`;
+                document.getElementById('featureVal').textContent = sample.feature;
+                document.getElementById('labDesc').textContent = sample.desc;
+
+                xAxis.innerHTML = `<span>4000 cm⁻¹</span><span>2000 cm⁻¹</span><span>400 cm⁻¹</span>`;
+
+                // Draw IR transmittance spectrum (inverted dips)
+                for (let i = 0; i < 35; i++) {
+                    const bar = document.createElement('div');
+                    let dip = 90; // Default baseline ~90% Transmittance
+
+                    if (i === 8 || i === 9) dip = 20;  // High frequency stretch
+                    if (i === 18) dip = 15;            // Carbonyl or C=C band
+                    if (i === 28) dip = 35;            // Fingerprint region
+
+                    bar.className = "flex-grow bg-emerald-400 rounded-b-sm transition-all duration-300 self-start";
+                    bar.style.height = `${dip}%`;
+                    container.appendChild(bar);
+                }
+            }
+        }
+
+        // Initial load
+        updateSimulation();
+    </script>
+</body>
+</html>

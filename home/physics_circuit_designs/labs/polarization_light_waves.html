@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #17: Polarization of Light Waves | Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="/home/physics_circuit_designs/index.html" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors" title="Back to Physics Labs">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </a>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Lab #17</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">Polarization & Malus's Law</span>
+                </div>
+            </div>
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-600">
+                <a href="#simulator" class="hover:text-indigo-600 transition-colors">Simulator</a>
+                <a href="#tutorial" class="hover:text-indigo-600 transition-colors">Tutorial & Theory</a>
+                <a href="#malusTable" class="hover:text-indigo-600 transition-colors">Malus's Law Checkpoints</a>
+            </nav>
+            <div class="flex items-center space-x-3">
+                <a href="/home/physics_circuit_designs/index.html" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-xl text-sm shadow-sm transition-all shadow-indigo-500/20">
+                    All Labs
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Lab Container -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left 2 Columns: Interactive Simulator & Workbench -->
+        <div id="simulator" class="lg:col-span-2 space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+                    <div>
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700">Optics Lab &bull; Wave Polarization</span>
+                        <h1 class="text-2xl font-bold text-slate-900 mt-1">Polarization of Light & Malus's Law Workbench</h1>
+                    </div>
+                    <button onclick="resetLab()" class="text-slate-400 hover:text-slate-600 text-xs font-medium bg-slate-100 px-3 py-1.5 rounded-lg transition-colors">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> Reset
+                    </button>
+                </div>
+
+                <!-- Parameter Sliders -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Initial Intensity (I₀): <span id="valI0" class="text-indigo-600 font-bold">100.0 W/m²</span></label>
+                        <input type="range" id="sliderI0" min="20" max="200" step="10" value="100" oninput="updateParameters()" class="w-full accent-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Analyzer Angle (&theta;): <span id="valTheta" class="text-indigo-600 font-bold">0.0°</span></label>
+                        <input type="range" id="sliderTheta" min="0" max="90" step="1" value="0" oninput="updateParameters()" class="w-full accent-indigo-600">
+                    </div>
+                </div>
+
+                <!-- Polarization Visual Board -->
+                <div class="bg-slate-950 rounded-2xl p-6 text-white relative overflow-hidden shadow-inner border border-slate-800">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-xs font-mono text-slate-400 uppercase tracking-widest">
+                            Malus's Law Profile &bull; <span id="polarStatusBadge" class="text-emerald-400 font-bold">PARALLEL (MAX TRANSMISSION)</span>
+                        </div>
+                        <div class="text-xs font-mono bg-slate-900 px-3 py-1 rounded-lg border border-slate-800 text-indigo-400">
+                            Transmitted Intensity (I): <span id="intensityVal" class="font-bold text-white">100.0 W/m²</span>
+                        </div>
+                    </div>
+
+                    <!-- Visual Graph Area -->
+                    <div class="space-y-4">
+                        <!-- SVG Cosine Squared Intensity Curve -->
+                        <div class="h-44 relative border-l border-b border-slate-700 flex items-end px-2 pt-2 pb-0">
+                            <svg class="absolute inset-0 w-full h-full overflow-visible p-2" preserveAspectRatio="none" viewBox="0 0 500 150">
+                                <path id="malusCurve" d="" fill="none" stroke="#6366f1" stroke-width="3" stroke-linecap="round" />
+                            </svg>
+                            <!-- Probing Dot Marker -->
+                            <div id="probeDot" class="absolute w-4 h-4 bg-emerald-400 rounded-full shadow-lg shadow-emerald-400/50 -translate-x-1/2 translate-y-1/2 transition-all" style="left: 0%; bottom: 100%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Live Telemetry Readout -->
+                    <div class="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-slate-800/80 text-center">
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Transmitted Intensity (I)</span>
+                            <span id="readoutI" class="text-lg font-bold text-indigo-400 font-mono">100.0 W/m²</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Transmittance Ratio</span>
+                            <span id="readoutRatio" class="text-lg font-bold text-emerald-400 font-mono">100.0 %</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Polarizer Alignment</span>
+                            <span id="readoutState" class="text-lg font-bold text-amber-400 font-mono">Aligned (0°)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulation Action Controls -->
+                <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+                    <div class="text-xs text-slate-500">
+                        Malus's Law Formula: <code class="bg-slate-100 px-2 py-1 rounded text-slate-700 font-mono font-bold">I = I₀ cos²(&theta;)</code>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="testCrossedPolarizers()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium px-4 py-2 rounded-xl shadow-sm transition-all">
+                            <i class="fa-solid fa-shield-halved mr-1"></i> Test Crossed Polarizers (90°)
+                        </button>
+                        <button onclick="alert('Lab #17 polarization report exported successfully as CSV.')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium px-4 py-2 rounded-xl transition-colors">
+                            <i class="fa-solid fa-download mr-1"></i> Export Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Malus's Law Verification Table -->
+            <div id="malusTable" class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <h3 class="font-bold text-slate-900 text-lg mb-2">Malus's Law Checkpoints</h3>
+                <p class="text-xs text-slate-500 mb-4">Transmission intensity at standard analyzer angle intervals.</p>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
+                                <th class="py-3 px-4 font-semibold">Angle (&theta;)</th>
+                                <th class="py-3 px-4 font-semibold">Cos(&theta;)</th>
+                                <th class="py-3 px-4 font-semibold">Cos²(&theta;)</th>
+                                <th class="py-3 px-4 font-semibold">Transmitted Intensity (I)</th>
+                                <th class="py-3 px-4 font-semibold">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="matrixRows" class="divide-y divide-slate-100 text-xs">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right 1 Column: Tutorial & Theory Panel -->
+        <div id="tutorial" class="space-y-6">
+            <!-- Lab Overview Card -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-sun"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Tutorial & Theory</h3>
+                        <span class="text-xs text-slate-400">Polarization & Malus's Law</span>
+                    </div>
+                </div>
+                <div class="space-y-4 text-xs text-slate-600 leading-relaxed">
+                    <p>
+                        <strong>Polarization</strong> is a property of transverse waves specifying the geometrical orientation of the oscillations. In light waves, the electric field vector oscillates in a specific plane.
+                    </p>
+                    <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl">
+                        <h4 class="font-bold text-indigo-900 text-xs mb-1 uppercase tracking-wider">Malus's Law</h4>
+                        <p class="text-indigo-800">When completely polarized light is incident on an analyzer, the transmitted intensity $I$ varies directly as the square of the cosine of the angle $\theta$ between their transmission axes: $I = I_0 \cos^2\theta$.</p>
+                    </div>
+                    <div class="bg-violet-50 border border-violet-100 p-4 rounded-xl">
+                        <h4 class="font-bold text-violet-900 text-xs mb-1 uppercase tracking-wider">Crossed Polarizers</h4>
+                        <p class="text-violet-800">When two polarizers have their transmission axes perpendicular ($\theta = 90^\circ$), complete extinction occurs ($I = 0$).</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Experiment Objectives -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <h3 class="font-bold text-slate-900 text-base mb-3">Experiment Objectives</h3>
+                <ul class="space-y-2.5 text-xs text-slate-600">
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Verify Malus's Law across varying analyzer angles ($\theta$).</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Observe zero light transmission at crossed angles ($90^\circ$).</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Analyze cosine-squared intensity distribution profiles.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Need Assistance? -->
+            <div class="bg-gradient-to-br from-indigo-950 to-slate-900 text-white rounded-2xl p-6 shadow-md">
+                <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white mb-3">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+                <h4 class="font-bold text-sm mb-1">Need Lab Support?</h4>
+                <p class="text-xs text-slate-300 leading-relaxed mb-4">Consult wave optics and polarization chapters in your physics textbook.</p>
+                <a href="physics-labs.html#contact" class="inline-block bg-white text-indigo-950 font-bold px-4 py-2 rounded-xl text-xs hover:bg-slate-100 transition-colors">
+                    Contact Instructor
+                </a>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Site Footer -->
+    <footer class="bg-slate-900 text-slate-300 py-8 border-t border-slate-800 mt-16 text-center text-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            &copy; 2026 Virtual Learning Labs Platform &bull; Lab #17: Polarization of Light Waves
+        </div>
+    </footer>
+
+    <!-- Interactive Simulation Script -->
+    <script>
+        function updateParameters() {
+            const i0 = parseFloat(document.getElementById('sliderI0').value);
+            const thetaDeg = parseFloat(document.getElementById('sliderTheta').value);
+
+            document.getElementById('valI0').innerText = i0.toFixed(1) + ' W/m²';
+            document.getElementById('valTheta').innerText = thetaDeg.toFixed(1) + '°';
+
+            const thetaRad = thetaDeg * (Math.PI / 180);
+            const cosVal = Math.cos(thetaRad);
+            const iTransmitted = i0 * Math.pow(cosVal, 2);
+            const ratioPct = (iTransmitted / i0) * 100;
+
+            document.getElementById('intensityVal').innerText = iTransmitted.toFixed(2) + ' W/m²';
+            document.getElementById('readoutI').innerText = iTransmitted.toFixed(2) + ' W/m²';
+            document.getElementById('readoutRatio').innerText = ratioPct.toFixed(1) + ' %';
+
+            const badge = document.getElementById('polarStatusBadge');
+            const stateReadout = document.getElementById('readoutState');
+
+            if (thetaDeg === 0) {
+                badge.innerText = "PARALLEL (MAX TRANSMISSION)";
+                badge.className = "text-emerald-400 font-bold";
+                stateReadout.innerText = "Aligned (0°)";
+            } else if (thetaDeg === 90) {
+                badge.innerText = "CROSSED POLARIZERS (EXTINCTION)";
+                badge.className = "text-amber-400 font-bold";
+                stateReadout.innerText = "Crossed (90°)";
+            } else {
+                badge.innerText = "INTERMEDIATE TRANSMISSION";
+                badge.className = "text-indigo-400 font-bold";
+                stateReadout.innerText = `${thetaDeg}° Active`;
+            }
+
+            renderMalusCurve(i0, thetaDeg);
+            renderMatrixTable(i0, thetaDeg);
+        }
+
+        function renderMalusCurve(i0, currentTheta) {
+            const curve = document.getElementById('malusCurve');
+            let pathString = "";
+
+            // SVG viewbox width 500, height 150 (angle from 0 to 90 deg)
+            for (let x = 0; x <= 500; x += 5) {
+                const angleDeg = (x / 500) * 90;
+                const rad = angleDeg * (Math.PI / 180);
+                const val = i0 * Math.pow(Math.cos(rad), 2);
+                const y = 150 - (val / 200 * 140); // scale max 200 W/m2
+
+                if (x === 0) pathString += `M ${x} ${y.toFixed(1)} `;
+                else pathString += `L ${x} ${y.toFixed(1)} `;
+            }
+            curve.setAttribute('d', pathString);
+
+            // Probing dot position
+            const dotX = (currentTheta / 90) * 500;
+            const currentRad = currentTheta * (Math.PI / 180);
+            const currentVal = i0 * Math.pow(Math.cos(currentRad), 2);
+            const dotY = 150 - (currentVal / 200 * 140);
+
+            const dot = document.getElementById('probeDot');
+            dot.style.left = (dotX / 500 * 100) + '%';
+            dot.style.bottom = ((150 - dotY) / 150 * 100) + '%';
+        }
+
+        function renderMatrixTable(i0, currentTheta) {
+            const tbody = document.getElementById('matrixRows');
+            tbody.innerHTML = '';
+
+            const checkpoints = [0, 30, 45, 60, 90];
+            checkpoints.forEach(angle => {
+                const rad = angle * (Math.PI / 180);
+                const cosV = Math.cos(rad);
+                const cosSq = Math.pow(cosV, 2);
+                const iVal = i0 * cosSq;
+                const isCurrent = Math.abs(currentTheta - angle) <= 1;
+
+                const tr = document.createElement('tr');
+                tr.className = isCurrent ? "bg-indigo-50/80 font-semibold border-b border-slate-100" : "border-b border-slate-100 text-slate-600";
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-mono font-bold">${angle}°</td>
+                    <td class="py-3 px-4 font-mono">${cosV.toFixed(3)}</td>
+                    <td class="py-3 px-4 font-mono">${cosSq.toFixed(3)}</td>
+                    <td class="py-3 px-4 font-mono font-bold text-indigo-600">${iVal.toFixed(2)} W/m²</td>
+                    <td class="py-3 px-4">${isCurrent ? '<span class="text-indigo-600 font-bold"><i class="fa-solid fa-arrow-left mr-1"></i> Active State</span>' : 'Checkpoint'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function testCrossedPolarizers() {
+            document.getElementById('sliderTheta').value = 90;
+            updateParameters();
+        }
+
+        function resetLab() {
+            document.getElementById('sliderI0').value = 100;
+            document.getElementById('sliderTheta').value = 0;
+            updateParameters();
+        }
+
+        // Initialize
+        updateParameters();
+    </script>
+</body>
+</html>

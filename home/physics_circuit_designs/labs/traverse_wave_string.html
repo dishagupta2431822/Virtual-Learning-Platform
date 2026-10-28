@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #18: Transverse Wave Generator on String | Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="/home/physics_circuit_designs/index.html" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors" title="Back to Physics Labs">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </a>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Lab #18</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">Transverse Waves & Harmonics</span>
+                </div>
+            </div>
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-600">
+                <a href="#simulator" class="hover:text-indigo-600 transition-colors">Simulator</a>
+                <a href="#tutorial" class="hover:text-indigo-600 transition-colors">Tutorial & Theory</a>
+                <a href="#harmonicTable" class="hover:text-indigo-600 transition-colors">Harmonic Data</a>
+            </nav>
+            <div class="flex items-center space-x-3">
+                <a href="/home/physics_circuit_designs/index.html" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-xl text-sm shadow-sm transition-all shadow-indigo-500/20">
+                    All Labs
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Lab Container -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left 2 Columns: Interactive Simulator & Workbench -->
+        <div id="simulator" class="lg:col-span-2 space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+                    <div>
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700">Wave Mechanics Lab &bull; Standing Waves</span>
+                        <h1 class="text-2xl font-bold text-slate-900 mt-1">Transverse Wave Generator Workbench</h1>
+                    </div>
+                    <button onclick="resetLab()" class="text-slate-400 hover:text-slate-600 text-xs font-medium bg-slate-100 px-3 py-1.5 rounded-lg transition-colors">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> Reset
+                    </button>
+                </div>
+
+                <!-- Harmonic Mode Selector Tabs -->
+                <div class="grid grid-cols-5 gap-2 mb-6">
+                    <button id="btnH1" onclick="setHarmonic(1)" class="py-2.5 px-2 rounded-xl font-bold text-xs transition-all bg-indigo-600 text-white shadow-sm">1st (Fundamental)</button>
+                    <button id="btnH2" onclick="setHarmonic(2)" class="py-2.5 px-2 rounded-xl font-bold text-xs transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">2nd Harmonic</button>
+                    <button id="btnH3" onclick="setHarmonic(3)" class="py-2.5 px-2 rounded-xl font-bold text-xs transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">3rd Harmonic</button>
+                    <button id="btnH4" onclick="setHarmonic(4)" class="py-2.5 px-2 rounded-xl font-bold text-xs transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">4th Harmonic</button>
+                    <button id="btnH5" onclick="setHarmonic(5)" class="py-2.5 px-2 rounded-xl font-bold text-xs transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">5th Harmonic</button>
+                </div>
+
+                <!-- Parameter Sliders -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">String Tension (T): <span id="valT" class="text-indigo-600 font-bold">20.0 N</span></label>
+                        <input type="range" id="sliderT" min="5" max="50" step="1" value="20" oninput="updateParametersFromSliders()" class="w-full accent-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Mass Density (&mu;): <span id="valMu" class="text-indigo-600 font-bold">20 g/m</span></label>
+                        <input type="range" id="sliderMu" min="5" max="50" step="5" value="20" oninput="updateParametersFromSliders()" class="w-full accent-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Oscillator Frequency (f): <span id="valFreq" class="text-indigo-600 font-bold">31.6 Hz</span></label>
+                        <input type="range" id="sliderFreq" min="10" max="200" step="1" value="32" oninput="updateParametersFromSliders()" class="w-full accent-indigo-600">
+                    </div>
+                </div>
+
+                <!-- Live Standing Wave Animation Board -->
+                <div class="bg-slate-950 rounded-2xl p-6 text-white relative overflow-hidden shadow-inner border border-slate-800">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-xs font-mono text-slate-400 uppercase tracking-widest">
+                            Vibrating String &bull; <span id="waveModeBadge" class="text-indigo-400 font-bold">1st HARMONIC (FUNDAMENTAL)</span>
+                        </div>
+                        <div class="text-xs font-mono bg-slate-900 px-3 py-1 rounded-lg border border-slate-800 text-emerald-400">
+                            Wave Speed (v): <span id="speedVal" class="font-bold text-white">31.62 m/s</span>
+                        </div>
+                    </div>
+
+                    <!-- Visual Canvas / SVG String Area -->
+                    <div class="h-48 relative border border-slate-800 rounded-xl overflow-hidden flex items-center justify-center bg-slate-900">
+                        <!-- Fixed Ends Markers (Left Wall & Pulley) -->
+                        <div class="absolute left-4 top-1/2 -translate-y-1/2 w-2 h-20 bg-slate-50 rounded-full z-20"></div>
+                        <div class="absolute right-4 top-1/2 -translate-y-1/2 w-2 h-20 bg-slate-50 rounded-full z-20"></div>
+
+                        <!-- SVG Animated Standing Wave String -->
+                        <svg class="absolute inset-0 w-full h-full z-10" viewBox="0 0 600 200" preserveAspectRatio="none">
+                            <!-- Equilibrium Line (Dashed) -->
+                            <line x1="30" y1="100" x2="570" y2="100" stroke="#334155" stroke-dasharray="4" stroke-width="1.5" />
+                            <!-- Standing Wave Path -->
+                            <path id="stringPath" d="" fill="none" stroke="#6366f1" stroke-width="3" stroke-linecap="round" />
+                        </svg>
+                    </div>
+
+                    <!-- Live Telemetry Readout -->
+                    <div class="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-slate-800/80 text-center">
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Wavelength (&lambda;)</span>
+                            <span id="readoutLambda" class="text-lg font-bold text-indigo-400 font-mono">2.00 m</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Nodes / Antinodes</span>
+                            <span id="readoutNodes" class="text-lg font-bold text-amber-400 font-mono">2 Nodes, 1 Antinode</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Resonance Status</span>
+                            <span id="readoutResonance" class="text-lg font-bold text-emerald-400 font-mono">Locked (Resonant)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulation Action Controls -->
+                <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+                    <div class="text-xs text-slate-500">
+                        Formula: <code class="bg-slate-100 px-2 py-1 rounded text-slate-700 font-mono font-bold">v = &radic;(T / &mu;)</code> &bull; <code class="bg-slate-100 px-2 py-1 rounded text-slate-700 font-mono font-bold">fₙ = (n / 2L)v</code>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="toggleAnimation()" id="animBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium px-4 py-2 rounded-xl shadow-sm transition-all">
+                            <i class="fa-solid fa-pause mr-1"></i> Pause Vibration
+                        </button>
+                        <button onclick="alert('Lab #18 transverse string wave report exported successfully as CSV.')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium px-4 py-2 rounded-xl transition-colors">
+                            <i class="fa-solid fa-download mr-1"></i> Export Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Harmonic Checkpoints Table -->
+            <div id="harmonicTable" class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <h3 class="font-bold text-slate-900 text-lg mb-2">Harmonic Resonance Checkpoints</h3>
+                <p class="text-xs text-slate-500 mb-4">Frequency and wavelength values across fundamental and overtone modes ($L = 1.0\text{ m}$).</p>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
+                                <th class="py-3 px-4 font-semibold">Harmonic (n)</th>
+                                <th class="py-3 px-4 font-semibold">Wavelength (&lambda;ₙ)</th>
+                                <th class="py-3 px-4 font-semibold">Resonant Frequency (fₙ)</th>
+                                <th class="py-3 px-4 font-semibold">Nodes / Antinodes</th>
+                                <th class="py-3 px-4 font-semibold">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="matrixRows" class="divide-y divide-slate-100 text-xs">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right 1 Column: Tutorial & Theory Panel -->
+        <div id="tutorial" class="space-y-6">
+            <!-- Lab Overview Card -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-wave-square"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Tutorial & Theory</h3>
+                        <span class="text-xs text-slate-400">Standing Waves on Strings</span>
+                    </div>
+                </div>
+                <div class="space-y-4 text-xs text-slate-600 leading-relaxed">
+                    <p>
+                        When a string fixed at both ends is driven at specific resonant frequencies, incident and reflected transverse waves interfere to produce <strong>standing waves</strong> characterized by stationary nodes and antinodes.
+                    </p>
+                    <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl">
+                        <h4 class="font-bold text-indigo-900 text-xs mb-1 uppercase tracking-wider">Wave Speed ($v$)</h4>
+                        <p class="text-indigo-800">The speed of transverse waves along a stretched string depends directly on tension $T$ and linear mass density $\mu$: $v = \sqrt{T/\mu}$.</p>
+                    </div>
+                    <div class="bg-violet-50 border border-violet-100 p-4 rounded-xl">
+                        <h4 class="font-bold text-violet-900 text-xs mb-1 uppercase tracking-wider">Resonant Frequencies ($f_n$)</h4>
+                        <p class="text-violet-800">Harmonics occur at discrete frequencies where string length $L$ equals an integer multiple of half-wavelengths: $f_n = \frac{n}{2L}\sqrt{\frac{T}{\mu}}$.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Experiment Objectives -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <h3 class="font-bold text-slate-900 text-base mb-3">Experiment Objectives</h3>
+                <ul class="space-y-2.5 text-xs text-slate-600">
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Observe fundamental and overtone standing wave patterns ($n = 1$ to $5$).</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Analyze wave speed variations with tension ($T$) and mass density ($\mu$).</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Count node and antinode positions across harmonic loops.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Need Assistance? -->
+            <div class="bg-gradient-to-br from-indigo-950 to-slate-900 text-white rounded-2xl p-6 shadow-md">
+                <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white mb-3">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+                <h4 class="font-bold text-sm mb-1">Need Lab Support?</h4>
+                <p class="text-xs text-slate-300 leading-relaxed mb-4">Consult wave mechanics and string vibration chapters in your physics manual.</p>
+                <a href="physics-labs.html#contact" class="inline-block bg-white text-indigo-950 font-bold px-4 py-2 rounded-xl text-xs hover:bg-slate-100 transition-colors">
+                    Contact Instructor
+                </a>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Site Footer -->
+    <footer class="bg-slate-900 text-slate-300 py-8 border-t border-slate-800 mt-16 text-center text-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            &copy; 2026 Virtual Learning Labs Platform &bull; Lab #18: Transverse Wave Generator on String
+        </div>
+    </footer>
+
+    <!-- Interactive Simulation Script -->
+    <script>
+        let currentHarmonic = 1;
+        let isAnimating = true;
+        let animTime = 0;
+        let animationFrameId = null;
+        const STRING_LENGTH = 1.0; // 1.0 meter string length
+
+        function setHarmonic(n) {
+            currentHarmonic = n;
+            for (let i = 1; i <= 5; i++) {
+                const btn = document.getElementById(`btnH${i}`);
+                if (i === n) {
+                    btn.className = "py-2.5 px-2 rounded-xl font-bold text-xs transition-all bg-indigo-600 text-white shadow-sm";
+                } else {
+                    btn.className = "py-2.5 px-2 rounded-xl font-bold text-xs transition-all bg-slate-100 text-slate-600 hover:bg-slate-200";
+                }
+            }
+
+            // Auto calculate frequency for this harmonic based on current T and mu
+            const T = parseFloat(document.getElementById('sliderT').value);
+            const muG = parseFloat(document.getElementById('sliderMu').value); // g/m
+            const mu = muG * 1e-3; // kg/m
+            const v = Math.sqrt(T / mu);
+            const fn = (n * v) / (2 * STRING_LENGTH);
+
+            document.getElementById('sliderFreq').value = Math.min(200, Math.max(10, Math.round(fn)));
+            updateParameters();
+        }
+
+        function updateParametersFromSliders() {
+            updateParameters();
+        }
+
+        function updateParameters() {
+            const T = parseFloat(document.getElementById('sliderT').value);
+            const muG = parseFloat(document.getElementById('sliderMu').value);
+            const mu = muG * 1e-3; // kg/m
+            const f = parseFloat(document.getElementById('sliderFreq').value);
+
+            document.getElementById('valT').innerText = T.toFixed(1) + ' N';
+            document.getElementById('valMu').innerText = muG.toFixed(0) + ' g/m';
+            document.getElementById('valFreq').innerText = f.toFixed(1) + ' Hz';
+
+            const v = Math.sqrt(T / mu);
+            const lambda = v / f;
+            document.getElementById('speedVal').innerText = v.toFixed(2) + ' m/s';
+            document.getElementById('readoutLambda').innerText = lambda.toFixed(2) + ' m';
+
+            // Check if current frequency matches resonant frequency of currentHarmonic within tolerance
+            const targetFn = (currentHarmonic * v) / (2 * STRING_LENGTH);
+            const isResonant = Math.abs(f - targetFn) <= 2.5;
+
+            const badge = document.getElementById('waveModeBadge');
+            const resReadout = document.getElementById('readoutResonance');
+
+            const ordinalNames = ["1st (Fundamental)", "2nd Harmonic", "3rd Harmonic", "4th Harmonic", "5th Harmonic"];
+            badge.innerText = `${ordinalNames[currentHarmonic - 1]} (${currentHarmonic} loops)`;
+
+            if (isResonant) {
+                resReadout.innerText = "Locked (Resonant)";
+                resReadout.className = "text-lg font-bold text-emerald-400 font-mono";
+            } else {
+                resReadout.innerText = `Unsynced (fn = ${targetFn.toFixed(1)}Hz)`;
+                resReadout.className = "text-lg font-bold text-amber-400 font-mono";
+            }
+
+            const nodesCount = currentHarmonic + 1;
+            const antinodesCount = currentHarmonic;
+            document.getElementById('readoutNodes').innerText = `${nodesCount} Nodes, ${antinodesCount} Antinodes`;
+
+            renderMatrixTable(T, mu, v);
+        }
+
+        function renderMatrixTable(T, mu, v) {
+            const tbody = document.getElementById('matrixRows');
+            tbody.innerHTML = '';
+
+            for (let n = 1; n <= 5; n++) {
+                const fn = (n * v) / (2 * STRING_LENGTH);
+                const lambdan = (2 * STRING_LENGTH) / n;
+                const isCurrent = n === currentHarmonic;
+
+                const tr = document.createElement('tr');
+                tr.className = isCurrent ? "bg-indigo-50/80 font-semibold border-b border-slate-100" : "border-b border-slate-100 text-slate-600";
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-mono font-bold">n = ${n}</td>
+                    <td class="py-3 px-4 font-mono">${lambdan.toFixed(2)} m</td>
+                    <td class="py-3 px-4 font-mono font-bold text-indigo-600">${fn.toFixed(1)} Hz</td>
+                    <td class="py-3 px-4 font-mono">${n + 1} Nodes, ${n} Antinodes</td>
+                    <td class="py-3 px-4">${isCurrent ? '<span class="text-indigo-600 font-bold"><i class="fa-solid fa-arrow-left mr-1"></i> Active Harmonic</span>' : 'Resonant Mode'}</td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+
+        function animationLoop() {
+            if (!isAnimating) return;
+            animTime += 0.08;
+
+            const f = parseFloat(document.getElementById('sliderFreq').value);
+            const path = document.getElementById('stringPath');
+            let pathString = "";
+
+            // SVG viewbox width 600, height 200. String spans x from 30 to 570 (width = 540)
+            const startX = 30;
+            const endX = 570;
+            const stringWidth = endX - startX;
+
+            for (let x = startX; x <= endX; x += 10) {
+                const normalizedX = (x - startX) / stringWidth; // 0 to 1
+                // Standing wave equation: y(x,t) = A * sin(n * pi * x / L) * cos(omega * t)
+                const amplitude = 50; // max pixel deflection
+                const spatialFactor = Math.sin(currentHarmonic * Math.PI * normalizedX);
+                const temporalFactor = Math.cos(animTime * (f / 10));
+                const y = 100 - (amplitude * spatialFactor * temporalFactor);
+
+                if (x === startX) pathString += `M ${x} ${y.toFixed(1)} `;
+                else pathString += `L ${x} ${y.toFixed(1)} `;
+            }
+
+            path.setAttribute('d', pathString);
+            animationFrameId = requestAnimationFrame(animationLoop);
+        }
+
+        function toggleAnimation() {
+            const btn = document.getElementById('animBtn');
+            if (isAnimating) {
+                isAnimating = false;
+                cancelAnimationFrame(animationFrameId);
+                btn.innerHTML = `<i class="fa-solid fa-play mr-1"></i> Resume Vibration`;
+                btn.className = "bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium px-4 py-2 rounded-xl shadow-sm transition-all";
+            } else {
+                isAnimating = true;
+                animationLoop();
+                btn.innerHTML = `<i class="fa-solid fa-pause mr-1"></i> Pause Vibration`;
+                btn.className = "bg-amber-600 hover:bg-amber-700 text-white text-xs font-medium px-4 py-2 rounded-xl shadow-sm transition-all";
+            }
+        }
+
+        function resetLab() {
+            document.getElementById('sliderT').value = 20;
+            document.getElementById('sliderMu').value = 20;
+            setHarmonic(1);
+            if (!isAnimating) toggleAnimation();
+        }
+
+        // Initialize
+        updateParameters();
+        animationLoop();
+    </script>
+</body>
+</html>

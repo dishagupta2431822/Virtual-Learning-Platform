@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #30: Heapify & Priority Queue Operations</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        code, .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .heap-cell { transition: all 0.3s ease; }
+        .node-circle { transition: all 0.4s ease-in-out; }
+        .tree-line { transition: all 0.4s ease-in-out; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <div>
+        <!-- Navbar -->
+        <header class="bg-white border-b border-slate-100 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="#" class="bg-indigo-600 text-white p-2 rounded-xl shadow-md shadow-indigo-100">
+                        <i class="fa-solid fa-flask text-base"></i>
+                    </a>
+                    <div>
+                        <span class="font-bold text-slate-900 text-sm block leading-snug">Virtual Labs</span>
+                        <span class="text-[10px] text-indigo-600 font-bold uppercase tracking-wider block">CS & DATA STRUCTURES</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <span class="bg-indigo-50 text-indigo-700 text-xs font-semibold px-3 py-1 rounded-full border border-indigo-100">
+                        Lab #30 of 32
+                    </span>
+                    <button onclick="resetHeapState()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Reset Studio
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Lab Title Banner -->
+        <div class="bg-white border-b border-slate-100 py-6 px-6">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center space-x-2 text-xs text-indigo-600 font-semibold mb-1">
+                        <span>Data Structures & Priority Queues</span>
+                        <i class="fa-solid fa-chevron-right text-[9px] text-slate-400"></i>
+                        <span class="text-slate-500">Heapify, Sift-Up, and Sift-Down Mechanics</span>
+                    </div>
+                    <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">
+                        Lab #30: Heapify & Priority Queue Operations
+                    </h1>
+                    <p class="text-xs text-slate-500 mt-1">
+                        Step through array-to-binary-heap transformations, sift-up insertion, and sift-down extraction live.
+                    </p>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-semibold text-slate-600 bg-indigo-50 text-indigo-700 border border-indigo-200/80 px-3 py-1 rounded-full">
+                        <i class="fa-solid fa-mountain mr-1"></i> Min-Heap Studio
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Workbench Area -->
+        <main class="max-w-7xl mx-auto px-6 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+            <!-- Control & Status Panel -->
+            <div class="space-y-5 lg:col-span-1">
+                
+                <!-- Controls -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Heap Operations</h3>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 block mb-1">Unsorted Array Input</label>
+                        <input type="text" id="heapInput" value="20, 15, 30, 10, 8, 45, 5" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 outline-none focus:border-indigo-500 font-mono transition">
+                    </div>
+                    <button onclick="runBuildHeap()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-xs">
+                        Build Min-Heap (Heapify O(N))
+                    </button>
+                    <div class="pt-2 border-t border-slate-100 flex gap-2">
+                        <input type="number" id="insertVal" placeholder="Val" value="3" class="w-20 bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs text-slate-800 outline-none focus:border-indigo-500 font-mono transition text-center">
+                        <button onclick="handleInsert()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 rounded-xl transition shadow-xs">
+                            Insert (Sift-Up)
+                        </button>
+                    </div>
+                    <button onclick="handleExtractMin()" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-xs">
+                        Extract Min (Sift-Down)
+                    </button>
+                </div>
+
+                <!-- Execution Log -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Heap Trace Log</h3>
+                    <div id="logContainer" class="bg-slate-900 text-slate-300 p-3 rounded-xl font-mono text-[11px] h-40 overflow-y-auto space-y-1">
+                        <div class="text-slate-500">// Engine ready. Click Build Min-Heap.</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Visualization Canvas -->
+            <div class="lg:col-span-3 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between relative min-h-[550px] overflow-hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Interactive Binary Tree & Array Representation Canvas</span>
+                    <div class="flex items-center space-x-3 text-[11px] text-slate-500 font-medium">
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-indigo-600 rounded-full inline-block mr-1"></span> Heap Root</span>
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-slate-400 rounded-full inline-block mr-1"></span> Heap Node</span>
+                    </div>
+                </div>
+
+                <!-- Canvas Container -->
+                <div class="relative w-full h-[500px] border border-slate-100 rounded-xl bg-slate-50/50 overflow-auto flex flex-col items-center justify-between p-6">
+                    <!-- Binary Tree SVG View -->
+                    <div class="w-full h-[320px] flex items-center justify-center">
+                        <svg id="heapSvg" viewBox="0 0 700 300" class="w-full h-full min-w-[700px]"></svg>
+                    </div>
+                    <!-- Array View -->
+                    <div class="w-full border-t border-slate-200 pt-4">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-2 text-center">Underlying Array Representation</span>
+                        <div id="arrayContainer" class="flex flex-wrap justify-center gap-2"></div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-100 py-6 text-center text-xs text-slate-400">
+        <span>&copy; 2026 Virtual Labs • Heapify & Priority Queue Studio Suite</span>
+    </footer>
+
+    <!-- Script implementing Min-Heap operations and visualization -->
+    <script>
+        let heap = [];
+
+        function resetHeapState() {
+            let inputStr = document.getElementById('heapInput').value;
+            heap = inputStr.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+            document.getElementById('logContainer').innerHTML = '<div class="text-slate-500">// Engine ready. Click Build Min-Heap.</div>';
+            renderHeap();
+        }
+
+        function runBuildHeap() {
+            let inputStr = document.getElementById('heapInput').value;
+            heap = inputStr.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+            document.getElementById('logContainer').innerHTML = '';
+
+            logTrace(`--- Starting Build Min-Heap (Heapify O(N)) ---`);
+            logTrace(`Initial Array: [${heap.join(', ')}]`);
+
+            let n = heap.length;
+            for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+                siftDown(i);
+            }
+
+            logTrace(`--- Min-Heap Built Successfully! Root is min element: ${heap[0]} ---`, 'highlight');
+            renderHeap();
+        }
+
+        function siftDown(i) {
+            let n = heap.length;
+            let smallest = i;
+            let left = 2 * i + 1;
+            let right = 2 * i + 2;
+
+            if (left < n && heap[left] < heap[smallest]) smallest = left;
+            if (right < n && heap[right] < heap[smallest]) smallest = right;
+
+            if (smallest !== i) {
+                logTrace(`Sift-Down: swapping parent ${heap[i]} with smaller child ${heap[smallest]}`);
+                let temp = heap[i];
+                heap[i] = heap[smallest];
+                heap[smallest] = temp;
+                siftDown(smallest);
+            }
+        }
+
+        function siftUp(i) {
+            let parent = Math.floor((i - 1) / 2);
+            if (parent >= 0 && heap[i] < heap[parent]) {
+                logTrace(`Sift-Up: swapping child ${heap[i]} with parent ${heap[parent]}`);
+                let temp = heap[i];
+                heap[i] = heap[parent];
+                heap[parent] = temp;
+                siftUp(parent);
+            }
+        }
+
+        function handleInsert() {
+            let val = parseInt(document.getElementById('insertVal').value);
+            if (isNaN(val)) return;
+
+            logTrace(`Inserting value ${val} via Sift-Up`);
+            heap.push(val);
+            siftUp(heap.length - 1);
+            renderHeap();
+            document.getElementById('insertVal').value = '';
+        }
+
+        function handleExtractMin() {
+            if (heap.length === 0) {
+                logTrace('Heap is empty!', 'err');
+                return;
+            }
+
+            let minVal = heap[0];
+            logTrace(`Extracting minimum element: ${minVal}`, 'highlight');
+            
+            let lastVal = heap.pop();
+            if (heap.length > 0) {
+                heap[0] = lastVal;
+                siftDown(0);
+            }
+            renderHeap();
+        }
+
+        function logTrace(msg, type = 'info') {
+            const container = document.getElementById('logContainer');
+            let color = 'text-slate-300';
+            if (type === 'highlight') color = 'text-emerald-300 font-bold';
+            if (type === 'err') color = 'text-rose-400 font-bold';
+
+            container.innerHTML += `<div class="${color}">&gt; ${msg}</div>`;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function renderHeap() {
+            const arrayContainer = document.getElementById('arrayContainer');
+            arrayContainer.innerHTML = '';
+            heap.forEach((val, idx) => {
+                let div = document.createElement('div');
+                div.className = 'w-12 h-14 rounded-xl border border-slate-200 bg-white shadow-xs flex flex-col items-center justify-between p-1 font-mono heap-cell';
+                div.innerHTML = `
+                    <span class="text-[9px] text-slate-400">${idx}</span>
+                    <span class="text-sm font-bold text-slate-700">${val}</span>
+                `;
+                arrayContainer.appendChild(div);
+            });
+
+            const svg = document.getElementById('heapSvg');
+            svg.innerHTML = '';
+
+            if (heap.length === 0) return;
+
+            let coords = [];
+            let width = 700;
+
+            for (let i = 0; i < heap.length; i++) {
+                let level = Math.floor(Math.log2(i + 1));
+                let levelNodes = Math.pow(2, level);
+                let indexInLevel = i - (levelNodes - 1);
+                let colWidth = width / (levelNodes + 1);
+                let x = colWidth * (indexInLevel + 1);
+                let y = 40 + level * 75;
+                coords.push({x, y});
+            }
+
+            for (let i = 0; i < heap.length; i++) {
+                let left = 2 * i + 1;
+                let right = 2 * i + 2;
+                if (left < heap.length) {
+                    svg.innerHTML += `<line x1="${coords[i].x}" y1="${coords[i].y}" x2="${coords[left].x}" y2="${coords[left].y}" stroke="#cbd5e1" stroke-width="2.5" class="tree-line"/>`;
+                }
+                if (right < heap.length) {
+                    svg.innerHTML += `<line x1="${coords[i].x}" y1="${coords[i].y}" x2="${coords[right].x}" y2="${coords[right].y}" stroke="#cbd5e1" stroke-width="2.5" class="tree-line"/>`;
+                }
+            }
+
+            heap.forEach((val, idx) => {
+                let pos = coords[idx];
+                let isRoot = (idx === 0);
+                let fillColor = isRoot ? '#4f46e5' : '#64748b';
+
+                svg.innerHTML += `
+                    <g class="node-circle">
+                        <circle cx="${pos.x}" cy="${pos.y}" r="22" fill="${fillColor}" />
+                        <text x="${pos.x}" y="${pos.y + 5}" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Inter">${val}</text>
+                    </g>
+                `;
+            });
+        }
+
+        window.addEventListener('resize', renderHeap);
+        document.addEventListener('DOMContentLoaded', () => {
+            resetHeapState();
+        });
+    </script>
+</body>
+</html>

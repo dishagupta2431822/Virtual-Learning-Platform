@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #25: Photoelectric Effect | Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="/home/physics_circuit_designs/index.html" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors" title="Back to Physics Labs">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </a>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Lab #25</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">Photoelectric Effect & Planck's Constant</span>
+                </div>
+            </div>
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-600">
+                <a href="#simulator" class="hover:text-indigo-600 transition-colors">Simulator</a>
+                <a href="#tutorial" class="hover:text-indigo-600 transition-colors">Tutorial & Theory</a>
+                <a href="#photoelectricTable" class="hover:text-indigo-600 transition-colors">Metal Work Function Data</a>
+            </nav>
+            <div class="flex items-center space-x-3">
+                <a href="/home/physics_circuit_designs/index.html" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-xl text-sm shadow-sm transition-all shadow-indigo-500/20">
+                    All Labs
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Lab Container -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left 2 Columns: Interactive Simulator & Workbench -->
+        <div id="simulator" class="lg:col-span-2 space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+                    <div>
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-violet-50 text-violet-700">Quantum Physics Lab &bull; Photoelectric Effect</span>
+                        <h1 class="text-2xl font-bold text-slate-900 mt-1">Photoelectric Effect Workbench</h1>
+                    </div>
+                    <button onclick="resetLab()" class="text-slate-400 hover:text-slate-600 text-xs font-medium bg-slate-100 px-3 py-1.5 rounded-lg transition-colors">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> Reset
+                    </button>
+                </div>
+
+                <!-- Target Metal Cathode Selector -->
+                <div class="grid grid-cols-4 gap-2 mb-6">
+                    <button id="btnSodium" onclick="setTargetMetal('SODIUM')" class="py-2.5 px-2 rounded-xl font-bold text-xs transition-all bg-indigo-600 text-white shadow-sm">
+                        Sodium (Na, &Phi;=2.36 eV)
+                    </button>
+                    <button id="btnPotassium" onclick="setTargetMetal('POTASSIUM')" class="py-2.5 px-2 rounded-xl font-bold text-xs transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">
+                        Potassium (K, &Phi;=2.29 eV)
+                    </button>
+                    <button id="btnCesium" onclick="setTargetMetal('CESIUM')" class="py-2.5 px-2 rounded-xl font-bold text-xs transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">
+                        Cesium (Cs, &Phi;=1.95 eV)
+                    </button>
+                    <button id="btnCopper" onclick="setTargetMetal('COPPER')" class="py-2.5 px-2 rounded-xl font-bold text-xs transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">
+                        Copper (Cu, &Phi;=4.70 eV)
+                    </button>
+                </div>
+
+                <!-- Parameter Sliders -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Photon Wavelength (&lambda;): <span id="valLambda" class="text-indigo-600 font-bold">350 nm (UV)</span></label>
+                        <input type="range" id="sliderLambda" min="200" max="750" step="10" value="350" oninput="updateParameters()" class="w-full accent-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Light Intensity: <span id="valIntensity" class="text-indigo-600 font-bold">80 %</span></label>
+                        <input type="range" id="sliderIntensity" min="10" max="100" step="5" value="80" oninput="updateParameters()" class="w-full accent-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Stopping Voltage (V_stop): <span id="valVstop" class="text-indigo-600 font-bold">0.00 V</span></label>
+                        <input type="range" id="sliderVstop" min="0" max="4.0" step="0.05" value="0.0" oninput="updateParameters()" class="w-full accent-indigo-600">
+                    </div>
+                </div>
+
+                <!-- Photodiode Vacuum Tube Animation Board -->
+                <div class="bg-slate-950 rounded-2xl p-6 text-white relative overflow-hidden shadow-inner border border-slate-800">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-xs font-mono text-slate-400 uppercase tracking-widest">
+                            Vacuum Tube &bull; <span id="emissionBadge" class="text-emerald-400 font-bold">ACTIVE EMISSION (E_photon > &Phi;)</span>
+                        </div>
+                        <div class="text-xs font-mono bg-slate-900 px-3 py-1 rounded-lg border border-slate-800 text-indigo-400">
+                            Photon Energy (h&nu;): <span id="ePhotonVal" class="font-bold text-white">3.55 eV</span>
+                        </div>
+                    </div>
+
+                    <!-- Visual Photodiode Area -->
+                    <div class="h-56 relative border border-slate-800 rounded-xl overflow-hidden flex items-center justify-center bg-slate-900">
+                        <svg id="photoSvg" class="absolute inset-0 w-full h-full z-10 p-2" viewBox="0 0 600 200">
+                            <!-- Vacuum Tube Outer Glass Envelope -->
+                            <rect x="100" y="25" width="400" height="150" rx="40" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="8 4" opacity="0.6" />
+                            
+                            <!-- Target Cathode Metal Plate (Left, x=150) -->
+                            <rect x="150" y="45" width="16" height="110" rx="4" fill="#94a3b8" stroke="#cbd5e1" stroke-width="2" />
+                            <text x="145" y="175" fill="#cbd5e1" font-size="10" font-family="monospace">Cathode (-)</text>
+
+                            <!-- Collector Anode Metal Plate (Right, x=430) -->
+                            <rect x="430" y="45" width="16" height="110" rx="4" fill="#64748b" stroke="#94a3b8" stroke-width="2" />
+                            <text x="425" y="175" fill="#cbd5e1" font-size="10" font-family="monospace">Anode (+)</text>
+
+                            <!-- Light Source Ray Beam (Top Left to Cathode) -->
+                            <path id="lightRay" d="M 40 10 L 150 100" stroke="#8b5cf6" stroke-width="4" opacity="0.8" />
+                            
+                            <!-- Photoelectrons container injected dynamically in JS animation -->
+                            <g id="electronContainer"></g>
+                        </svg>
+                    </div>
+
+                    <!-- Live Telemetry Readout -->
+                    <div class="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-slate-800/80 text-center">
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Max Kinetic Energy (K_max)</span>
+                            <span id="readoutKmax" class="text-lg font-bold text-indigo-400 font-mono">1.19 eV</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Stopping Potential (V_s)</span>
+                            <span id="readoutVs" class="text-lg font-bold text-emerald-400 font-mono">1.19 V</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Photocurrent (I)</span>
+                            <span id="readoutCurrent" class="text-lg font-bold text-amber-400 font-mono">12.8 &mu;A</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulation Action Controls -->
+                <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+                    <div class="text-xs text-slate-500">
+                        Einstein's Photoelectric Equation: <code class="bg-slate-100 px-2 py-1 rounded text-slate-700 font-mono font-bold">e V_s = h &nu; - &Phi;</code>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="autoSetStoppingPotential()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium px-4 py-2 rounded-xl shadow-sm transition-all">
+                            <i class="fa-solid fa-bullseye mr-1"></i> Auto-Find Stopping Voltage (V_s)
+                        </button>
+                        <button onclick="alert('Lab #25 photoelectric report exported successfully as CSV.')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium px-4 py-2 rounded-xl transition-colors">
+                            <i class="fa-solid fa-download mr-1"></i> Export Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metal Work Function Verification Table -->
+            <div id="photoelectricTable" class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <h3 class="font-bold text-slate-900 text-lg mb-2">Target Metal Work Function Matrix</h3>
+                <p class="text-xs text-slate-500 mb-4">Work functions ($\Phi$) and cutoff frequencies ($\nu_0$) for common photoelectric cathodes.</p>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
+                                <th class="py-3 px-4 font-semibold">Metal Element</th>
+                                <th class="py-3 px-4 font-semibold">Work Function (&Phi;)</th>
+                                <th class="py-3 px-4 font-semibold">Threshold Wavelength (&lambda;₀)</th>
+                                <th class="py-3 px-4 font-semibold">Cutoff Frequency (&nu;₀)</th>
+                                <th class="py-3 px-4 font-semibold">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="matrixRows" class="divide-y divide-slate-100 text-xs">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right 1 Column: Tutorial & Theory Panel -->
+        <div id="tutorial" class="space-y-6">
+            <!-- Lab Overview Card -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-atom"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Tutorial & Theory</h3>
+                        <span class="text-xs text-slate-400">Quantum Theory of Light</span>
+                    </div>
+                </div>
+                <div class="space-y-4 text-xs text-slate-600 leading-relaxed">
+                    <p>
+                        The <strong>photoelectric effect</strong> is the emission of electrons when electromagnetic radiation (light) hits a metal surface. Albert Einstein explained it using Planck's quantum hypothesis.
+                    </p>
+                    <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl">
+                        <h4 class="font-bold text-indigo-900 text-xs mb-1 uppercase tracking-wider">Einstein's Equation</h4>
+                        <p class="text-indigo-800">$K_{\text{max}} = h\nu - \Phi$. The maximum kinetic energy of emitted electrons depends solely on photon frequency $\nu$, not light intensity.</p>
+                    </div>
+                    <div class="bg-violet-50 border border-violet-100 p-4 rounded-xl">
+                        <h4 class="font-bold text-violet-900 text-xs mb-1 uppercase tracking-wider">Work Function ($\Phi$)</h4>
+                        <p class="text-violet-800">The minimum energy required to liberate an electron from a metal surface. Below threshold frequency $\nu_0 = \Phi / h$, no electrons are emitted regardless of intensity.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Experiment Objectives -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <h3 class="font-bold text-slate-900 text-base mb-3">Experiment Objectives</h3>
+                <ul class="space-y-2.5 text-xs text-slate-600">
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Determine Planck's constant ($h \approx 6.626 \times 10^{-34}\text{ J}\cdot\text{s}$).</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Verify threshold frequency ($\nu_0$) and stopping potential ($V_s$) relationship.</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Observe photocurrent independence from photon frequency above threshold.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Need Assistance? -->
+            <div class="bg-gradient-to-br from-violet-950 to-slate-900 text-white rounded-2xl p-6 shadow-md">
+                <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white mb-3">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+                <h4 class="font-bold text-sm mb-1">Need Lab Support?</h4>
+                <p class="text-xs text-slate-300 leading-relaxed mb-4">Consult quantum physics and photoelectric effect chapters in your textbook.</p>
+                <a href="physics-labs.html#contact" class="inline-block bg-white text-violet-950 font-bold px-4 py-2 rounded-xl text-xs hover:bg-slate-100 transition-colors">
+                    Contact Instructor
+                </a>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Site Footer -->
+    <footer class="bg-slate-900 text-slate-300 py-8 border-t border-slate-800 mt-16 text-center text-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            &copy; 2026 Virtual Learning Labs Platform &bull; Lab #25: Photoelectric Effect
+        </div>
+    </footer>
+
+    <!-- Interactive Simulation Script -->
+    <script>
+        const PLANCK_EV = 4.135667e-15; // eV * s
+        const SPEED_OF_LIGHT = 3.0e8;   // m/s
+
+        const METALS = {
+            'SODIUM': { name: 'Sodium (Na)', workFunction: 2.36 },
+            'POTASSIUM': { name: 'Potassium (K)', workFunction: 2.29 },
+            'CESIUM': { name: 'Cesium (Cs)', workFunction: 1.95 },
+            'COPPER': { name: 'Copper (Cu)', workFunction: 4.70 }
+        };
+
+        let activeMetal = 'SODIUM';
+        let animTime = 0;
+        let electrons = [];
+
+        function wavelengthToHex(nm) {
+            if (nm < 400) return '#a855f7'; // Purple/UV
+            if (nm >= 400 && nm < 450) return '#8b5cf6'; // Violet
+            if (nm >= 450 && nm < 495) return '#3b82f6'; // Blue
+            if (nm >= 495 && nm < 570) return '#10b981'; // Green
+            if (nm >= 570 && nm < 590) return '#eab308'; // Yellow
+            if (nm >= 590 && nm < 620) return '#f97316'; // Orange
+            if (nm >= 620) return '#ef4444';             // Red
+            return '#10b981';
+        }
+
+        function setTargetMetal(metalKey) {
+            activeMetal = metalKey;
+            const btnNa = document.getElementById('btnSodium');
+            const btnK = document.getElementById('btnPotassium');
+            const btnCs = document.getElementById('btnCesium');
+            const btnCu = document.getElementById('btnCopper');
+
+            [btnNa, btnK, btnCs, btnCu].forEach(b => {
+                b.className = "py-2.5 px-2 rounded-xl font-bold text-xs transition-all bg-slate-100 text-slate-600 hover:bg-slate-200";
+            });
+
+            if (metalKey === 'SODIUM') btnNa.className = "py-2.5 px-2 rounded-xl font-bold text-xs transition-all bg-indigo-600 text-white shadow-sm";
+            if (metalKey === 'POTASSIUM') btnK.className = "py-2.5 px-2 rounded-xl font-bold text-xs transition-all bg-indigo-600 text-white shadow-sm";
+            if (metalKey === 'CESIUM') btnCs.className = "py-2.5 px-2 rounded-xl font-bold text-xs transition-all bg-indigo-600 text-white shadow-sm";
+            if (metalKey === 'COPPER') btnCu.className = "py-2.5 px-2 rounded-xl font-bold text-xs transition-all bg-indigo-600 text-white shadow-sm";
+
+            updateParameters();
+        }
+
+        function updateParameters() {
+            const lambdaNm = parseFloat(document.getElementById('sliderLambda').value);
+            const intensity = parseFloat(document.getElementById('sliderIntensity').value);
+            const vStopUser = parseFloat(document.getElementById('sliderVstop').value);
+
+            const hexColor = wavelengthToHex(lambdaNm);
+            document.getElementById('valLambda').innerText = lambdaNm.toFixed(0) + ' nm';
+            document.getElementById('valIntensity').innerText = intensity.toFixed(0) + ' %';
+            document.getElementById('valVstop').innerText = vStopUser.toFixed(2) + ' V';
+
+            // Photon Energy E = h * c / lambda
+            const lambdaM = lambdaNm * 1e-9;
+            const ePhoton = (PLANCK_EV * SPEED_OF_LIGHT) / lambdaM; // in eV
+            document.getElementById('ePhotonVal').innerText = ePhoton.toFixed(2) + ' eV';
+
+            const phi = METALS[activeMetal].workFunction;
+            const kMax = Math.max(0, ePhoton - phi);
+            const vsTheoretical = kMax; // Stopping voltage equal to K_max / e
+
+            document.getElementById('readoutKmax').innerText = kMax.toFixed(2) + ' eV';
+            document.getElementById('readoutVs').innerText = vsTheoretical.toFixed(2) + ' V';
+
+            // Calculate photocurrent based on emission and stopping potential applied
+            let currentMicroA = 0;
+            if (kMax > 0 && vStopUser < vsTheoretical) {
+                // Photocurrent proportional to intensity and suppressed by stopping voltage
+                currentMicroA = (intensity * 0.2) * (1 - (vStopUser / vsTheoretical));
+            }
+
+            document.getElementById('readoutCurrent').innerText = currentMicroA.toFixed(1) + ' \u00b5A';
+
+            const badge = document.getElementById('emissionBadge');
+            if (ePhoton <= phi) {
+                badge.innerText = "NO EMISSIONS (E_photon < \u03a6)";
+                badge.className = "text-amber-400 font-bold";
+            } else if (vStopUser >= vsTheoretical) {
+                badge.innerText = "CURRENT CUTOFF (V_stop \u2265 V_s)";
+                badge.className = "text-sky-400 font-bold";
+            } else {
+                badge.innerText = "ACTIVE PHOTOEMISSION";
+                badge.className = "text-emerald-400 font-bold";
+            }
+
+            // Update light ray color
+            const ray = document.getElementById('lightRay');
+            ray.setAttribute('stroke', hexColor);
+
+            renderMatrixTable(lambdaNm, ePhoton);
+        }
+
+        function renderMatrixTable(currentLambda, currentE) {
+            const tbody = document.getElementById('matrixRows');
+            tbody.innerHTML = '';
+
+            Object.keys(METALS).forEach(key => {
+                const metal = METALS[key];
+                const phi = metal.workFunction;
+                const lambda0Nm = (PLANCK_EV * SPEED_OF_LIGHT) / (phi * 1e-9);
+                const nu0Hz = (phi / PLANCK_EV) / 1e14; // in 10^14 Hz
+                const isCurrent = key === activeMetal;
+
+                const tr = document.createElement('tr');
+                tr.className = isCurrent ? "bg-indigo-50/80 font-semibold border-b border-slate-100" : "border-b border-slate-100 text-slate-600";
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-semibold text-slate-900">${metal.name}</td>
+                    <td class="py-3 px-4 font-mono font-bold text-indigo-600">${phi.toFixed(2)} eV</td>
+                    <td class="py-3 px-4 font-mono">${lambda0Nm.toFixed(0)} nm</td>
+                    <td class="py-3 px-4 font-mono">${nu0Hz.toFixed(2)} &times; 10¹⁴ Hz</td>
+                    <td class="py-3 px-4">${isCurrent ? '<span class="text-indigo-600 font-bold"><i class="fa-solid fa-arrow-left mr-1"></i> Active Target</span>' : 'Reference Metal'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function autoSetStoppingPotential() {
+            const lambdaNm = parseFloat(document.getElementById('sliderLambda').value);
+            const lambdaM = lambdaNm * 1e-9;
+            const ePhoton = (PLANCK_EV * SPEED_OF_LIGHT) / lambdaM;
+            const phi = METALS[activeMetal].workFunction;
+            const kMax = Math.max(0, ePhoton - phi);
+
+            document.getElementById('sliderVstop').value = kMax.toFixed(2);
+            updateParameters();
+        }
+
+        function animationLoop() {
+            animTime += 1;
+            const lambdaNm = parseFloat(document.getElementById('sliderLambda').value);
+            const intensity = parseFloat(document.getElementById('sliderIntensity').value);
+            const vStopUser = parseFloat(document.getElementById('sliderVstop').value);
+
+            const lambdaM = lambdaNm * 1e-9;
+            const ePhoton = (PLANCK_EV * SPEED_OF_LIGHT) / lambdaM;
+            const phi = METALS[activeMetal].workFunction;
+            const kMax = Math.max(0, ePhoton - phi);
+            const vsTheoretical = kMax;
+
+            const container = document.getElementById('electronContainer');
+
+            // Emit photoelectrons from Cathode (x=166, y from 50 to 150)
+            if (kMax > 0 && vStopUser < vsTheoretical && animTime % Math.max(2, Math.round(200 / intensity)) === 0) {
+                electrons.push({
+                    x: 166,
+                    y: 50 + Math.random() * 90,
+                    vx: 2 + Math.sqrt(kMax) * 2,
+                    opacity: 1.0
+                });
+            }
+
+            // Update electron positions
+            let svgContent = "";
+            electrons.forEach(e => {
+                // Decelerate if stopping voltage applied
+                const accel = (vStopUser / (vsTheoretical || 1)) * 0.15;
+                e.vx = Math.max(0.2, e.vx - accel);
+                e.x += e.vx;
+
+                if (e.x > 430) e.opacity = 0; // Arrived at Anode
+
+                if (e.opacity > 0 && e.x < 430) {
+                    svgContent += `<circle cx="${e.x.toFixed(1)}" cy="${e.y.toFixed(1)}" r="3" fill="#38bdf8" />`;
+                }
+            });
+
+            electrons = electrons.filter(e => e.opacity > 0 && e.x < 430);
+            container.innerHTML = svgContent;
+
+            requestAnimationFrame(animationLoop);
+        }
+
+        function resetLab() {
+            setTargetMetal('SODIUM');
+            document.getElementById('sliderLambda').value = 350;
+            document.getElementById('sliderIntensity').value = 80;
+            document.getElementById('sliderVstop').value = 0.0;
+            updateParameters();
+        }
+
+        // Initialize
+        updateParameters();
+        animationLoop();
+    </script>
+</body>
+</html>

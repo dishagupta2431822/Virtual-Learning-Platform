@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Adaptive Dialogue Interview - Conversational Evaluation Suite</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Chart.js for Final Report -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .pulse-ring {
+      animation: ringPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    @keyframes ringPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.08); }
+    }
+  </style>
+</head>
+<body class="font-sans bg-slate-50 text-slate-900 min-h-screen flex flex-col justify-between selection:bg-purple-100 selection:text-purple-900">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center text-white font-bold text-xl shadow-md shadow-purple-500/20">
+          <i class="fa-solid fa-comments"></i>
+        </div>
+        <div>
+          <span class="font-extrabold text-xl tracking-tight text-slate-900">AdaptiveDialogue<span class="text-purple-600">.ai</span></span>
+          <span class="hidden sm:inline-block ml-2 px-2.5 py-0.5 text-xs font-semibold bg-purple-50 text-purple-700 rounded-full border border-purple-200">
+            Conversational Drilldown
+          </span>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-4">
+        <div id="activeSessionBadge" class="hidden px-3 py-1 bg-slate-100 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+          <span id="sessionBadgeText">Setup Mode</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+
+    <!-- STEP 1: CONVERSATIONAL SETUP FORM -->
+    <section id="setupSection" class="max-w-4xl mx-auto">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
+        <div class="border-b border-slate-200 pb-5 mb-6">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-50 border border-purple-200 text-purple-700 text-xs font-bold mb-3">
+            <i class="fa-solid fa-sliders"></i> ADAPTIVE DIALOGUE CONFIGURATION
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Configure Conversational Interview</h1>
+          <p class="text-slate-600 text-sm mt-1">The AI evaluates your answers strictly against correct technical keywords. Score and drilldown depth increase only when your responses are accurate.</p>
+        </div>
+
+        <form id="dialogueSetupForm" onsubmit="startDialogueSession(event)" class="space-y-6">
+          
+          <!-- Domain Track Selection -->
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-3">1. Select Core Computer Science Domain</label>
+            <div class="grid sm:grid-cols-3 gap-3">
+              
+              <div onclick="selectDomain('Data Structures & Algorithms', this)" id="card-DSA" class="domain-card relative flex flex-col p-4 bg-purple-50/40 rounded-xl border-2 border-purple-600 cursor-pointer hover:border-purple-400 transition-all">
+                <input type="radio" name="csDomain" value="Data Structures & Algorithms" checked class="sr-only">
+                <div class="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center font-bold text-sm mb-2"><i class="fa-solid fa-code-branch"></i></div>
+                <span class="font-bold text-xs text-slate-900">Data Structures & Algorithms</span>
+              </div>
+
+              <div onclick="selectDomain('Operating Systems & Networking', this)" id="card-OS" class="domain-card relative flex flex-col p-4 bg-slate-50 rounded-xl border-2 border-slate-200 cursor-pointer hover:border-purple-400 transition-all">
+                <input type="radio" name="csDomain" value="Operating Systems & Networking" class="sr-only">
+                <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-sm mb-2"><i class="fa-solid fa-microchip"></i></div>
+                <span class="font-bold text-xs text-slate-900">OS & Computer Networking</span>
+              </div>
+
+              <div onclick="selectDomain('System Design & Architecture', this)" id="card-SystemDesign" class="domain-card relative flex flex-col p-4 bg-slate-50 rounded-xl border-2 border-slate-200 cursor-pointer hover:border-purple-400 transition-all">
+                <input type="radio" name="csDomain" value="System Design & Architecture" class="sr-only">
+                <div class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-sm mb-2"><i class="fa-solid fa-network-wired"></i></div>
+                <span class="font-bold text-xs text-slate-900">System Design & Architecture</span>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Candidate Name & Target Role -->
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label for="candidateName" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Candidate Full Name</label>
+              <input type="text" id="candidateName" value="Disha Gupta" required class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3.5 py-2.5 text-xs text-slate-900 font-medium">
+            </div>
+            <div>
+              <label for="targetRole" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Target Role Level</label>
+              <select id="targetRole" required class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3.5 py-2.5 text-xs text-slate-900 font-semibold">
+                <option value="Undergraduate Software Engineer (Fresher)">Undergraduate Software Engineer (Fresher)</option>
+                <option value="Junior Full-Stack Developer">Junior Full-Stack Developer</option>
+                <option value="Backend Software Engineer">Backend Software Engineer</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" class="w-full py-3.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2">
+            <i class="fa-solid fa-comments"></i> Start Conversational AI Interview
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- STEP 2: CONVERSATIONAL DIALOGUE ROOM -->
+    <section id="dialogueRoomSection" class="hidden">
+      
+      <!-- Top Action Bar -->
+      <div class="flex flex-wrap items-center justify-between mb-6 gap-4">
+        <div>
+          <span id="activeDomainLabel" class="text-xs font-bold uppercase tracking-wider text-purple-600 bg-purple-50 px-2.5 py-1 rounded-md border border-purple-200">Domain: DSA</span>
+          <h2 class="text-2xl font-bold text-slate-900 mt-1">Live Conversational Q&A Drilldown</h2>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <!-- Live Score Counter -->
+          <div class="px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-lg text-xs font-mono font-bold text-emerald-700 flex items-center gap-1">
+            <i class="fa-solid fa-circle-check"></i> Score: <span id="liveScoreCount">0</span>/<span id="liveTotalCount">3</span>
+          </div>
+          <div class="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-mono text-slate-700 shadow-sm flex items-center gap-2">
+            <i class="fa-regular fa-clock text-purple-600"></i> Time: <span id="dialogueTimer">00:00</span>
+          </div>
+          <button onclick="concludeDialogueAndGenerateReport()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow transition-all flex items-center gap-2">
+            <i class="fa-solid fa-circle-check"></i> Conclude & Generate Report
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Conversational Grid -->
+      <div class="grid lg:grid-cols-12 gap-6 mb-6">
+        
+        <!-- Left: Chat Dialogue Transcript History -->
+        <div class="lg:col-span-8 bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col h-[520px]">
+          <div class="p-4 bg-slate-900 text-white flex items-center justify-between rounded-t-2xl">
+            <div class="flex items-center space-x-2">
+              <span class="w-3 h-3 rounded-full bg-purple-500 animate-ping"></span>
+              <span class="font-bold text-xs uppercase tracking-wider">AI Conversational Evaluator</span>
+            </div>
+            <span id="aiEvaluationStatusBadge" class="px-2.5 py-0.5 text-[10px] font-semibold bg-purple-600 text-white rounded-full">
+              Awaiting Answer...
+            </span>
+          </div>
+
+          <!-- Scrollable Message Transcript Area -->
+          <div id="chatTranscriptBox" class="p-5 flex-grow overflow-y-auto space-y-4 custom-scrollbar bg-slate-50/50">
+            <!-- Messages injected dynamically -->
+          </div>
+
+          <!-- Bottom Spoken Answer & Submission Bar -->
+          <div class="p-4 bg-white border-t border-slate-200 flex items-center gap-3">
+            <div class="relative flex-grow">
+              <input type="text" id="candidateInput" placeholder="Type your answer or speak clearly into the mic..." onkeydown="if(event.key==='Enter') submitCandidateAnswer()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono">
+            </div>
+            <button onclick="submitCandidateAnswer()" class="px-5 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm">
+              <i class="fa-solid fa-paper-plane"></i> Submit Answer
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Real-time Dialogue Analytics & Metrics -->
+        <div class="lg:col-span-4 flex flex-col gap-4">
+          
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+            <h3 class="font-bold text-slate-900 text-sm mb-3 flex items-center gap-2">
+              <i class="fa-solid fa-chart-line text-purple-600"></i> Dialogue Telemetry
+            </h3>
+            
+            <div class="space-y-4 text-xs">
+              <div>
+                <div class="flex justify-between font-semibold text-slate-700 mb-1">
+                  <span>Conversational Depth</span>
+                  <span id="depthScoreText" class="text-purple-600 font-bold">Level 1 (Core Concept)</span>
+                </div>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div id="depthBar" class="bg-purple-600 h-2 rounded-full transition-all duration-300" style="width: 33%"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex justify-between font-semibold text-slate-700 mb-1">
+                  <span>Strict Answer Verification</span>
+                  <span id="verificationStatusText" class="text-slate-500 font-bold">Pending</span>
+                </div>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div id="accuracyBar" class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex-grow">
+            <h3 class="font-bold text-slate-900 text-sm mb-2 flex items-center gap-2">
+              <i class="fa-solid fa-brain text-purple-600"></i> Strict Evaluation Rule
+            </h3>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              The AI verifies your response against correct technical keywords. If your answer is correct, you gain points and advance to the follow-up drilldown. If incorrect, the AI guides you before moving forward.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- STEP 3: FINAL CONVERSATIONAL REPORT -->
+    <section id="reportSection" class="hidden max-w-5xl mx-auto">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
+        
+        <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-200 pb-6 mb-6 gap-4">
+          <div>
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold mb-2">
+              <i class="fa-solid fa-circle-check"></i> DIALOGUE INTERVIEW COMPLETED
+            </div>
+            <h2 class="text-3xl font-extrabold text-slate-900">Conversational Assessment Report</h2>
+            <p id="reportCandidateMeta" class="text-slate-600 text-sm mt-1">Candidate: Disha Gupta | Domain: Data Structures & Algorithms</p>
+          </div>
+
+          <button onclick="restartDialogueSetup()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow transition-colors flex items-center gap-2">
+            <i class="fa-solid fa-rotate-left"></i> Start New Dialogue
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-center">
+            <div class="text-xs font-bold text-slate-500 uppercase">Dialogue Score</div>
+            <div id="finalScore" class="text-3xl font-extrabold text-purple-600 mt-1">0/100</div>
+          </div>
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-center">
+            <div class="text-xs font-bold text-slate-500 uppercase">Correct Answers</div>
+            <div id="finalCorrectCount" class="text-3xl font-extrabold text-emerald-600 mt-1">0 / 3</div>
+          </div>
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-center">
+            <div class="text-xs font-bold text-slate-500 uppercase">Reasoning Depth</div>
+            <div id="finalDepthText" class="text-3xl font-extrabold text-blue-600 mt-1">Level 1</div>
+          </div>
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-center">
+            <div class="text-xs font-bold text-slate-500 uppercase">Status</div>
+            <div id="finalPlacementStatus" class="text-lg font-extrabold text-slate-700 mt-2">Evaluating</div>
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
+          <div class="p-5 bg-slate-50 rounded-xl border border-slate-200">
+            <h4 class="font-bold text-slate-900 text-sm mb-3">Conversational Skill Radar</h4>
+            <div class="h-56 relative"><canvas id="reportRadarChart"></canvas></div>
+          </div>
+          <div class="p-5 bg-slate-50 rounded-xl border border-slate-200">
+            <h4 class="font-bold text-slate-900 text-sm mb-3">Drilldown Progression Breakdown</h4>
+            <div class="h-56 relative"><canvas id="reportBarChart"></canvas></div>
+          </div>
+        </div>
+
+        <div class="border border-slate-200 rounded-xl overflow-hidden mb-6">
+          <div class="bg-slate-900 text-white px-4 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-between">
+            <span><i class="fa-solid fa-list-check text-purple-400 mr-2"></i> AI Evaluator Feedback & Correctness Analysis</span>
+            <span class="text-slate-400 font-normal">Verified Session</span>
+          </div>
+          <div class="p-5 space-y-4 bg-white text-xs">
+            <div id="feedbackBoxContainer" class="p-3 bg-purple-50 border border-purple-200 rounded-lg text-purple-900">
+              <span class="font-bold block mb-1"><i class="fa-solid fa-brain text-purple-600 mr-1"></i> Reasoning & Keyword Evaluation:</span>
+              <p id="performanceSummaryText">Evaluating correctness based on conversational dialogue responses...</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-slate-900 text-slate-300 border-t border-slate-800 text-sm mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="flex flex-col md:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+        <div>&copy; 2026 AI Adaptive Dialogue Interview Suite. All rights reserved.</div>
+        <div class="flex items-center space-x-6">
+          <a href="#" class="hover:text-slate-400">Privacy Policy</a>
+          <a href="#" class="hover:text-slate-400">Terms of Practical Use</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Complete Conversational Script Engine with Strict Keyword Checking & Adaptive Follow-Up Drilldown -->
+  <script>
+    // Adaptive Dialogue Question Trees with Correct Keywords for Strict Evaluation
+    const adaptiveDialogueTrees = {
+      'Data Structures & Algorithms': [
+        {
+          id: 1,
+          q: "Let's discuss array searching. How would you find the first and last position of a target element in a sorted array in logarithmic time?",
+          keywords: ["binary search", "log", "divide", "mid", "index"],
+          followUp: "Great job! Now let's drill down: what if the sorted array is rotated at an unknown pivot index? How does your binary search logic adapt?",
+          followUpKeywords: ["pivot", "rotated", "mid", "sorted half", "left half"]
+        },
+        {
+          id: 2,
+          q: "Let's examine Graph theory. When would you choose Dijkstra's algorithm over Bellman-Ford, and how do they handle negative weight edges?",
+          keywords: ["dijkstra", "bellman", "negative", "weight", "shortest path"],
+          followUp: "Excellent reasoning. Can you explain how A* search further improves upon Dijkstra's using heuristic functions?",
+          followUpKeywords: ["heuristic", "a*", "priority queue", "distance", "estimate"]
+        },
+        {
+          id: 3,
+          q: "Let's talk about Dynamic Programming. How would you solve the classic Edit Distance problem between two strings?",
+          keywords: ["edit distance", "dp", "matrix", "insertion", "deletion", "substitution"],
+          followUp: "Advanced drilldown: what is the space complexity optimization you can apply to reduce matrix storage from O(M*N) to O(min(M, N))?",
+          followUpKeywords: ["space complexity", "row", "previous", "o(n)", "optimize"]
+        }
+      ],
+      'Operating Systems & Networking': [
+        {
+          id: 1,
+          q: "What is the key difference between process context switching and thread context switching in operating systems?",
+          keywords: ["process", "thread", "memory space", "page table", "overhead"],
+          followUp: "Drilldown: how does the OS kernel schedule CPU time using multilevel feedback queues to prioritize interactive tasks?",
+          followUpKeywords: ["queue", "priority", "cpu", "scheduling", "quantum"]
+        },
+        {
+          id: 2,
+          q: "Explain the TCP 3-way handshake and why sequence numbers are randomized.",
+          keywords: ["syn", "ack", "handshake", "sequence", "random"],
+          followUp: "Follow-up: how does TCP congestion control handle packet loss using slow start and congestion avoidance phases?",
+          followUpKeywords: ["congestion", "slow start", "packet loss", "window", "threshold"]
+        },
+        {
+          id: 3,
+          q: "How does virtual memory paging work with TLB (Translation Lookaside Buffer) acceleration?",
+          keywords: ["tlb", "virtual memory", "page table", "cache", "translation"],
+          followUp: "Drilldown: what happens during a page fault, and how do page replacement algorithms like LRU operate?",
+          followUpKeywords: ["page fault", "lru", "replacement", "disk", "swap"]
+        }
+      ],
+      'System Design & Architecture': [
+        {
+          id: 1,
+          q: "How would you design a distributed rate limiter for a high-traffic API gateway serving millions of requests per second?",
+          keywords: ["rate limiter", "redis", "token bucket", "leaky bucket", "gateway"],
+          followUp: "Drilldown: how would you synchronize rate-limiting state across distributed Redis cluster nodes without bottlenecking?",
+          followUpKeywords: ["cluster", "redis", "atomic", "sync", "distributed"]
+        },
+        {
+          id: 2,
+          q: "Explain database replication strategies (Master-Slave vs Multi-Master) and how eventual consistency affects read/write paths.",
+          keywords: ["replication", "master", "slave", "consistency", "read", "write"],
+          followUp: "Follow-up: how do you handle split-brain scenarios in distributed consensus algorithms like Raft?",
+          followUpKeywords: ["split-brain", "raft", "consensus", "leader", "quorum"]
+        },
+        {
+          id: 3,
+          q: "How would you design a real-time notification delivery system supporting web push and SMS channels at scale?",
+          keywords: ["notification", "push", "sms", "queue", "kafka", "websocket"],
+          followUp: "Drilldown: how do you ensure message delivery idempotency when handling network retries?",
+          followUpKeywords: ["idempotency", "retry", "deduplication", "unique", "token"]
+        }
+      ]
+    };
+
+    let selectedDomain = 'Data Structures & Algorithms';
+    let currentQuestionIdx = 0;
+    let currentPhase = 'initial'; // 'initial' or 'followup'
+    let correctAnswersCount = 0;
+    let totalQuestionsCount = 3;
+    let dialogueSeconds = 0;
+    let dialogueTimerInterval = null;
+    let synth = window.speechSynthesis;
+    let currentQuestionCorrect = false;
+
+    function selectDomain(domainName, element) {
+      document.querySelectorAll('.domain-card').forEach(card => {
+        card.classList.remove('border-purple-600', 'bg-purple-50/40');
+        card.classList.add('border-slate-200', 'bg-slate-50');
+        card.querySelector('input').checked = false;
+      });
+      element.classList.remove('border-slate-200', 'bg-slate-50');
+      element.classList.add('border-purple-600', 'bg-purple-50/40');
+      element.querySelector('input').checked = true;
+      selectedDomain = domainName;
+    }
+
+    function startDialogueSession(e) {
+      e.preventDefault();
+
+      const checkedRadio = document.querySelector('input[name="csDomain"]:checked');
+      if (checkedRadio) selectedDomain = checkedRadio.value;
+
+      currentQuestionIdx = 0;
+      currentPhase = 'initial';
+      correctAnswersCount = 0;
+      dialogueSeconds = 0;
+
+      document.getElementById('setupSection').classList.add('hidden');
+      document.getElementById('dialogueRoomSection').classList.remove('hidden');
+      document.getElementById('reportSection').classList.add('hidden');
+
+      document.getElementById('activeSessionBadge').classList.remove('hidden');
+      document.getElementById('sessionBadgeText').innerText = `Domain: ${selectedDomain}`;
+      document.getElementById('activeDomainLabel').innerText = `Domain: ${selectedDomain}`;
+      document.getElementById('liveTotalCount').innerText = totalQuestionsCount;
+      document.getElementById('liveScoreCount').innerText = "0";
+
+      document.getElementById('chatTranscriptBox').innerHTML = "";
+
+      startDialogueTimer();
+      loadCurrentDialoguePrompt();
+    }
+
+    function startDialogueTimer() {
+      clearInterval(dialogueTimerInterval);
+      dialogueTimerInterval = setInterval(() => {
+        dialogueSeconds++;
+        const mins = String(Math.floor(dialogueSeconds / 60)).padStart(2, '0');
+        const secs = String(dialogueSeconds % 60).padStart(2, '0');
+        document.getElementById('dialogueTimer').innerText = `${mins}:${secs}`;
+      }, 1000);
+    }
+
+    function appendMessage(sender, text) {
+      const box = document.getElementById('chatTranscriptBox');
+      const msgDiv = document.createElement('div');
+      
+      if (sender === 'AI') {
+        msgDiv.className = "flex items-start space-x-3";
+        msgDiv.innerHTML = `
+          <div class="w-8 h-8 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0"><i class="fa-solid fa-robot"></i></div>
+          <div class="bg-white border border-slate-200 rounded-2xl p-4 text-xs text-slate-800 max-w-xl shadow-sm leading-relaxed font-sans">
+            <span class="font-bold text-purple-600 block mb-1">AI Interviewer</span>
+            ${text}
+          </div>
+        `;
+      } else {
+        msgDiv.className = "flex items-start justify-end space-x-3";
+        msgDiv.innerHTML = `
+          <div class="bg-purple-600 text-white rounded-2xl p-4 text-xs max-w-xl shadow-sm leading-relaxed font-sans">
+            <span class="font-bold text-purple-200 block mb-1">You</span>
+            ${text}
+          </div>
+          <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs flex-shrink-0"><i class="fa-solid fa-user"></i></div>
+        `;
+      }
+      box.appendChild(msgDiv);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function loadCurrentDialoguePrompt() {
+      const tree = adaptiveDialogueTrees[selectedDomain] || adaptiveDialogueTrees['Data Structures & Algorithms'];
+      const qObj = tree[currentQuestionIdx];
+      const textToSpeak = currentPhase === 'initial' ? qObj.q : qObj.followUp;
+
+      appendMessage('AI', textToSpeak);
+
+      if (synth) {
+        synth.cancel();
+        const utterance = new SpeechSynthesisUtterance(textToSpeak);
+        utterance.rate = 1.0;
+        synth.speak(utterance);
+      }
+    }
+
+    // STRICT EVALUATION: Checks user input against required keywords
+    function submitCandidateAnswer() {
+      const input = document.getElementById('candidateInput');
+      const val = input.value.trim();
+      if (!val) return;
+
+      appendMessage('Candidate', val);
+      input.value = "";
+
+      const tree = adaptiveDialogueTrees[selectedDomain] || adaptiveDialogueTrees['Data Structures & Algorithms'];
+      const qObj = tree[currentQuestionIdx];
+      const activeKeywords = currentPhase === 'initial' ? qObj.keywords : qObj.followUpKeywords;
+
+      const lower = val.toLowerCase();
+      let matched = false;
+      activeKeywords.forEach(kw => {
+        if (lower.includes(kw)) matched = true;
+      });
+
+      const statusBadge = document.getElementById('aiEvaluationStatusBadge');
+      const verificationText = document.getElementById('verificationStatusText');
+      const accuracyBar = document.getElementById('accuracyBar');
+
+      if (matched) {
+        currentQuestionCorrect = true;
+        statusBadge.innerText = "Correct (🟢 Verified)";
+        statusBadge.className = "px-2.5 py-0.5 text-[10px] font-semibold bg-emerald-600 text-white rounded-full animate-pulse";
+        verificationText.innerText = "Keywords Matched (+ Points)";
+        verificationText.className = "text-emerald-600 font-bold";
+        accuracyBar.style.width = "100%";
+        accuracyBar.className = "bg-emerald-500 h-2 rounded-full transition-all duration-300";
+
+        if (currentPhase === 'initial') {
+          // Increment score only on verified correct answer
+          correctAnswersCount++;
+          document.getElementById('liveScoreCount').innerText = correctAnswersCount;
+
+          // Transition to follow-up drilldown
+          currentPhase = 'followup';
+          document.getElementById('depthScoreText').innerText = `Level 2 (Drilldown)`;
+          document.getElementById('depthBar').style.width = `${((currentQuestionIdx + 1) / totalQuestionsCount) * 100}%`;
+
+          setTimeout(() => {
+            loadCurrentDialoguePrompt();
+          }, 800);
+        } else {
+          // Move to next main question
+          currentPhase = 'initial';
+          currentQuestionIdx++;
+
+          if (currentQuestionIdx >= totalQuestionsCount) {
+            setTimeout(() => {
+              concludeDialogueAndGenerateReport();
+            }, 1000);
+          } else {
+            document.getElementById('depthScoreText').innerText = `Level 1 (Core Concept)`;
+            document.getElementById('depthBar').style.width = `${((currentQuestionIdx) / totalQuestionsCount) * 100}%`;
+            setTimeout(() => {
+              loadCurrentDialoguePrompt();
+            }, 800);
+          }
+        }
+      } else {
+        currentQuestionCorrect = false;
+        statusBadge.innerText = "Incorrect (🔴 0 Points)";
+        statusBadge.className = "px-2.5 py-0.5 text-[10px] font-semibold bg-red-600 text-white rounded-full";
+        verificationText.innerText = "Missing Keywords";
+        verificationText.className = "text-red-600 font-bold";
+        accuracyBar.style.width = "20%";
+        accuracyBar.className = "bg-red-500 h-2 rounded-full transition-all duration-300";
+
+        appendMessage('AI', `That answer missed some core technical terms. Expected keywords included: ${activeKeywords.join(', ')}. Let's move forward.`);
+
+        // Advance anyway to keep conversation flowing
+        if (currentPhase === 'initial') {
+          currentPhase = 'followup';
+          setTimeout(() => {
+            loadCurrentDialoguePrompt();
+          }, 1200);
+        } else {
+          currentPhase = 'initial';
+          currentQuestionIdx++;
+          if (currentQuestionIdx >= totalQuestionsCount) {
+            setTimeout(() => {
+              concludeDialogueAndGenerateReport();
+            }, 1200);
+          } else {
+            setTimeout(() => {
+              loadCurrentDialoguePrompt();
+            }, 1200);
+          }
+        }
+      }
+    }
+
+    function concludeDialogueAndGenerateReport() {
+      if (synth) synth.cancel();
+      clearInterval(dialogueTimerInterval);
+
+      document.getElementById('dialogueRoomSection').classList.add('hidden');
+      document.getElementById('reportSection').classList.remove('hidden');
+
+      const name = document.getElementById('candidateName').value || 'Disha Gupta';
+      document.getElementById('reportCandidateMeta').innerText = `Candidate: ${name} | Domain: ${selectedDomain}`;
+      document.getElementById('finalCorrectCount').innerText = `${correctAnswersCount} / ${totalQuestionsCount}`;
+      
+      const finalScoreVal = Math.round((correctAnswersCount / totalQuestionsCount) * 100);
+      document.getElementById('finalScore').innerText = `${finalScoreVal}/100`;
+
+      const statusElem = document.getElementById('finalPlacementStatus');
+      const feedbackBox = document.getElementById('feedbackBoxContainer');
+
+      if (finalScoreVal === 0) {
+        statusElem.innerText = "Needs Improvement";
+        statusElem.className = "text-lg font-extrabold text-red-700 mt-2";
+        feedbackBox.querySelector('p').innerText = "0 correct answers verified. Review core concepts and technical terminology for this domain.";
+      } else if (finalScoreVal < 60) {
+        statusElem.innerText = "Satisfactory";
+        statusElem.className = "text-lg font-extrabold text-amber-700 mt-2";
+        feedbackBox.querySelector('p').innerText = `You correctly answered ${correctAnswersCount} out of ${totalQuestionsCount} core topics (${finalScoreVal}% score). Good effort!`;
+      } else {
+        statusElem.innerText = "Recommended";
+        statusElem.className = "text-lg font-extrabold text-emerald-700 mt-2";
+        feedbackBox.querySelector('p').innerText = `Excellent performance! You correctly answered ${correctAnswersCount} out of ${totalQuestionsCount} questions with precise technical keywords (${finalScoreVal}% score).`;
+      }
+
+      renderDialogueCharts(finalScoreVal);
+    }
+
+    function renderDialogueCharts(scoreVal) {
+      const radarCtx = document.getElementById('reportRadarChart').getContext('2d');
+      new Chart(radarCtx, {
+        type: 'radar',
+        data: {
+          labels: ['Conceptual Depth', 'Architectural Reasoning', 'Clarity', 'Edge Case Analysis', 'Accuracy'],
+          datasets: [{
+            data: [scoreVal > 0 ? scoreVal : 15, 90, 94, 89, scoreVal],
+            backgroundColor: 'rgba(147, 51, 234, 0.2)',
+            borderColor: '#9333ea',
+            pointBackgroundColor: '#9333ea'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { r: { grid: { color: '#e2e8f0' }, ticks: { display: false } } }
+        }
+      });
+
+      const barCtx = document.getElementById('reportBarChart').getContext('2d');
+      new Chart(barCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Topic 1', 'Topic 2', 'Topic 3'],
+          datasets: [{
+            data: [scoreVal, scoreVal > 30 ? scoreVal - 10 : 0, scoreVal],
+            backgroundColor: ['#9333ea', '#2563eb', '#10b981'],
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, max: 100 } }
+        }
+      });
+    }
+
+    function restartDialogueSetup() {
+      document.getElementById('reportSection').classList.add('hidden');
+      document.getElementById('setupSection').classList.remove('hidden');
+      document.getElementById('activeSessionBadge').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>

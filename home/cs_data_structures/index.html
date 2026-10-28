@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS & Data Structures | 32 Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+                    <i class="fa-solid fa-code text-lg"></i>
+                </div>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Virtual Labs</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">CS & Data Structures</span>
+                </div>
+            </div>
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-600">
+                <a href="#overview" class="hover:text-indigo-600 transition-colors">Overview</a>
+                <a href="#labs" class="hover:text-indigo-600 transition-colors">All 32 Labs</a>
+                <a href="#benefits" class="hover:text-indigo-600 transition-colors">Key Benefits</a>
+                <a href="#contact" class="hover:text-indigo-600 transition-colors">Contact</a>
+            </nav>
+            <div class="flex items-center space-x-3">
+                <a href="#labs" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-xl text-sm shadow-sm transition-all shadow-indigo-500/20">
+                    Explore Labs
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="overview" class="relative overflow-hidden bg-gradient-to-b from-indigo-50/50 via-white to-slate-50 py-16 sm:py-24 border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-3xl mx-auto text-center">
+                <div class="inline-flex items-center space-x-2 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full text-xs font-semibold text-indigo-700 mb-6 shadow-sm">
+                    <i class="fa-solid fa-laptop-code text-indigo-600"></i>
+                    <span>Interactive Computer Science Suite</span>
+                </div>
+                <h1 class="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-6">
+                    Computer Science & Data Structures
+                </h1>
+                <p class="text-lg text-slate-600 mb-8 leading-relaxed">
+                    Master trees, graph algorithms, dynamic programming, sorting mechanisms, and advanced data structures with interactive step-by-step visualizers in real-time right inside your browser.
+                </p>
+                <div class="flex flex-wrap items-center justify-center gap-4">
+                    <div class="bg-white px-5 py-3 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-cubes"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-2xl font-bold text-slate-900">32</div>
+                            <div class="text-xs text-slate-500 font-medium">Labs Available</div>
+                        </div>
+                    </div>
+                    <div class="bg-white px-5 py-3 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-play"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-2xl font-bold text-slate-900">Step-by-Step</div>
+                            <div class="text-xs text-slate-500 font-medium">Visual Debugger</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content & 32 Labs Grid Section -->
+    <main id="labs" class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">All 32 Virtual Labs</h2>
+                <p class="text-sm text-slate-500 mt-1">Explore interactive modules spanning Trees, Graphs, Sorting, Dynamic Programming, and Advanced Data Structures.</p>
+            </div>
+            <!-- Search & Filter Bar -->
+            <div class="w-full md:w-72">
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-search"></i>
+                    </span>
+                    <input type="text" id="labSearch" placeholder="Search CS labs..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 shadow-sm">
+                </div>
+            </div>
+        </div>
+
+        <!-- 32 Labs Grid Container -->
+        <div id="labsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Labs will be dynamically injected here via JS -->
+        </div>
+    </main>
+
+    <!-- Key Benefits Section -->
+    <section id="benefits" class="bg-white py-16 border-t border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Key Benefits for Students & Developers</h2>
+                <p class="text-slate-600 mt-2 text-sm">Designed to accelerate mastery in core computer science algorithms and interview preparation.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xl mb-4 shadow-md shadow-indigo-500/20">
+                        <i class="fa-solid fa-bug"></i>
+                    </div>
+                    <div class="font-bold text-slate-900 text-lg mb-2">Live Execution Debugger</div>
+                    <p class="text-slate-600 text-sm leading-relaxed">Step through execution states, pointer re-assignments, and memory frames in real-time across all 32 algorithms.</p>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xl mb-4 shadow-md shadow-indigo-500/20">
+                        <i class="fa-solid fa-layer-group"></i>
+                    </div>
+                    <div class="font-bold text-slate-900 text-lg mb-2">Visual Call Stack & Pointers</div>
+                    <p class="text-slate-600 text-sm leading-relaxed">Inspect dynamic array allocations, recursion stacks, balance factors, and pointer links interactively.</p>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xl mb-4 shadow-md shadow-indigo-500/20">
+                        <i class="fa-solid fa-code-compare"></i>
+                    </div>
+                    <div class="font-bold text-slate-900 text-lg mb-2">Technical Interview Alignment</div>
+                    <p class="text-slate-600 text-sm leading-relaxed">Tailored for FAANG & high-growth technical interview patterns with comprehensive problem domain visualization.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Site Contact & Info Footer -->
+    <footer id="contact" class="bg-slate-900 text-slate-300 pt-16 pb-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+            <div>
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold">
+                        <i class="fa-solid fa-code"></i>
+                    </div>
+                    <span class="font-bold text-white text-lg">Virtual Labs</span>
+                </div>
+                <p class="text-slate-400 text-sm leading-relaxed mb-4">
+                    Empowering students and software engineers with interactive virtual simulations for data structures, algorithms, and system design.
+                </p>
+                <div class="flex space-x-4 text-slate-400">
+                    <a href="#" class="hover:text-white transition-colors"><i class="fa-brands fa-github text-lg"></i></a>
+                    <a href="#" class="hover:text-white transition-colors"><i class="fa-brands fa-twitter text-lg"></i></a>
+                    <a href="#" class="hover:text-white transition-colors"><i class="fa-brands fa-linkedin text-lg"></i></a>
+                </div>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Specializations</h4>
+                <ul class="space-y-2 text-sm text-slate-400">
+                    <li><a href="#" class="hover:text-white transition-colors">Trees & BST Algorithms</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Graph Theory & Network Flow</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Dynamic Programming</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Sorting & Searching</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
+                <ul class="space-y-2 text-sm text-slate-400">
+                    <li><a href="#overview" class="hover:text-white transition-colors">Overview</a></li>
+                    <li><a href="#labs" class="hover:text-white transition-colors">Browse All 32 Labs</a></li>
+                    <li><a href="#benefits" class="hover:text-white transition-colors">Key Benefits</a></li>
+                    <li><a href="#contact" class="hover:text-white transition-colors">Support & Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Contact Info</h4>
+                <ul class="space-y-3 text-sm text-slate-400">
+                    <li class="flex items-center space-x-3">
+                        <i class="fa-solid fa-envelope text-indigo-400"></i>
+                        <span>support@virtuallabs-cs.org</span>
+                    </li>
+                    <li class="flex items-center space-x-3">
+                        <i class="fa-solid fa-phone text-indigo-400"></i>
+                        <span>+1 (555) 019-2831</span>
+                    </li>
+                    <li class="flex items-center space-x-3">
+                        <i class="fa-solid fa-location-dot text-indigo-400"></i>
+                        <span>Department of Computer Science</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 border-t border-slate-800 text-center text-xs text-slate-500">
+            &copy; 2026 Virtual Learning Labs Platform. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- JavaScript to Render 32 Labs -->
+    <script>
+        const labsData = [
+            { id: 1, title: "BST Insertion & Dynamic Balancing", category: "Trees & BST", desc: "Visualize binary search tree node placement, height calculations, and automatic rotation triggers.", icon: "fa-tree", file: "labs/lab1.html" },
+            { id: 2, title: "AVL Tree Rotations (Single & Double)", category: "Trees & BST", desc: "Trace LL, RR, LR, and RL balance factor adjustments during node insertions and deletions.", icon: "fa-diagram-successor", file: "labs/lab2.html" },
+            { id: 3, title: "Lowest Common Ancestor (LCA)", category: "Trees & BST", desc: "Inspect recursive stack calls and matching branch pointers to identify LCA in binary trees.", icon: "fa-sitemap", file: "labs/lab3.html" },
+            { id: 4, title: "Binary Tree Diameter & Depth", category: "Trees & BST", desc: "Trace post-order traversal calculating subtree heights and global max path lengths.", icon: "fa-arrows-left-right-to-line", file: "labs/lab4.html" },
+            { id: 5, title: "Serialize & Deserialize Binary Trees", category: "Trees & BST", desc: "Step through string encoding and reconstruction using level-order and pre-order queue markers.", icon: "fa-file-code", file: "labs/lab5.html" },
+            { id: 6, title: "Red-Black Tree Color Inversions", category: "Trees & BST", desc: "Observe node recoloring, uncle node checks, and tree rotations maintaining RB invariants.", icon: "fa-circle-nodes", file: "labs/lab6.html" },
+            { id: 7, title: "Trie Search & Auto-Complete", category: "Trees & BST", desc: "Trace string character branches, termination flags, and dictionary prefix searches.", icon: "fa-magnifying-glass-chart", file: "labs/lab7.html" },
+            { id: 8, title: "Segment Tree Range Query & Lazy Prop", category: "Trees & BST", desc: "Build range segment trees and step through lazy propagation updates for range operations.", icon: "fa-layer-group", file: "labs/lab8.html" },
+            { id: 9, title: "BFS & DFS Graph Traversal State", category: "Graphs", desc: "Compare frontier queues versus call stacks while marking node discovery and visiting order.", icon: "fa-diagram-project", file: "labs/lab9.html" },
+            { id: 10, title: "Dijkstra's Shortest Path Trace", category: "Graphs", desc: "Step through priority queue edge relaxation, distance vector updates, and optimal pathing.", icon: "fa-route", file: "labs/lab10.html" },
+            { id: 11, title: "Topological Sort & Course Schedule", category: "Graphs", desc: "Track in-degree arrays, zero-indegree queues, and cycle detection in directed graphs.", icon: "fa-list-check", file: "labs/lab11.html" },
+            { id: 12, title: "Tarjan's Strongly Connected Components", category: "Graphs", desc: "Trace discovery timestamps, low-link values, and stack operations to find SCCs.", icon: "fa-network-wired", file: "labs/lab12.html" },
+            { id: 13, title: "Kruskal's & Prim's Minimum Spanning Tree", category: "Graphs", desc: "Visualize Disjoint Set Union (DSU) find-union operations versus greedy edge selections.", icon: "fa-bezier-curve", file: "labs/lab13.html" },
+            { id: 14, title: "Bellman-Ford & Negative Cycles", category: "Graphs", desc: "Relax edges for V-1 iterations and detect negative weight cycles in weighted graphs.", icon: "fa-chart-line", file: "labs/lab14.html" },
+            { id: 15, title: "Floyd-Warshall All-Pairs Shortest Path", category: "Graphs", desc: "Observe dynamic matrix updates computing shortest distances between all vertex pairs.", icon: "fa-table-cells", file: "labs/lab15.html" },
+            { id: 16, title: "Ford-Fulkerson & Edmonds-Karp Max Flow", category: "Graphs", desc: "Trace residual networks, augmenting paths, and bottleneck capacity calculations.", icon: "fa-water", file: "labs/lab16.html" },
+            { id: 17, title: "Quicksort Partitioning & Pivot Selection", category: "Sorting", desc: "Visualize Lomuto and Hoare partitioning schemes with active pointer comparisons.", icon: "fa-arrow-down-short-wide", file: "labs/lab17.html" },
+            { id: 18, title: "Mergesort Divide & Conquer Recursion", category: "Sorting", desc: "Watch array splits and sub-array merging with temporary memory allocations.", icon: "fa-code-branch", file: "labs/lab18.html" },
+            { id: 19, title: "Heap Sort & Max-Heapify Operations", category: "Sorting", desc: "Convert arrays into binary heaps and step through sift-down heapify operations.", icon: "fa-cubes", file: "labs/lab19.html" },
+            { id: 20, title: "Radix Sort & Counting Sort Bucket State", category: "Sorting", desc: "Examine digit-by-digit bucket distribution and prefix sum index calculations.", icon: "fa-bars-staggered", file: "labs/lab20.html" },
+            { id: 21, title: "0/1 Knapsack Dynamic Programming Table", category: "Dynamic Prog", desc: "Fill 2D memoization grids step-by-step comparing inclusion versus exclusion choices.", icon: "fa-table-grid", file: "labs/lab21.html" },
+            { id: 22, title: "Longest Common Subsequence (LCS)", category: "Dynamic Prog", desc: "Build DP matching matrices and trace back optimal string character alignments.", icon: "fa-align-left", file: "labs/lab22.html" },
+            { id: 23, title: "Edit Distance (Levenshtein Matrix)", category: "Dynamic Prog", desc: "Compute substitution, insertion, and deletion costs across string alignment grids.", icon: "fa-pen-to-square", file: "labs/lab23.html" },
+            { id: 24, title: "Coin Change Minimum Ways & Combinations", category: "Dynamic Prog", desc: "Step through 1D memo array updates for unbounded coin combination problems.", icon: "fa-coins", file: "labs/lab24.html" },
+            { id: 25, title: "Matrix Chain Multiplication", category: "Dynamic Prog", desc: "Find optimal parenthesization split points using sub-problem cost matrices.", icon: "fa-calculator", file: "labs/lab25.html" },
+            { id: 26, title: "LRU & LFU Cache Eviction Policies", category: "Data Structures", desc: "Manipulate doubly linked lists combined with hash maps during cache gets and puts.", icon: "fa-memory", file: "labs/lab26.html" },
+            { id: 27, title: "Disjoint Set Union (DSU) & Path Compression", category: "Data Structures", desc: "Observe tree flattening during find operations and rank-based union steps.", icon: "fa-link", file: "labs/lab27.html" },
+            { id: 28, title: "Monotonic Stack & Queue Visualizer", category: "Data Structures", desc: "Track next greater element searches and sliding window maximum maintenance.", icon: "fa-arrows-up-down", file: "labs/lab28.html" },
+            { id: 29, title: "Bloom Filter & Hashing Collisions", category: "Data Structures", desc: "Apply multiple hash functions to bit arrays and evaluate false positive probabilities.", icon: "fa-filter", file: "labs/lab29.html" },
+            { id: 30, title: "KMP String Matching & Failure Function", category: "Algorithms", desc: "Construct Partial Match Tables (pi-arrays) and skip redundant string comparisons.", icon: "fa-font", file: "labs/lab30.html" },
+            { id: 31, title: "N-Queens Backtracking Matrix State", category: "Algorithms", desc: "Visualize queen placement, constraint conflicts, and recursive backtracking calls.", icon: "fa-chess-queen", file: "labs/lab31.html" },
+            { id: 32, title: "Huffman Coding & Prefix Tree Compression", category: "Algorithms", desc: "Build priority queue min-heaps, construct Huffman trees, and derive bit codes.", icon: "fa-file-zipper", file: "labs/lab32.html" }
+        ];
+
+        const grid = document.getElementById('labsGrid');
+        const searchInput = document.getElementById('labSearch');
+
+        function renderLabs(filter = '') {
+            grid.innerHTML = '';
+            const filtered = labsData.filter(lab => 
+                lab.title.toLowerCase().includes(filter.toLowerCase()) || 
+                lab.category.toLowerCase().includes(filter.toLowerCase()) ||
+                lab.desc.toLowerCase().includes(filter.toLowerCase())
+            );
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400">No computer science labs found matching your search.</div>`;
+                return;
+            }
+
+            filtered.forEach(lab => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl border border-slate-200 p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                <i class="fa-solid ${lab.icon}"></i>
+                            </div>
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">${lab.category}</span>
+                        </div>
+                        <h3 class="font-bold text-slate-900 text-base mb-2 group-hover:text-indigo-600 transition-colors">Lab #${lab.id}: ${lab.title}</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed mb-6">${lab.desc}</p>
+                    </div>
+                    <a href="${lab.file}" class="w-full bg-slate-100 hover:bg-indigo-600 hover:text-white text-slate-700 font-medium py-2.5 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 transition-all">
+                        <span>Launch Lab Simulation</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </a>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            renderLabs(e.target.value);
+        });
+
+        // Initial render
+        renderLabs();
+    </script>
+</body>
+</html>

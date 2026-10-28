@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics & Circuit Design | 28 Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+                    <i class="fa-solid fa-atom text-lg"></i>
+                </div>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Virtual Labs</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">Physics & Circuits</span>
+                </div>
+            </div>
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-600">
+                <a href="#overview" class="hover:text-indigo-600 transition-colors">Overview</a>
+                <a href="#labs" class="hover:text-indigo-600 transition-colors">All 28 Labs</a>
+                <a href="#benefits" class="hover:text-indigo-600 transition-colors">Key Benefits</a>
+                <a href="#contact" class="hover:text-indigo-600 transition-colors">Contact</a>
+            </nav>
+            <div class="flex items-center space-x-3">
+                <a href="#labs" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-xl text-sm shadow-sm transition-all shadow-indigo-500/20">
+                    Explore Labs
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="overview" class="relative overflow-hidden bg-gradient-to-b from-indigo-50/50 via-white to-slate-50 py-16 sm:py-24 border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-3xl mx-auto text-center">
+                <div class="inline-flex items-center space-x-2 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full text-xs font-semibold text-indigo-700 mb-6 shadow-sm">
+                    <i class="fa-solid fa-bolt-lightning text-amber-500"></i>
+                    <span>Interactive Physics & Circuit Suite</span>
+                </div>
+                <h1 class="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-6">
+                    Physics & Circuit Design
+                </h1>
+                <p class="text-lg text-slate-600 mb-8 leading-relaxed">
+                    Design logic gates, simulate RL/RC circuit responses, explore optics, and visualize wave motion interactively in real-time right inside your browser.
+                </p>
+                <div class="flex flex-wrap items-center justify-center gap-4">
+                    <div class="bg-white px-5 py-3 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-flask"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-2xl font-bold text-slate-900">28</div>
+                            <div class="text-xs text-slate-500 font-medium">Labs Available</div>
+                        </div>
+                    </div>
+                    <div class="bg-white px-5 py-3 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-microchip"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-2xl font-bold text-slate-900">Real-Time</div>
+                            <div class="text-xs text-slate-500 font-medium">Simulation Engine</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content & 28 Labs Grid Section -->
+    <main id="labs" class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">All 28 Virtual Labs</h2>
+                <p class="text-sm text-slate-500 mt-1">Explore individual lab modules spanning electronics, electromagnetism, optics, and wave mechanics.</p>
+            </div>
+            <!-- Search & Filter Bar -->
+            <div class="w-full md:w-72">
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-search"></i>
+                    </span>
+                    <input type="text" id="labSearch" placeholder="Search physics labs..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 shadow-sm">
+                </div>
+            </div>
+        </div>
+
+        <!-- 28 Labs Grid Container -->
+        <div id="labsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Labs will be dynamically injected here via JS -->
+        </div>
+    </main>
+
+    <!-- Key Benefits Section -->
+    <section id="benefits" class="bg-white py-16 border-t border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Key Benefits for Students & Researchers</h2>
+                <p class="text-slate-600 mt-2 text-sm">Designed to accelerate mastery in experimental physics and circuit analysis.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xl mb-4 shadow-md shadow-indigo-500/20">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-lg mb-2">Risk-Free Experimentation</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed">Test high voltage RC/RL circuits, short-circuit logic conditions, and resonance loops without hardware risks.</p>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xl mb-4 shadow-md shadow-indigo-500/20">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-lg mb-2">Instant Visual Feedback</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed">Observe real-time oscilloscope waveforms, ray tracing angles, and gate boolean truth tables instantly.</p>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xl mb-4 shadow-md shadow-indigo-500/20">
+                        <i class="fa-solid fa-laptop-code"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-lg mb-2">Self-Paced Preparation</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed">Ideal for engineering coursework, competitive exam prep, and applied laboratory homework.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Site Contact & Info Footer -->
+    <footer id="contact" class="bg-slate-900 text-slate-300 pt-16 pb-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+            <div>
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold">
+                        <i class="fa-solid fa-atom"></i>
+                    </div>
+                    <span class="font-bold text-white text-lg">Virtual Labs</span>
+                </div>
+                <p class="text-slate-400 text-sm leading-relaxed mb-4">
+                    Empowering students with interactive virtual simulations for physics, electronics, and engineering disciplines.
+                </p>
+                <div class="flex space-x-4 text-slate-400">
+                    <a href="#" class="hover:text-white transition-colors"><i class="fa-brands fa-github text-lg"></i></a>
+                    <a href="#" class="hover:text-white transition-colors"><i class="fa-brands fa-twitter text-lg"></i></a>
+                    <a href="#" class="hover:text-white transition-colors"><i class="fa-brands fa-linkedin text-lg"></i></a>
+                </div>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Specializations</h4>
+                <ul class="space-y-2 text-sm text-slate-400">
+                    <li><a href="#" class="hover:text-white transition-colors">Digital Logic Gates</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Circuit Analysis (RL/RC)</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Wave Mechanics</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Geometric Optics</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
+                <ul class="space-y-2 text-sm text-slate-400">
+                    <li><a href="#overview" class="hover:text-white transition-colors">Overview</a></li>
+                    <li><a href="#labs" class="hover:text-white transition-colors">Browse All 28 Labs</a></li>
+                    <li><a href="#benefits" class="hover:text-white transition-colors">Key Benefits</a></li>
+                    <li><a href="#contact" class="hover:text-white transition-colors">Support & Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Contact Info</h4>
+                <ul class="space-y-3 text-sm text-slate-400">
+                    <li class="flex items-center space-x-3">
+                        <i class="fa-solid fa-envelope text-indigo-400"></i>
+                        <span>support@virtuallabs.edu</span>
+                    </li>
+                    <li class="flex items-center space-x-3">
+                        <i class="fa-solid fa-phone text-indigo-400"></i>
+                        <span>+1 (555) 382-9421</span>
+                    </li>
+                    <li class="flex items-center space-x-3">
+                        <i class="fa-solid fa-location-dot text-indigo-400"></i>
+                        <span>Department of Physics & Engineering</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 border-t border-slate-800 text-center text-xs text-slate-500">
+            &copy; 2026 Virtual Learning Labs Platform. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- JavaScript to Render 28 Labs -->
+    <script>
+        const labsData = [
+            { id: 1, title: "AND & OR Logic Gates", category: "Electronics", desc: "Design and test basic combinatorial digital logic components and truth tables.", icon: "fa-microchip", file: "labs/and_or_logicGates.html" },
+            { id: 2, title: "NAND & NOR Universal Gates", category: "Electronics", desc: "Construct universal logic circuits and verify Boolean algebra laws.", icon: "fa-atom", file: "labs/nand_nor.html" },
+            { id: 3, title: "XOR & XNOR Gates", category: "Electronics", desc: "Simulate parity checkers and exclusive disjunction logic circuits.", icon: "fa-bolt", file: "labs/xor_xnor_gates.html" },
+            { id: 4, title: "Half & Full Adder Circuits", category: "Electronics", desc: "Build arithmetic binary adders using combinational logic gates.", icon: "fa-calculator", file: "labs/half_full_adder.html" },
+            { id: 5, title: "RC Circuit Charging & Discharging", category: "Circuits", desc: "Analyze time constants, capacitor voltage curves, and exponential decay.", icon: "fa-battery-full", file: "labs/rcCircuit_charging_discharger.html" },
+            { id: 6, title: "RL Circuit Transient Response", category: "Circuits", desc: "Examine inductive kickback, current growth, and magnetic field energy storage.", icon: "fa-magnet", file: "labs/rl_circuit_transient_response.html" },
+            { id: 7, title: "RLC Series Resonance Lab", category: "Circuits", desc: "Explore resonant frequency, impedance curves, and quality (Q) factor.", icon: "fa-wave-square", file: "labs/rlc_series_resonance.html" },
+            { id: 8, title: "Ohm's Law & Kirchhoff's Rules", category: "Circuits", desc: "Measure nodal voltages and mesh currents in complex resistor networks.", icon: "fa-gauge", file: "labs/ohmlaw_kirchoffRule.html" },
+            { id: 9, title: "Wheatstone Bridge Circuit", category: "Circuits", desc: "Determine unknown resistances using precise null-deflection balancing.", icon: "fa-bridge", file: "labs/wheatstone_bridge.html" },
+            { id: 10, title: "Diode Rectifier & Smoothing", category: "Electronics", desc: "Convert AC waveforms into DC using half-wave and full-wave bridge rectifiers.", icon: "fa-plug", file: "labs/diode_rectifer_smoothing.html" },
+            { id: 11, title: "Transistor Common-Emitter Amplifier", category: "Electronics", desc: "Analyze voltage gain, biasing points, and load-line characteristics.", icon: "fa-sliders", file: "labs/transistor_common_emitter.html" },
+            { id: 12, title: "Op-Amp Inverting & Non-Inverting", category: "Electronics", desc: "Build operational amplifier gain blocks and virtual ground circuits.", icon: "fa-microchip", file: "labs/op_amp_inverting_nonInverting.html" },
+            { id: 13, title: "Reflection & Refraction (Snell's Law)", category: "Optics", desc: "Trace light rays across boundaries and compute refractive indices.", icon: "fa-sun", file: "labs/reflection_refraction_snell_law.html" },
+            { id: 14, title: "Thin Lenses & Ray Tracing", category: "Optics", desc: "Locate real and virtual images formed by convex and concave lenses.", icon: "fa-glasses", file: "labs/thin_lens_ray_tracing.html" },
+            { id: 15, title: "Young's Double Slit Interference", category: "Optics", desc: "Observe fringe patterns, wavelength effects, and optical path differences.", icon: "fa-water", file: "labs/youngs_double_slit.html" },
+            { id: 16, title: "Single Slit Diffraction", category: "Optics", desc: "Analyze central maxima width and secondary diffraction minimum angles.", icon: "fa-circle-dot", file: "labs/single_slit_diffraction.html" },
+            { id: 17, title: "Polarization of Light Waves", category: "Optics", desc: "Verify Malus's Law using crossed linear polarizers and analyzers.", icon: "fa-eye", file: "labs/polarization_light_waves.html" },
+            { id: 18, title: "Transverse Wave Generator on String", category: "Waves", desc: "Simulate standing waves, harmonics, tension, and frequency nodes.", icon: "fa-wave-square", file: "labs/traverse_wave_string.html" },
+            { id: 19, title: "Speed of Sound in Air Tube", category: "Waves", desc: "Investigate acoustic resonance in open and closed pipes.", icon: "fa-volume-high", file: "labs/speed_sound_air_tube.html" },
+            { id: 20, title: "Doppler Effect Simulator", category: "Waves", desc: "Observe frequency shifts for moving sound sources and observers.", icon: "fa-bullhorn", file: "labs/doopler_effect.html" },
+            { id: 21, title: "Simple Pendulum & Gravity", category: "Mechanics", desc: "Measure oscillation period versus string length and gravitational acceleration.", icon: "fa-clock", file: "labs/simple_pendulum_gravity.html" },
+            { id: 22, title: "Spring-Mass Harmonic Oscillator", category: "Mechanics", desc: "Explore hooke's law, elastic potential energy, and damping coefficients.", icon: "fa-arrows-split-up-and-left", file: "labs/simple_mass_harmonic.html" },
+            { id: 23, title: "Electromagnetic Induction (Faraday's Law)", category: "Electromagnetism", desc: "Move bar magnets through wire coils to generate induced EMF.", icon: "fa-bolt-lightning", file: "labs/electromagnetic_induction.html" },
+            { id: 24, title: "Transformer Voltage & Turns Ratio", category: "Electromagnetism", desc: "Step up and step down AC voltages using mutual induction principles.", icon: "fa-network-wired", file: "labs/transformer_voltage_turns_ratio.html" },
+            { id: 25, title: "Photoelectric Effect Lab", category: "Quantum", desc: "Determine Planck's constant and work function using incident light photons.", icon: "fa-lightbulb", file: "labs/photoelectric_effect.html" },
+            { id: 26, title: "RC Filter Frequency Response (Bode Plot)", category: "Circuits", desc: "Measure low-pass and high-pass cutoff frequencies and attenuation.", icon: "fa-chart-area", file: "labs/rc_filter_frequency_responce.html" },
+            { id: 27, title: "Logic Gates Multiplexers & Decoders", category: "Electronics", desc: "Route digital data streams using MUX and DEMUX combinatorial chips.", icon: "fa-code-branch", file: "labs/logic_gate_multiplexer_decoder.html" },
+            { id: 28, title: "Laser Interferometer (Michelson)", category: "Optics", desc: "Measure micro-displacements and wavelength of coherent laser light.", icon: "fa-compass-drafting", file: "labs/laser_interferometer.html" }
+        ];
+
+        const grid = document.getElementById('labsGrid');
+        const searchInput = document.getElementById('labSearch');
+
+        function renderLabs(filter = '') {
+            grid.innerHTML = '';
+            const filtered = labsData.filter(lab => 
+                lab.title.toLowerCase().includes(filter.toLowerCase()) || 
+                lab.category.toLowerCase().includes(filter.toLowerCase()) ||
+                lab.desc.toLowerCase().includes(filter.toLowerCase())
+            );
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400">No physics labs found matching your search.</div>`;
+                return;
+            }
+
+            filtered.forEach(lab => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl border border-slate-200 p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                <i class="fa-solid ${lab.icon}"></i>
+                            </div>
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">${lab.category}</span>
+                        </div>
+                        <h3 class="font-bold text-slate-900 text-base mb-2 group-hover:text-indigo-600 transition-colors">Lab #${lab.id}: ${lab.title}</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed mb-6">${lab.desc}</p>
+                    </div>
+                    <a href="${lab.file}" class="w-full bg-slate-100 hover:bg-indigo-600 hover:text-white text-slate-700 font-medium py-2.5 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 transition-all">
+                        <span>Launch Lab Simulation</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </a>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            renderLabs(e.target.value);
+        });
+
+        // Initial render
+        renderLabs();
+    </script>
+</body>
+</html>

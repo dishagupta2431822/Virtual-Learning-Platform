@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #8: Segment Tree Range Query & Lazy Prop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        code, .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .node-circle { transition: all 0.4s ease-in-out; }
+        .tree-line { transition: all 0.4s ease-in-out; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <div>
+        <!-- Navbar -->
+        <header class="bg-white border-b border-slate-100 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="#" class="bg-indigo-600 text-white p-2 rounded-xl shadow-md shadow-indigo-100">
+                        <i class="fa-solid fa-flask text-base"></i>
+                    </a>
+                    <div>
+                        <span class="font-bold text-slate-900 text-sm block leading-snug">Virtual Labs</span>
+                        <span class="text-[10px] text-indigo-600 font-bold uppercase tracking-wider block">CS & DATA STRUCTURES</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <span class="bg-indigo-50 text-indigo-700 text-xs font-semibold px-3 py-1 rounded-full border border-indigo-100">
+                        Lab #8 of 32
+                    </span>
+                    <button onclick="resetTree()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Reset Tree
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Lab Title Banner -->
+        <div class="bg-white border-b border-slate-100 py-6 px-6">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center space-x-2 text-xs text-indigo-600 font-semibold mb-1">
+                        <span>Trees & BST</span>
+                        <i class="fa-solid fa-chevron-right text-[9px] text-slate-400"></i>
+                        <span class="text-slate-500">Range Sums & Lazy Propagation</span>
+                    </div>
+                    <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">
+                        Lab #8: Segment Tree Range Query & Lazy Prop
+                    </h1>
+                    <p class="text-xs text-slate-500 mt-1">
+                        Build range segment trees and step through lazy propagation updates for range sum operations.
+                    </p>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-semibold text-slate-600 bg-indigo-50 text-indigo-700 border border-indigo-200/80 px-3 py-1 rounded-full">
+                        <i class="fa-solid fa-layer-group mr-1"></i> Lazy Propagation Suite
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Workbench Area -->
+        <main class="max-w-7xl mx-auto px-6 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+            <!-- Control & Status Panel -->
+            <div class="space-y-5 lg:col-span-1">
+                
+                <!-- Range Update Form -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Range Update (+ Val)</h3>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 block mb-1">Left (L)</label>
+                            <input type="number" id="upL" value="0" min="0" max="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs text-slate-800 outline-none focus:border-indigo-500 text-center font-mono">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 block mb-1">Right (R)</label>
+                            <input type="number" id="upR" value="2" min="0" max="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs text-slate-800 outline-none focus:border-indigo-500 text-center font-mono">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 block mb-1">Add Addr</label>
+                            <input type="number" id="upVal" value="5" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs text-slate-800 outline-none focus:border-indigo-500 text-center font-mono">
+                        </div>
+                    </div>
+                    <button onclick="handleRangeUpdate()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2 rounded-xl transition shadow-xs">
+                        Apply Lazy Update
+                    </button>
+                </div>
+
+                <!-- Range Query Form -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Range Sum Query</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 block mb-1">Left (L)</label>
+                            <input type="number" id="qL" value="1" min="0" max="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs text-slate-800 outline-none focus:border-indigo-500 text-center font-mono">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 block mb-1">Right (R)</label>
+                            <input type="number" id="qR" value="3" min="0" max="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs text-slate-800 outline-none focus:border-indigo-500 text-center font-mono">
+                        </div>
+                    </div>
+                    <button onclick="handleRangeQuery()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 rounded-xl transition shadow-xs">
+                        Query Range Sum
+                    </button>
+                    <div class="bg-emerald-50 border border-emerald-100 p-2.5 rounded-xl text-center">
+                        <span class="text-[11px] text-emerald-600 font-semibold block">Query Result</span>
+                        <span class="text-lg font-black text-emerald-700" id="queryResult">--</span>
+                    </div>
+                </div>
+
+                <!-- Execution Log -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Propagation Trace Log</h3>
+                    <div id="logContainer" class="bg-slate-900 text-slate-300 p-3 rounded-xl font-mono text-[11px] h-36 overflow-y-auto space-y-1">
+                        <div class="text-slate-500">// Segment tree built over array [1, 3, 5, 7]. Ready.</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Visualization Canvas -->
+            <div class="lg:col-span-3 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between relative min-h-[500px] overflow-hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Interactive Segment Tree Canvas</span>
+                    <div class="flex items-center space-x-3 text-[11px] text-slate-500 font-medium">
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-indigo-600 rounded-full inline-block mr-1"></span> [L, R] : Sum (Lazy)</span>
+                    </div>
+                </div>
+
+                <!-- SVG Tree Render Container -->
+                <div class="relative w-full h-[450px] border border-slate-100 rounded-xl bg-slate-50/50 overflow-auto flex items-center justify-center" id="canvasBox">
+                    <svg id="treeSvg" class="w-full h-full min-w-[700px] min-h-[420px]"></svg>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-100 py-6 text-center text-xs text-slate-400">
+        <span>&copy; 2026 Virtual Labs • Segment Tree Range Query & Lazy Propagation Suite</span>
+    </footer>
+
+    <!-- Script implementing Segment Tree with Lazy Propagation -->
+    <script>
+        class SegNode {
+            constructor(l, r, sum = 0) {
+                this.l = l;
+                this.r = r;
+                this.sum = sum;
+                this.lazy = 0;
+                this.left = null;
+                this.right = null;
+                this.x = 0;
+                this.y = 0;
+            }
+        }
+
+        let originalArr = [1, 3, 5, 7];
+        let root = null;
+
+        function buildTree(l, r) {
+            let node = new SegNode(l, r);
+            if (l === r) {
+                node.sum = originalArr[l];
+                return node;
+            }
+            let mid = Math.floor((l + r) / 2);
+            node.left = buildTree(l, mid);
+            node.right = buildTree(mid + 1, r);
+            node.sum = node.left.sum + node.right.sum;
+            return node;
+        }
+
+        function pushDown(node) {
+            if (node.lazy !== 0 && node.left && node.right) {
+                let lz = node.lazy;
+                
+                node.left.lazy += lz;
+                let midL = Math.floor((node.left.l + node.left.r) / 2);
+                node.left.sum += lz * (node.left.r - node.left.l + 1);
+
+                node.right.lazy += lz;
+                node.right.sum += lz * (node.right.r - node.right.l + 1);
+
+                logTrace(`Lazy Propagated [ +${lz} ] from [${node.l},${node.r}] to children.`);
+                node.lazy = 0;
+            }
+        }
+
+        function updateRange(node, l, r, val) {
+            if (!node || l > node.r || r < node.l) return;
+
+            if (l <= node.l && node.r <= r) {
+                node.lazy += val;
+                node.sum += val * (node.r - node.l + 1);
+                logTrace(`Lazy marked node [${node.l},${node.r}] with +${val} (Sum now ${node.sum})`, 'highlight');
+                return;
+            }
+
+            pushDown(node);
+            updateRange(node.left, l, r, val);
+            updateRange(node.right, l, r, val);
+            node.sum = node.left.sum + node.right.sum;
+        }
+
+        function queryRange(node, l, r) {
+            if (!node || l > node.r || r < node.l) return 0;
+
+            if (l <= node.l && node.r <= r) {
+                return node.sum;
+            }
+
+            pushDown(node);
+            return queryRange(node.left, l, r) + queryRange(node.right, l, r);
+        }
+
+        function handleRangeUpdate() {
+            const l = parseInt(document.getElementById('upL').value);
+            const r = parseInt(document.getElementById('upR').value);
+            const val = parseInt(document.getElementById('upVal').value);
+
+            if (isNaN(l) || isNaN(r) || isNaN(val)) return;
+
+            document.getElementById('logContainer').innerHTML = '';
+            logTrace(`--- Range Update [${l}, ${r}] += ${val} ---`);
+            updateRange(root, l, r, val);
+            render();
+        }
+
+        function handleRangeQuery() {
+            const l = parseInt(document.getElementById('qL').value);
+            const r = parseInt(document.getElementById('qR').value);
+
+            if (isNaN(l) || isNaN(r)) return;
+
+            let res = queryRange(root, l, r);
+            document.getElementById('queryResult').innerText = res;
+            logTrace(`Range Sum Query [${l}, ${r}] = <strong class="text-emerald-400">${res}</strong>`, 'highlight');
+            render();
+        }
+
+        function resetTree() {
+            root = buildTree(0, originalArr.length - 1);
+            document.getElementById('queryResult').innerText = '--';
+            document.getElementById('logContainer').innerHTML = '<div class="text-slate-500">// Segment tree reset over array [1, 3, 5, 7]. Ready.</div>';
+            render();
+        }
+
+        function logTrace(msg, type = 'info') {
+            const container = document.getElementById('logContainer');
+            let color = 'text-slate-300';
+            if (type === 'highlight') color = 'text-indigo-300 font-bold';
+
+            container.innerHTML += `<div class="${color}">&gt; ${msg}</div>`;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function calculatePositions(node, depth = 0, x = 350, offset = 140) {
+            if (!node) return;
+            node.x = x;
+            node.y = 50 + depth * 70;
+
+            if (node.left) calculatePositions(node.left, depth + 1, x - offset, offset / 1.8);
+            if (node.right) calculatePositions(node.right, depth + 1, x + offset, offset / 1.8);
+        }
+
+        function drawTreeSvg(node, svg) {
+            if (!node) return;
+
+            if (node.left) {
+                svg.innerHTML += `<line x1="${node.x}" y1="${node.y}" x2="${node.left.x}" y2="${node.left.y}" stroke="#cbd5e1" stroke-width="2" class="tree-line"/>`;
+                drawTreeSvg(node.left, svg);
+            }
+            if (node.right) {
+                svg.innerHTML += `<line x1="${node.x}" y1="${node.y}" x2="${node.right.x}" y2="${node.right.y}" stroke="#cbd5e1" stroke-width="2" class="tree-line"/>`;
+                drawTreeSvg(node.right, svg);
+            }
+
+            svg.innerHTML += `
+                <g class="node-circle">
+                    <circle cx="${node.x}" cy="${node.y}" r="22" fill="#4f46e5" />
+                    <text x="${node.x}" y="${node.y - 3}" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Inter">[${node.l},${node.r}]</text>
+                    <text x="${node.x}" y="${node.y + 11}" text-anchor="middle" fill="#c7d2fe" font-size="10" font-family="JetBrains Mono">s:${node.sum}${node.userLazy ? '('+node.userLazy+')':''}</text>
+                    ${node.lazy !== 0 ? `<circle cx="${node.x + 16}" cy="${node.y - 16}" r="9" fill="#f59e0b"/><text x="${node.x + 16}" y="${node.y - 13}" text-anchor="middle" fill="white" font-size="9" font-weight="bold">+${node.lazy}</text>` : ''}
+                </g>
+            `;
+        }
+
+        function render() {
+            const svg = document.getElementById('treeSvg');
+            svg.innerHTML = '';
+            calculatePositions(root, 0, svg.clientWidth / 2 || 350, 140);
+            drawTreeSvg(root, svg);
+        }
+
+        window.addEventListener('resize', render);
+        document.addEventListener('DOMContentLoaded', () => {
+            root = buildTree(0, originalArr.length - 1);
+            render();
+        });
+    </script>
+</body>
+</html>

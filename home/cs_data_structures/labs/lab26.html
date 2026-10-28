@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #26: Merge Sort & Inversion Count Tracing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        code, .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .array-bar { transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <div>
+        <!-- Navbar -->
+        <header class="bg-white border-b border-slate-100 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="#" class="bg-indigo-600 text-white p-2 rounded-xl shadow-md shadow-indigo-100">
+                        <i class="fa-solid fa-flask text-base"></i>
+                    </a>
+                    <div>
+                        <span class="font-bold text-slate-900 text-sm block leading-snug">Virtual Labs</span>
+                        <span class="text-[10px] text-indigo-600 font-bold uppercase tracking-wider block">CS & DATA STRUCTURES</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <span class="bg-indigo-50 text-indigo-700 text-xs font-semibold px-3 py-1 rounded-full border border-indigo-100">
+                        Lab #26 of 32
+                    </span>
+                    <button onclick="resetMergeSortState()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Reset Studio
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Lab Title Banner -->
+        <div class="bg-white border-b border-slate-100 py-6 px-6">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center space-x-2 text-xs text-indigo-600 font-semibold mb-1">
+                        <span>Sorting Algorithms</span>
+                        <i class="fa-solid fa-chevron-right text-[9px] text-slate-400"></i>
+                        <span class="text-slate-500">Divide-and-Conquer & Inversion Counter</span>
+                    </div>
+                    <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">
+                        Lab #26: Merge Sort & Inversion Count Tracing
+                    </h1>
+                    <p class="text-xs text-slate-500 mt-1">
+                        Step through call stack splits, temporary subarray merging, and cross-inversion counters live.
+                    </p>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-semibold text-slate-600 bg-indigo-50 text-indigo-700 border border-indigo-200/80 px-3 py-1 rounded-full">
+                        <i class="fa-solid fa-code-merge mr-1"></i> Merge Sort Studio
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Workbench Area -->
+        <main class="max-w-7xl mx-auto px-6 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+            <!-- Control & Status Panel -->
+            <div class="space-y-5 lg:col-span-1">
+                
+                <!-- Parameters -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Merge Parameters</h3>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 block mb-1">Custom Array (Comma separated)</label>
+                        <input type="text" id="arrayInput" value="8, 4, 2, 1, 7, 3, 6, 5" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 outline-none focus:border-indigo-500 font-mono transition">
+                    </div>
+                    <button onclick="runMergeSortSimulation()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-xs">
+                        Run Merge Sort & Inversions
+                    </button>
+                    <div class="bg-emerald-50 border border-emerald-100 p-3 rounded-xl text-center space-y-1">
+                        <span class="text-[11px] text-emerald-600 font-semibold block">Total Inversions Count</span>
+                        <span class="text-xl font-black text-emerald-700 font-mono" id="inversionCountBox">0</span>
+                    </div>
+                </div>
+
+                <!-- Execution Log -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Merge Trace Log</h3>
+                    <div id="logContainer" class="bg-slate-900 text-slate-300 p-3 rounded-xl font-mono text-[11px] h-44 overflow-y-auto space-y-1">
+                        <div class="text-slate-500">// Engine ready. Click Run Merge Sort & Inversions.</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Visualization Canvas -->
+            <div class="lg:col-span-3 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between relative min-h-[550px] overflow-hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Interactive Subarray Merging Canvas</span>
+                    <div class="flex items-center space-x-3 text-[11px] text-slate-500 font-medium">
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-indigo-500 rounded-full inline-block mr-1"></span> Merging Active</span>
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-emerald-500 rounded-full inline-block mr-1"></span> Sorted Subarray</span>
+                    </div>
+                </div>
+
+                <!-- Array Visualizer Container -->
+                <div class="relative w-full h-[500px] border border-slate-100 rounded-xl bg-slate-50/50 overflow-auto flex flex-col items-center justify-center p-6 space-y-8">
+                    <div id="arrayContainer" class="flex flex-wrap justify-center gap-3"></div>
+                    <div class="text-xs font-mono text-slate-500" id="statusMessageBox">
+                        Ready to compute merge sort passes and inversion count.
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-100 py-6 text-center text-xs text-slate-400">
+        <span>&copy; 2026 Virtual Labs • Merge Sort & Inversion Count Studio Suite</span>
+    </footer>
+
+    <!-- Script implementing Merge Sort with Inversion Counting -->
+    <script>
+        let timer = null;
+
+        function resetMergeSortState() {
+            if (timer) clearInterval(timer);
+            document.getElementById('inversionCountBox').innerText = '0';
+            document.getElementById('statusMessageBox').innerText = 'Ready to compute merge sort passes and inversion count.';
+            document.getElementById('logContainer').innerHTML = '<div class="text-slate-500">// Engine ready. Click Run Merge Sort & Inversions.</div>';
+            renderArrayElements();
+        }
+
+        function getArrayInput() {
+            const input = document.getElementById('arrayInput').value;
+            return input.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+        }
+
+        function renderArrayElements(highlight = {}) {
+            const arr = getArrayInput();
+            const container = document.getElementById('arrayContainer');
+            container.innerHTML = '';
+
+            arr.forEach((val, idx) => {
+                let div = document.createElement('div');
+                div.className = 'w-14 h-20 rounded-xl border border-slate-200 bg-white shadow-xs flex flex-col items-center justify-between p-2 font-mono array-bar';
+                div.id = `bar-${idx}`;
+
+                if (highlight.active && highlight.active.includes(idx)) {
+                    div.className += ' bg-indigo-500 text-white border-indigo-500 shadow-md';
+                } else if (highlight.sorted) {
+                    div.className += ' bg-emerald-500 text-white border-emerald-500 shadow-md';
+                }
+
+                div.innerHTML = `
+                    <span class="text-sm font-bold">${val}</span>
+                    <span class="text-[9px] text-slate-400">${idx}</span>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function runMergeSortSimulation() {
+            if (timer) clearInterval(timer);
+            let arr = getArrayInput();
+            document.getElementById('logContainer').innerHTML = '';
+
+            if (arr.length < 2) {
+                logTrace('Error: Please provide at least 2 numbers.', 'err');
+                return;
+            }
+
+            logTrace(`--- Starting Merge Sort & Inversion Count on [${arr.join(', ')}] ---`);
+            document.getElementById('statusMessageBox').innerText = 'Executing merge sort passes...';
+
+            let totalInversions = 0;
+            let steps = [];
+
+            // Generate merge steps using bottom-up merge sort approach for step-by-step visualization
+            let width = 1;
+            let n = arr.length;
+
+            while (width < n) {
+                for (let i = 0; i < n; i += 2 * width) {
+                    let left = i;
+                    let mid = Math.min(i + width - 1, n - 1);
+                    let right = Math.min(i + 2 * width - 1, n - 1);
+                    if (mid < right) {
+                        steps.push({ left, mid, right });
+                    }
+                }
+                width *= 2;
+            }
+
+            // Compute exact inversion count recursively for accurate metric
+            function countAndMerge(arrCopy, temp, left, right) {
+                let invCount = 0;
+                if (left < right) {
+                    let mid = Math.floor((left + right) / 2);
+                    invCount += countAndMerge(arrCopy, temp, left, mid);
+                    invCount += countAndMerge(arrCopy, temp, mid + 1, right);
+                    invCount += mergeAndCount(arrCopy, temp, left, mid, right);
+                }
+                return invCount;
+            }
+
+            function mergeAndCount(arrCopy, temp, left, mid, right) {
+                let i = left, j = mid + 1, k = left;
+                let invCount = 0;
+
+                while (i <= mid && j <= right) {
+                    if (arrCopy[i] <= arrCopy[j]) {
+                        temp[k++] = arrCopy[i++];
+                    } else {
+                        temp[k++] = arrCopy[j++];
+                        invCount += (mid - i + 1);
+                    }
+                }
+                while (i <= mid) temp[k++] = arrCopy[i++];
+                while (j <= right) temp[k++] = arrCopy[j++];
+                for (let idx = left; idx <= right; idx++) arrCopy[idx] = temp[idx];
+                return invCount;
+            }
+
+            let cloneArr = [...arr];
+            let tempArr = Array(n).fill(0);
+            totalInversions = countAndMerge(cloneArr, tempArr, 0, n - 1);
+
+            document.getElementById('inversionCountBox').innerText = totalInversions;
+
+            let stepIdx = 0;
+            timer = setInterval(() => {
+                if (stepIdx >= steps.length) {
+                    clearInterval(timer);
+                    document.getElementById('arrayInput').value = cloneArr.join(', ');
+                    document.getElementById('statusMessageBox').innerText = 'Merge Sort Completed Successfully!';
+                    renderArrayElements({ sorted: true });
+                    logTrace(`--- Merge Sort Complete! Total Inversions: ${totalInversions} ---`, 'highlight');
+                    return;
+                }
+
+                let step = steps[stepIdx];
+                let activeIndices = [];
+                for (let k = step.left; k <= step.right; k++) activeIndices.push(k);
+
+                renderArrayElements({ active: activeIndices });
+                logTrace(`Merging subarray slice [${step.left} ... ${step.right}] (mid = ${step.mid})`);
+
+                stepIdx++;
+            }, 900);
+        }
+
+        function logTrace(msg, type = 'info') {
+            const container = document.getElementById('logContainer');
+            let color = 'text-slate-300';
+            if (type === 'highlight') color = 'text-emerald-300 font-bold';
+            if (type === 'err') color = 'text-rose-400 font-bold';
+
+            container.innerHTML += `<div class="${color}">&gt; ${msg}</div>`;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            resetMergeSortState();
+        });
+    </script>
+</body>
+</html>

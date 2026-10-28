@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Light Mode - Interactive Chemical Bonding Virtual Lab</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Dynamic Glow Effects for Light Mode */
+        .glow-light {
+            box-shadow: 0 0 35px var(--glow-color, #f59e0b), 0 0 70px var(--glow-color, #f59e0b);
+        }
+        
+        .flame-glow {
+            filter: drop-shadow(0px -5px 12px rgba(245, 158, 11, 0.7));
+        }
+
+        #microCanvas {
+            pointer-events: none;
+        }
+
+        /* Smooth Drawer Transitions */
+        .drawer-transition {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans h-screen overflow-hidden flex flex-col">
+
+    <!-- HEADER TOPBAR -->
+    <header class="h-14 border-b border-slate-200 bg-white px-6 flex items-center justify-between z-20 shadow-xs">
+        <div class="flex items-center space-x-3">
+            <span class="p-1.5 bg-indigo-100 text-indigo-600 rounded-lg text-lg">🔬</span>
+            <div>
+                <h1 class="font-bold text-sm text-slate-900">Interactive Bonding & Properties Lab</h1>
+                <p class="text-[11px] text-slate-500">General Chemistry • Lab Experiment #02</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center text-xs text-slate-600 space-x-1 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+                <span>⏱️ Timer:</span>
+                <span id="timerDisplay" class="font-mono text-indigo-600 font-bold">00:00</span>
+            </div>
+
+            <button onclick="resetLab()" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-md border border-slate-200 transition">
+                🔄 Reset
+            </button>
+
+            <button onclick="submitReport()" class="px-3.5 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-md shadow-sm transition">
+                ✅ Submit Observations
+            </button>
+
+            <button onclick="toggleSidebar('manualDrawer')" class="px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-md border border-slate-200 flex items-center gap-1">
+                📖 Guide
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN MIDDLE SECTION -->
+    <div class="flex-1 flex relative overflow-hidden">
+
+        <!-- LEFT ADJUSTABLE / COLLAPSIBLE SIDEBAR: CONTROLS -->
+        <aside id="controlsSidebar" class="w-80 border-r border-slate-200 bg-white p-4 flex flex-col justify-between z-10 shadow-sm drawer-transition relative">
+            <div>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                        ⚙️ Testbench Controls
+                    </h3>
+                    <button onclick="toggleSidebar('controlsSidebar')" class="text-slate-400 hover:text-slate-600 p-1">
+                        ◀
+                    </button>
+                </div>
+
+                <!-- Substance & Test Selectors -->
+                <div class="space-y-3 mb-4">
+                    <div>
+                        <label class="text-xs font-medium text-slate-600 block mb-1">Select Substance:</label>
+                        <select id="compoundSelect" onchange="changeCompound()" class="w-full bg-slate-50 border border-slate-300 text-xs rounded-lg p-2 text-slate-800 focus:ring-2 ring-indigo-500/20 outline-none">
+                            <option value="NaCl">Sodium Chloride (NaCl)</option>
+                            <option value="CaCl2">Calcium Chloride (CaCl2)</option>
+                            <option value="Sucrose">Sucrose / Sugar (C12H22O11)</option>
+                            <option value="Wax">Paraffin Wax (C25H52)</option>
+                            <option value="UnknownA">Unknown Compound A</option>
+                            <option value="UnknownB">Unknown Compound B</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-xs font-medium text-slate-600 block mb-1">Select Test Apparatus:</label>
+                        <select id="testSelect" onchange="changeTestType()" class="w-full bg-slate-50 border border-slate-300 text-xs rounded-lg p-2 text-slate-800 focus:ring-2 ring-indigo-500/20 outline-none">
+                            <option value="melt">Thermal Heat (Melting Point Test)</option>
+                            <option value="water">Solubility in Water (Polar)</option>
+                            <option value="ethanol">Solubility in Ethanol (Non-polar)</option>
+                            <option value="conduct">Aqueous Electrical Conductivity</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Interactive Bulb & Light Display Controls -->
+                <div id="lightControls" class="space-y-3 bg-amber-50/60 p-3 rounded-xl border border-amber-200 mb-4 hidden">
+                    <span class="text-[11px] font-bold text-amber-900 block">💡 Conductivity Light Settings</span>
+                    
+                    <div>
+                        <label class="text-[10px] text-amber-800 flex justify-between font-medium">
+                            Voltage / Circuit Power: <span id="voltageVal" class="font-mono text-indigo-600 font-bold">6V</span>
+                        </label>
+                        <input type="range" id="voltageSlider" min="1" max="12" value="6" oninput="updateLightInteractive()" class="w-full accent-indigo-600 h-1.5 bg-amber-200 rounded-lg cursor-pointer">
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] text-amber-800 block mb-1 font-medium">Bulb Color Display:</label>
+                        <div class="flex gap-2">
+                            <button onclick="setBulbColor('#f59e0b')" class="w-6 h-6 rounded-full bg-amber-500 border-2 border-white shadow-xs focus:ring-2 ring-amber-400"></button>
+                            <button onclick="setBulbColor('#06b6d4')" class="w-6 h-6 rounded-full bg-cyan-500 border-2 border-white shadow-xs focus:ring-2 ring-cyan-400"></button>
+                            <button onclick="setBulbColor('#10b981')" class="w-6 h-6 rounded-full bg-emerald-500 border-2 border-white shadow-xs focus:ring-2 ring-emerald-400"></button>
+                            <button onclick="setBulbColor('#ec4899')" class="w-6 h-6 rounded-full bg-pink-500 border-2 border-white shadow-xs focus:ring-2 ring-pink-400"></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Thermal Controls -->
+                <div id="thermalControls" class="space-y-3 bg-slate-50 p-3 rounded-xl border border-slate-200 mb-4">
+                    <span class="text-[11px] font-bold text-slate-700 block">🔥 Bunsen Flame Intensity</span>
+                    <div>
+                        <label class="text-[10px] text-slate-600 flex justify-between">
+                            Flame Temp: <span id="flameVal" class="font-mono text-indigo-600 font-bold">Medium (400°C)</span>
+                        </label>
+                        <input type="range" id="flameSlider" min="1" max="3" value="2" oninput="updateThermalInteractive()" class="w-full accent-indigo-600 h-1.5 bg-slate-200 rounded-lg cursor-pointer">
+                    </div>
+                </div>
+
+                <!-- Microscopic Canvas View Toggle -->
+                <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-xs">
+                    <span class="text-slate-700 text-[11px] font-medium">🔬 Particle View (Micro):</span>
+                    <input type="checkbox" id="microToggle" onchange="toggleMicroView()" class="accent-indigo-600 w-4 h-4 rounded cursor-pointer">
+                </div>
+            </div>
+
+            <button onclick="runTest()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-lg shadow-sm transition flex items-center justify-center gap-1.5">
+                ▶️ Run Selected Test
+            </button>
+        </aside>
+
+        <!-- Toggle Button to Open Controls Sidebar if Closed -->
+        <button id="openControlsBtn" onclick="toggleSidebar('controlsSidebar')" class="hidden absolute left-0 top-4 z-20 bg-white border border-slate-300 border-l-0 p-2 rounded-r-lg shadow-md text-xs font-bold text-slate-600 hover:text-indigo-600">
+            ▶ Controls
+        </button>
+
+        <!-- CENTRAL VISUALIZER WORKSPACE -->
+        <main class="flex-1 bg-slate-50 relative flex flex-col items-center justify-center p-6 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:16px_16px]">
+            
+            <!-- Result Modal -->
+            <div id="resultModal" class="hidden absolute inset-0 bg-slate-900/40 backdrop-blur-xs z-30 flex items-center justify-center p-4">
+                <div class="bg-white border border-slate-200 p-6 rounded-2xl max-w-lg w-full shadow-2xl text-center">
+                    <div id="modalIcon" class="text-5xl mb-3"></div>
+                    <h2 id="modalTitle" class="text-xl font-bold text-slate-900"></h2>
+                    <p id="modalBody" class="text-sm text-slate-600 mt-2"></p>
+                    <button onclick="closeModal()" class="mt-6 w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition">
+                        Return to Testbench
+                    </button>
+                </div>
+            </div>
+
+            <!-- APPARATUS CONTAINER -->
+            <div class="flex flex-col items-center justify-between h-full max-h-[440px] w-full max-w-xl bg-white border border-slate-200 rounded-2xl p-5 shadow-lg relative">
+                
+                <!-- Status Readout Display -->
+                <div class="w-full flex justify-between items-center bg-slate-50 px-4 py-2 rounded-lg border border-slate-200 text-xs">
+                    <div>
+                        <span class="text-slate-500">Selected Compound:</span>
+                        <span id="displayCompoundName" class="font-bold text-indigo-600 ml-1">Sodium Chloride (NaCl)</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-500">Apparatus:</span>
+                        <span id="displayTestType" class="font-bold text-emerald-600 ml-1">Thermal Heat Test</span>
+                    </div>
+                </div>
+
+                <!-- Visual Interactive Chamber -->
+                <div class="relative w-full h-64 flex items-center justify-center overflow-hidden rounded-xl bg-slate-50/80 border border-slate-200">
+                    
+                    <!-- Microscopic Canvas View -->
+                    <canvas id="microCanvas" width="400" height="220" class="absolute inset-0 z-10 w-full h-full"></canvas>
+
+                    <!-- 1. HEATING TEST VISUAL -->
+                    <div id="visualMelting" class="flex flex-col items-center justify-center z-0 transition-opacity duration-300">
+                        <div class="absolute top-3 right-4 bg-white/90 px-3 py-1 rounded-full border border-slate-200 text-[11px] font-mono text-slate-700 shadow-xs flex items-center gap-1 font-bold">
+                            🌡️ <span id="tempReadout">25</span>°C
+                        </div>
+
+                        <!-- Crucible -->
+                        <div class="w-36 h-16 border-b-8 border-x-4 border-slate-400 rounded-b-full bg-slate-200 relative flex items-center justify-center overflow-hidden shadow-inner">
+                            <div id="solidSample" class="w-16 h-8 bg-slate-400 rounded-lg transition-all duration-700"></div>
+                        </div>
+                        
+                        <!-- Stand & Flame -->
+                        <div class="w-24 h-4 bg-slate-300 rounded-t-sm mt-1 border-t border-slate-400"></div>
+                        <div id="bunsenFlame" class="hidden opacity-0 w-8 h-16 bg-gradient-to-t from-amber-500 via-yellow-400 to-sky-300 rounded-full blur-xs flame-glow transition-all duration-500"></div>
+                    </div>
+
+                    <!-- 2. CONDUCTIVITY TEST VISUAL -->
+                    <div id="visualConductivity" class="hidden flex-col items-center justify-center z-0 transition-opacity duration-300">
+                        <!-- Dynamic Light Bulb -->
+                        <div class="relative flex flex-col items-center">
+                            <div id="lightBulb" class="w-12 h-12 rounded-full bg-slate-200 border-2 border-slate-300 transition-all duration-300 flex items-center justify-center shadow-inner">
+                                <span id="bulbFilament" class="text-xs text-slate-400">💡</span>
+                            </div>
+                            <div class="w-4 h-3 bg-slate-300 rounded-b-sm border-t border-slate-400"></div>
+                        </div>
+                        
+                        <!-- Solution Beaker & Electrodes -->
+                        <div class="w-44 h-32 border-b-4 border-x-2 border-slate-300 rounded-b-2xl relative bg-sky-50/30 flex items-end overflow-hidden mt-2">
+                            <div id="solutionLevel" class="w-full h-20 bg-sky-200/50 transition-all duration-500 relative">
+                                <div id="liquidRipple" class="absolute top-0 inset-x-0 h-1 bg-sky-400/60 hidden animate-pulse"></div>
+                            </div>
+                            
+                            <div class="absolute top-0 left-10 w-2 h-24 bg-slate-400 rounded-b flex flex-col justify-between items-center py-1">
+                                <span class="text-[8px] font-bold text-white">+</span>
+                            </div>
+                            <div class="absolute top-0 right-10 w-2 h-24 bg-slate-400 rounded-b flex flex-col justify-between items-center py-1">
+                                <span class="text-[8px] font-bold text-white">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Real-time Observation Box -->
+                <div id="observationOutput" class="w-full bg-indigo-50/80 border border-indigo-100 p-2.5 rounded-lg text-center text-xs font-mono text-indigo-900 font-medium">
+                    ⚡ Apparatus prepped. Click "Run Selected Test" to observe physical properties.
+                </div>
+
+            </div>
+
+        </main>
+
+        <!-- RIGHT ADJUSTABLE / COLLAPSIBLE SIDEBAR: MANUAL -->
+        <aside id="manualDrawer" class="w-80 border-l border-slate-200 bg-white p-5 flex flex-col justify-between z-10 shadow-sm drawer-transition">
+            <div>
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex items-center space-x-2 text-indigo-600">
+                        <span class="text-lg">📖</span>
+                        <h2 class="font-bold text-sm text-slate-900">Lab Manual</h2>
+                    </div>
+                    <button onclick="toggleSidebar('manualDrawer')" class="text-slate-400 hover:text-slate-600 p-1">
+                        ▶
+                    </button>
+                </div>
+
+                <div class="space-y-4 text-xs text-slate-600 leading-relaxed">
+                    <section class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <h4 class="font-bold text-slate-800 mb-1">Objective</h4>
+                        <p>Classify unknown substances as Ionic or Covalent through thermal stability, solvent dissolution, and electrical conductivity testing.</p>
+                    </section>
+
+                    <section class="space-y-2">
+                        <h4 class="font-bold text-slate-800">Chemical Bonding Reference:</h4>
+                        <ul class="list-disc pl-4 space-y-1.5 text-slate-600">
+                            <li><strong class="text-indigo-600">Ionic Compounds:</strong> High melting point ($>300^\circ\text{C}$), soluble in water, free ions conduct electricity in aqueous form.</li>
+                            <li><strong class="text-amber-600">Covalent Compounds:</strong> Low melting point ($<300^\circ\text{C}$), non-conductive (neutral molecules).</li>
+                        </ul>
+                    </section>
+                </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-200 text-[11px] text-slate-400">
+                Light Mode Chemistry Lab • v2.5
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- ADJUSTABLE / COLLAPSIBLE DOWNBAR: DATA OBSERVATION SHEET -->
+    <div id="downbar" class="border-t border-slate-200 bg-white z-20 shadow-md drawer-transition flex flex-col max-h-64">
+        <!-- Downbar Header Bar (Clickable to Expand/Collapse) -->
+        <div onclick="toggleDownbar()" class="h-8 bg-slate-100 border-b border-slate-200 px-6 flex items-center justify-between cursor-pointer select-none hover:bg-slate-200/60 transition">
+            <span class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                📊 Data Observation Sheet <span id="downbarIcon" class="text-[10px] text-slate-500">▼ (Click to toggle)</span>
+            </span>
+            <span class="text-[11px] text-indigo-600 font-semibold">Click to expand/collapse table</span>
+        </div>
+
+        <!-- Downbar Table Content -->
+        <div id="downbarContent" class="p-3 overflow-y-auto flex-1">
+            <table class="w-full text-left text-xs text-slate-700">
+                <thead class="bg-slate-50 text-slate-500 sticky top-0 border-b border-slate-200">
+                    <tr>
+                        <th class="p-2 font-semibold">Sample</th>
+                        <th class="p-2 font-semibold">Melting Point</th>
+                        <th class="p-2 font-semibold">Water Sol.</th>
+                        <th class="p-2 font-semibold">Ethanol Sol.</th>
+                        <th class="p-2 font-semibold">Conductivity</th>
+                        <th class="p-2 font-semibold">Your Classification</th>
+                    </tr>
+                </thead>
+                <tbody id="observationTableBody" class="divide-y divide-slate-100">
+                    <!-- Dynamic Data Rows -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- SCRIPT SIMULATION ENGINE -->
+    <script>
+        const COMPOUND_DATA = {
+            "NaCl": { name: "Sodium Chloride (NaCl)", melt: "High (>300°C)", water: "Soluble", ethanol: "Insoluble", conduct: "High (Bright LED)", type: "Ionic" },
+            "CaCl2": { name: "Calcium Chloride (CaCl2)", melt: "High (>300°C)", water: "Soluble", ethanol: "Insoluble", conduct: "High (Bright LED)", type: "Ionic" },
+            "Sucrose": { name: "Sucrose (C12H22O11)", melt: "Low (186°C)", water: "Soluble", ethanol: "Partially Soluble", conduct: "None (No Light)", type: "Covalent" },
+            "Wax": { name: "Paraffin Wax (C25H52)", melt: "Low (55°C)", water: "Insoluble", ethanol: "Soluble", conduct: "None (No Light)", type: "Covalent" },
+            "UnknownA": { name: "Unknown Compound A", melt: "High (>300°C)", water: "Soluble", ethanol: "Insoluble", conduct: "High (Bright LED)", type: "Ionic" },
+            "UnknownB": { name: "Unknown Compound B", melt: "Low (48°C)", water: "Insoluble", ethanol: "Soluble", conduct: "None (No Light)", type: "Covalent" }
+        };
+
+        const studentRecord = {};
+        let currentColor = '#f59e0b';
+        let seconds = 0;
+        let microAnimationId = null;
+
+        // Timer
+        setInterval(() => {
+            seconds++;
+            const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
+            const secs = String(seconds % 60).padStart(2, '0');
+            document.getElementById('timerDisplay').innerText = `${mins}:${secs}`;
+        }, 1000);
+
+        function initTable() {
+            const tbody = document.getElementById('observationTableBody');
+            tbody.innerHTML = '';
+
+            Object.keys(COMPOUND_DATA).forEach((key) => {
+                studentRecord[key] = { melt: '-', water: '-', ethanol: '-', conduct: '-', userClass: 'Unassigned' };
+                
+                const tr = document.createElement('tr');
+                tr.id = `row-${key}`;
+                tr.innerHTML = `
+                    <td class="p-2 font-bold text-slate-800">${COMPOUND_DATA[key].name}</td>
+                    <td id="${key}-melt" class="p-2 text-slate-500">-</td>
+                    <td id="${key}-water" class="p-2 text-slate-500">-</td>
+                    <td id="${key}-ethanol" class="p-2 text-slate-500">-</td>
+                    <td id="${key}-conduct" class="p-2 text-slate-500">-</td>
+                    <td class="p-2">
+                        <select onchange="classifyCompound('${key}', this.value)" class="bg-slate-50 border border-slate-300 text-xs rounded p-1 text-slate-700 outline-none focus:border-indigo-500">
+                            <option value="Unassigned">Select...</option>
+                            <option value="Ionic">Ionic</option>
+                            <option value="Covalent">Covalent</option>
+                        </select>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        /* SIDEBAR & DOWNBAR ADJUSTABLE TOGGLES */
+        function toggleSidebar(id) {
+            const el = document.getElementById(id);
+            if (id === 'controlsSidebar') {
+                el.classList.toggle('-ml-80');
+                document.getElementById('openControlsBtn').classList.toggle('hidden');
+            } else if (id === 'manualDrawer') {
+                el.classList.toggle('-mr-80');
+            }
+        }
+
+        function toggleDownbar() {
+            const content = document.getElementById('downbarContent');
+            const icon = document.getElementById('downbarIcon');
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.innerText = '▼ (Click to collapse)';
+            } else {
+                content.classList.add('hidden');
+                icon.innerText = '▲ (Click to expand)';
+            }
+        }
+
+        function changeCompound() {
+            const key = document.getElementById('compoundSelect').value;
+            document.getElementById('displayCompoundName').innerText = COMPOUND_DATA[key].name;
+            resetVisuals();
+        }
+
+        function changeTestType() {
+            const type = document.getElementById('testSelect').value;
+            const meltingVis = document.getElementById('visualMelting');
+            const conductVis = document.getElementById('visualConductivity');
+            const lightControls = document.getElementById('lightControls');
+            const thermalControls = document.getElementById('thermalControls');
+            
+            resetVisuals();
+
+            if (type === 'conduct') {
+                meltingVis.classList.add('hidden');
+                conductVis.classList.remove('hidden');
+                conductVis.classList.add('flex');
+                lightControls.classList.remove('hidden');
+                thermalControls.classList.add('hidden');
+                document.getElementById('displayTestType').innerText = 'Aqueous Electrical Conductivity';
+            } else {
+                conductVis.classList.add('hidden');
+                meltingVis.classList.remove('hidden');
+                meltingVis.classList.add('flex');
+                lightControls.classList.add('hidden');
+                thermalControls.classList.remove('hidden');
+                
+                if (type === 'melt') document.getElementById('displayTestType').innerText = 'Thermal Heat Test';
+                if (type === 'water') document.getElementById('displayTestType').innerText = 'Water Solubility Test';
+                if (type === 'ethanol') document.getElementById('displayTestType').innerText = 'Ethanol Solubility Test';
+            }
+        }
+
+        function resetVisuals() {
+            const flame = document.getElementById('bunsenFlame');
+            flame.classList.add('hidden', 'opacity-0');
+            document.getElementById('solidSample').className = 'w-16 h-8 bg-slate-400 rounded-lg transition-all duration-700';
+            
+            const bulb = document.getElementById('lightBulb');
+            bulb.className = 'w-12 h-12 rounded-full bg-slate-200 border-2 border-slate-300 transition-all duration-300 flex items-center justify-center';
+            bulb.style.boxShadow = 'none';
+            document.getElementById('bulbFilament').className = 'text-xs text-slate-400';
+            
+            document.getElementById('tempReadout').innerText = '25';
+            document.getElementById('observationOutput').innerText = 'Apparatus prepped. Click "Run Selected Test".';
+            
+            stopMicroView();
+            if (document.getElementById('microToggle').checked) {
+                startMicroView();
+            }
+        }
+
+        function setBulbColor(color) {
+            currentColor = color;
+            updateLightInteractive();
+        }
+
+        function updateLightInteractive() {
+            const voltage = document.getElementById('voltageSlider').value;
+            document.getElementById('voltageVal').innerText = `${voltage}V`;
+
+            const key = document.getElementById('compoundSelect').value;
+            const test = document.getElementById('testSelect').value;
+
+            if (test === 'conduct' && COMPOUND_DATA[key].type === 'Ionic') {
+                const bulb = document.getElementById('lightBulb');
+                const intensity = (voltage / 12);
+                bulb.style.setProperty('--glow-color', currentColor);
+                bulb.style.backgroundColor = currentColor;
+                bulb.style.borderColor = '#ffffff';
+                bulb.style.boxShadow = `0 0 ${25 * intensity}px ${currentColor}, 0 0 ${60 * intensity}px ${currentColor}`;
+                document.getElementById('bulbFilament').className = 'text-xs text-white animate-pulse';
+            }
+        }
+
+        function updateThermalInteractive() {
+            const flameSetting = document.getElementById('flameSlider').value;
+            const flameText = flameSetting == 1 ? "Low (200°C)" : flameSetting == 2 ? "Medium (400°C)" : "High (700°C)";
+            document.getElementById('flameVal').innerText = flameText;
+
+            const flame = document.getElementById('bunsenFlame');
+            if (!flame.classList.contains('hidden')) {
+                if (flameSetting == 1) flame.className = "w-6 h-10 bg-gradient-to-t from-amber-500 via-yellow-400 to-sky-300 rounded-full blur-xs flame-glow transition-all duration-500";
+                if (flameSetting == 2) flame.className = "w-8 h-16 bg-gradient-to-t from-amber-500 via-yellow-400 to-sky-300 rounded-full blur-xs flame-glow transition-all duration-500";
+                if (flameSetting == 3) flame.className = "w-10 h-20 bg-gradient-to-t from-amber-500 via-yellow-400 to-sky-300 rounded-full blur-xs flame-glow transition-all duration-500";
+            }
+        }
+
+        function runTest() {
+            const key = document.getElementById('compoundSelect').value;
+            const test = document.getElementById('testSelect').value;
+            const data = COMPOUND_DATA[key];
+            const output = document.getElementById('observationOutput');
+
+            if (test === 'melt') {
+                const flame = document.getElementById('bunsenFlame');
+                flame.classList.remove('hidden');
+                setTimeout(() => flame.classList.remove('opacity-0'), 50);
+                updateThermalInteractive();
+
+                output.innerText = 'Heating crucible sample... Observing state transition.';
+                
+                let currentTemp = 25;
+                const targetTemp = data.type === 'Covalent' ? (key === 'Wax' ? 55 : 186) : 801;
+                
+                const tempInterval = setInterval(() => {
+                    currentTemp += Math.ceil((targetTemp - currentTemp) / 5);
+                    document.getElementById('tempReadout').innerText = Math.min(currentTemp, targetTemp);
+                    if (currentTemp >= targetTemp) clearInterval(tempInterval);
+                }, 100);
+
+                setTimeout(() => {
+                    if (data.melt.includes('Low')) {
+                        document.getElementById('solidSample').className = 'w-20 h-2 bg-amber-600 rounded-full transition-all duration-1000';
+                        output.innerText = `Result: Rapid liquefaction! Melting Point: ${data.melt}`;
+                    } else {
+                        output.innerText = `Result: Sample remained solid under flame. High thermal stability. Melting Point: ${data.melt}`;
+                    }
+                    studentRecord[key].melt = data.melt;
+                    document.getElementById(`${key}-melt`).innerText = data.melt;
+                }, 1200);
+
+            } else if (test === 'water' || test === 'ethanol') {
+                output.innerText = `Agitating solid sample in ${test === 'water' ? 'Distilled Water' : 'Ethanol'}...`;
+                const ripple = document.getElementById('liquidRipple');
+                ripple.classList.remove('hidden');
+
+                setTimeout(() => {
+                    ripple.classList.add('hidden');
+                    const result = test === 'water' ? data.water : data.ethanol;
+                    output.innerText = `Result: Substance is ${result} in ${test === 'water' ? 'water' : 'ethanol'}.`;
+                    studentRecord[key][test] = result;
+                    document.getElementById(`${key}-${test}`).innerText = result;
+                }, 1000);
+
+            } else if (test === 'conduct') {
+                output.innerText = 'Lowering electrodes into solution & completing circuit...';
+                
+                setTimeout(() => {
+                    if (data.conduct.includes('High')) {
+                        updateLightInteractive();
+                        output.innerText = `Result: Circuit Complete! Free ion concentration conducts electric current cleanly.`;
+                    } else {
+                        const bulb = document.getElementById('lightBulb');
+                        bulb.className = 'w-12 h-12 rounded-full bg-slate-200 border-2 border-slate-300 transition-all duration-300 flex items-center justify-center';
+                        bulb.style.boxShadow = 'none';
+                        document.getElementById('bulbFilament').className = 'text-xs text-slate-400';
+                        output.innerText = `Result: No electrical conductivity observed. Non-polar / neutral molecules do not carry charge.`;
+                    }
+                    studentRecord[key].conduct = data.conduct;
+                    document.getElementById(`${key}-conduct`).innerText = data.conduct;
+                }, 1000);
+            }
+
+            if (document.getElementById('microToggle').checked) {
+                startMicroView();
+            }
+        }
+
+        /* MICROSCOPIC PARTICLE ANIMATION ENGINE */
+        function toggleMicroView() {
+            if (document.getElementById('microToggle').checked) startMicroView();
+            else stopMicroView();
+        }
+
+        function startMicroView() {
+            stopMicroView();
+            const canvas = document.getElementById('microCanvas');
+            const ctx = canvas.getContext('2d');
+            const key = document.getElementById('compoundSelect').value;
+            const isIonic = COMPOUND_DATA[key].type === 'Ionic';
+
+            let particles = [];
+            for (let i = 0; i < 25; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 1.5,
+                    vy: (Math.random() - 0.5) * 1.5,
+                    charge: isIonic ? (i % 2 === 0 ? '+' : '-') : 'neutral',
+                    radius: isIonic ? (i % 2 === 0 ? 6 : 8) : 5
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.font = 'bold 10px sans-serif';
+                ctx.fillStyle = '#475569';
+                ctx.fillText(isIonic ? "Micro View: Disassociated Ions (+/-)" : "Micro View: Intact Neutral Molecules", 10, 20);
+
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                    if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    
+                    if (p.charge === '+') {
+                        ctx.fillStyle = '#4f46e5';
+                        ctx.fill();
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillText('+', p.x - 3, p.y + 3);
+                    } else if (p.charge === '-') {
+                        ctx.fillStyle = '#d97706';
+                        ctx.fill();
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillText('-', p.x - 2, p.y + 3);
+                    } else {
+                        ctx.fillStyle = '#059669';
+                        ctx.fill();
+                    }
+                });
+
+                microAnimationId = requestAnimationFrame(animate);
+            }
+
+            animate();
+        }
+
+        function stopMicroView() {
+            if (microAnimationId) cancelAnimationFrame(microAnimationId);
+            const canvas = document.getElementById('microCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function classifyCompound(key, val) {
+            studentRecord[key].userClass = val;
+        }
+
+        function resetLab() {
+            initTable();
+            resetVisuals();
+        }
+
+        function submitReport() {
+            let correct = 0;
+            let total = Object.keys(COMPOUND_DATA).length;
+            let unassigned = false;
+
+            Object.keys(COMPOUND_DATA).forEach((key) => {
+                if (studentRecord[key].userClass === 'Unassigned') unassigned = true;
+                if (studentRecord[key].userClass === COMPOUND_DATA[key].type) correct++;
+            });
+
+            const modal = document.getElementById('resultModal');
+            if (unassigned) {
+                document.getElementById('modalIcon').innerText = '⚠️';
+                document.getElementById('modalTitle').innerText = 'Incomplete Observations';
+                document.getElementById('modalBody').innerText = 'Please assign a classification (Ionic or Covalent) for every compound in the data table before submitting.';
+            } else if (correct === total) {
+                document.getElementById('modalIcon').innerText = '🏆';
+                document.getElementById('modalTitle').innerText = 'Perfect Score!';
+                document.getElementById('modalBody').innerText = `Outstanding! You correctly identified and classified all ${total} chemical compounds based on physical property observations.`;
+            } else {
+                document.getElementById('modalIcon').innerText = '📊';
+                document.getElementById('modalTitle').innerText = 'Lab Evaluation Complete';
+                document.getElementById('modalBody').innerText = `You correctly classified ${correct} out of ${total} compounds. Review the rules in the lab manual and try again!`;
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('resultModal').classList.add('hidden');
+        }
+
+        // Initialize on load
+        initTable();
+    </script>
+</body>
+</html>

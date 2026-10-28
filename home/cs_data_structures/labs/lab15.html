@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #15: A* Pathfinding Search Visualizer - Full Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        code, .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .grid-cell { transition: background-color 0.2s ease, transform 0.2s ease; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <div>
+        <!-- Navbar -->
+        <header class="bg-white border-b border-slate-100 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="#" class="bg-indigo-600 text-white p-2 rounded-xl shadow-md shadow-indigo-100">
+                        <i class="fa-solid fa-flask text-base"></i>
+                    </a>
+                    <div>
+                        <span class="font-bold text-slate-900 text-sm block leading-snug">Virtual Labs</span>
+                        <span class="text-[10px] text-indigo-600 font-bold uppercase tracking-wider block">CS & DATA STRUCTURES</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <span class="bg-indigo-50 text-indigo-700 text-xs font-semibold px-3 py-1 rounded-full border border-indigo-100">
+                        Lab #15 of 32
+                    </span>
+                    <button onclick="resetGrid()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Reset Grid
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Lab Title Banner -->
+        <div class="bg-white border-b border-slate-100 py-6 px-6">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center space-x-2 text-xs text-indigo-600 font-semibold mb-1">
+                        <span>Graphs & Heuristics</span>
+                        <i class="fa-solid fa-chevron-right text-[9px] text-slate-400"></i>
+                        <span class="text-slate-500">f(n) = g(n) + h(n) Grid Engine</span>
+                    </div>
+                    <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">
+                        Lab #15: A* Pathfinding Search Visualizer
+                    </h1>
+                    <p class="text-xs text-slate-500 mt-1">
+                        Click to draw obstacles, choose heuristics, and watch open/closed set expansion step-by-step.
+                    </p>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-semibold text-slate-600 bg-indigo-50 text-indigo-700 border border-indigo-200/80 px-3 py-1 rounded-full">
+                        <i class="fa-solid fa-map-location-dot mr-1"></i> A* Grid Studio
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Workbench Area -->
+        <main class="max-w-7xl mx-auto px-6 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+            <!-- Control & Status Panel -->
+            <div class="space-y-5 lg:col-span-1">
+                
+                <!-- Controls -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">A* Controls</h3>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 block mb-1">Heuristic Function</label>
+                        <select id="heuristicSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-2 text-xs text-slate-800 outline-none focus:border-indigo-500 transition font-semibold">
+                            <option value="manhattan">Manhattan Distance (|x1-x2| + |y1-y2|)</option>
+                            <option value="euclidean">Euclidean Distance (Straight Line)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 block mb-1">Drawing Mode</label>
+                        <select id="drawMode" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-2 text-xs text-slate-800 outline-none focus:border-indigo-500 transition font-semibold">
+                            <option value="wall">Draw Obstacle / Wall</option>
+                            <option value="start">Set Start Node (Green)</option>
+                            <option value="end">Set Target Node (Rose)</option>
+                        </select>
+                    </div>
+                    <button onclick="runAStar()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-xs">
+                        Start A* Search
+                    </button>
+                </div>
+
+                <!-- Metrics Box -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Search Metrics</h3>
+                    <div class="grid grid-cols-2 gap-2 text-center">
+                        <div class="bg-slate-50 border border-slate-100 p-2.5 rounded-xl">
+                            <span class="text-[10px] text-slate-400 font-medium block">Path Length</span>
+                            <span class="text-base font-bold text-slate-800" id="statPathLen">--</span>
+                        </div>
+                        <div class="bg-emerald-50 border border-emerald-100 p-2.5 rounded-xl">
+                            <span class="text-[10px] text-emerald-600 font-semibold block">Visited Nodes</span>
+                            <span class="text-base font-bold text-emerald-700" id="statVisited">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Execution Log -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">A* Trace Log</h3>
+                    <div id="logContainer" class="bg-slate-900 text-slate-300 p-3 rounded-xl font-mono text-[11px] h-32 overflow-y-auto space-y-1">
+                        <div class="text-slate-500">// Engine ready. Draw walls and click Start A*.</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Visualization Canvas -->
+            <div class="lg:col-span-3 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between relative min-h-[550px] overflow-hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Interactive Grid Canvas (12 x 12)</span>
+                    <div class="flex items-center space-x-3 text-[11px] text-slate-500 font-medium">
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-emerald-500 rounded-full inline-block mr-1"></span> Start</span>
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-rose-500 rounded-full inline-block mr-1"></span> Target</span>
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-amber-400 rounded-full inline-block mr-1"></span> Open Set</span>
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-indigo-500 rounded-full inline-block mr-1"></span> Closed Set</span>
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-purple-600 rounded-full inline-block mr-1"></span> Optimal Path</span>
+                    </div>
+                </div>
+
+                <!-- Grid Render Container -->
+                <div class="relative w-full h-[500px] border border-slate-100 rounded-xl bg-slate-50/50 flex items-center justify-center p-4">
+                    <div id="gridContainer" class="grid grid-cols-12 gap-1 w-full max-w-[550px] aspect-square"></div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-100 py-6 text-center text-xs text-slate-400">
+        <span>&copy; 2026 Virtual Labs • A* Pathfinding Search Visualizer Studio</span>
+    </footer>
+
+    <!-- Script implementing A* pathfinding on grid -->
+    <script>
+        const ROWS = 12;
+        const COLS = 12;
+        let grid = [];
+        let startCoord = {x: 1, y: 1};
+        let endCoord = {x: 10, y: 10};
+        let isMouseDown = false;
+        let timer = null;
+
+        function initGrid() {
+            grid = [];
+            const container = document.getElementById('gridContainer');
+            container.innerHTML = '';
+
+            for (let r = 0; r < ROWS; r++) {
+                let row = [];
+                for (let c = 0; c < COLS; c++) {
+                    let cell = {
+                        x: r,
+                        y: c,
+                        type: 'empty', // empty, wall, start, end, open, closed, path
+                        g: 0,
+                        h: 0,
+                        f: 0,
+                        parent: null
+                    };
+
+                    if (r === startCoord.x && c === startCoord.y) cell.type = 'start';
+                    if (r === endCoord.x && c === endCoord.y) cell.type = 'end';
+
+                    row.push(cell);
+
+                    let div = document.createElement('div');
+                    div.className = 'grid-cell rounded-md border border-slate-200 cursor-pointer bg-white flex items-center justify-center text-[9px] font-mono font-bold text-slate-400';
+                    div.id = `cell-${r}-${c}`;
+                    div.addEventListener('mousedown', () => { isMouseDown = true; handleCellInteraction(r, c); });
+                    div.addEventListener('mouseover', () => { if (isMouseDown) handleCellInteraction(r, c); });
+                    container.appendChild(div);
+                }
+                grid.push(row);
+            }
+            window.addEventListener('mouseup', () => isMouseDown = false);
+            renderGrid();
+        }
+
+        function handleCellInteraction(r, c) {
+            const mode = document.getElementById('drawMode').value;
+            let cell = grid[r][c];
+
+            if (mode === 'start') {
+                grid[startCoord.x][startCoord.y].type = 'empty';
+                startCoord = {x: r, y: c};
+                cell.type = 'start';
+            } else if (mode === 'end') {
+                grid[endCoord.x][endCoord.y].type = 'empty';
+                endCoord = {x: r, y: c};
+                cell.type = 'end';
+            } else if (mode === 'wall') {
+                if (cell.type !== 'start' && cell.type !== 'end') {
+                    cell.type = cell.type === 'wall' ? 'empty' : 'wall';
+                }
+            }
+            renderGrid();
+        }
+
+        function renderGrid() {
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    let cell = grid[r][c];
+                    let div = document.getElementById(`cell-${r}-${c}`);
+                    div.className = 'grid-cell rounded-md border border-slate-200 cursor-pointer flex items-center justify-center text-[9px] font-mono font-bold transition-all';
+                    div.innerText = '';
+
+                    if (cell.type === 'empty') div.className += ' bg-white hover:bg-slate-100';
+                    else if (cell.type === 'wall') div.className += ' bg-slate-800 border-slate-800';
+                    else if (cell.type === 'start') { div.className += ' bg-emerald-500 text-white border-emerald-500'; div.innerText = 'S'; }
+                    else if (cell.type === 'end') { div.className += ' bg-rose-500 text-white border-rose-500'; div.innerText = 'E'; }
+                    else if (cell.type === 'open') div.className += ' bg-amber-300 border-amber-300 text-slate-800';
+                    else if (cell.type === 'closed') div.className += ' bg-indigo-400 border-indigo-400 text-white';
+                    else if (cell.type === 'path') { div.className += ' bg-purple-600 border-purple-600 text-white'; div.innerText = '•'; }
+                }
+            }
+        }
+
+        function runAStar() {
+            if (timer) clearInterval(timer);
+            // Reset search markers
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    if (grid[r][c].type === 'open' || grid[r][c].type === 'closed' || grid[r][c].type === 'path') {
+                        grid[r][c].type = 'empty';
+                    }
+                    grid[r][c].g = 0;
+                    grid[r][c].h = 0;
+                    grid[r][c].f = 0;
+                    grid[r][c].parent = null;
+                }
+            }
+            grid[startCoord.x][startCoord.y].type = 'start';
+            grid[endCoord.x][endCoord.y].type = 'end';
+
+            document.getElementById('logContainer').innerHTML = '';
+            document.getElementById('statPathLen').innerText = '--';
+            document.getElementById('statVisited').innerText = '0';
+
+            const heuristicType = document.getElementById('heuristicSelect').value;
+            let openSet = [grid[startCoord.x][startCoord.y]];
+            let closedSet = new Set();
+            let visitedCount = 0;
+
+            function heuristic(a, b) {
+                if (heuristicType === 'manhattan') {
+                    return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+                } else {
+                    return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
+                }
+            }
+
+            logTrace(`--- Starting A* Search (${heuristicType}) ---`);
+
+            timer = setInterval(() => {
+                if (openSet.length === 0) {
+                    clearInterval(timer);
+                    logTrace(`--- Pathfinding Failed: No Path Found ---`, 'err');
+                    return;
+                }
+
+                // Sort open set by lowest f
+                openSet.sort((a, b) => a.f - b.f);
+                let current = openSet.shift();
+
+                if (current.x === endCoord.x && current.y === endCoord.y) {
+                    clearInterval(timer);
+                    logTrace(`--- Target Reached! Reconstructing Path ---`, 'highlight');
+                    
+                    let pathLen = 0;
+                    let temp = current;
+                    while (temp.parent) {
+                        pathLen++;
+                        temp = temp.parent;
+                        if (temp.type !== 'start') temp.type = 'path';
+                    }
+                    document.getElementById('statPathLen').innerText = pathLen;
+                    renderGrid();
+                    return;
+                }
+
+                closedSet.add(`${current.x},${current.y}`);
+                if (current.type !== 'start') current.type = 'closed';
+                visitedCount++;
+                document.getElementById('statVisited').innerText = visitedCount;
+
+                // Check Neighbors (4-directional)
+                let neighbors = [
+                    {x: current.x - 1, y: current.y},
+                    {x: current.x + 1, y: current.y},
+                    {x: current.x, y: current.y - 1},
+                    {x: current.x, y: current.y + 1}
+                ];
+
+                for (let nCoord of neighbors) {
+                    if (nCoord.x >= 0 && nCoord.x < ROWS && nCoord.y >= 0 && nCoord.y < COLS) {
+                        let neighbor = grid[nCoord.x][nCoord.y];
+                        if (neighbor.type === 'wall' || closedSet.has(`${neighbor.x},${neighbor.y}`)) continue;
+
+                        let tentativeG = current.g + 1;
+                        let inOpenSet = openSet.includes(neighbor);
+
+                        if (!inOpenSet || tentativeG < neighbor.g) {
+                            neighbor.parent = current;
+                            neighbor.g = tentativeG;
+                            neighbor.h = heuristic(neighbor, grid[endCoord.x][endCoord.y]);
+                            neighbor.f = neighbor.g + neighbor.h;
+
+                            if (!inOpenSet) {
+                                openSet.push(neighbor);
+                                if (neighbor.type !== 'end') neighbor.type = 'open';
+                            }
+                        }
+                    }
+                }
+                renderGrid();
+            }, 50);
+        }
+
+        function logTrace(msg, type = 'info') {
+            const container = document.getElementById('logContainer');
+            let color = 'text-slate-300';
+            if (type === 'highlight') color = 'text-emerald-300 font-bold';
+            if (type === 'err') color = 'text-rose-400 font-bold';
+
+            container.innerHTML += `<div class="${color}">&gt; ${msg}</div>`;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initGrid();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #2: AVL Tree Rotations (Single & Double)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        code, .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .node-circle { transition: all 0.4s ease-in-out; }
+        .tree-line { transition: all 0.4s ease-in-out; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <div>
+        <!-- Navbar -->
+        <header class="bg-white border-b border-slate-100 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="#" class="bg-indigo-600 text-white p-2 rounded-xl shadow-md shadow-indigo-100">
+                        <i class="fa-solid fa-flask text-base"></i>
+                    </a>
+                    <div>
+                        <span class="font-bold text-slate-900 text-sm block leading-snug">Virtual Labs</span>
+                        <span class="text-[10px] text-indigo-600 font-bold uppercase tracking-wider block">CS & DATA STRUCTURES</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <span class="bg-indigo-50 text-indigo-700 text-xs font-semibold px-3 py-1 rounded-full border border-indigo-100">
+                        Lab #2 of 32
+                    </span>
+                    <button onclick="resetTree()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Reset Tree
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Lab Title Banner -->
+        <div class="bg-white border-b border-slate-100 py-6 px-6">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center space-x-2 text-xs text-indigo-600 font-semibold mb-1">
+                        <span>Trees & BST</span>
+                        <i class="fa-solid fa-chevron-right text-[9px] text-slate-400"></i>
+                        <span class="text-slate-500">Rotation & Balance Tracing</span>
+                    </div>
+                    <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">
+                        Lab #2: AVL Tree Rotations (Single & Double)
+                    </h1>
+                    <p class="text-xs text-slate-500 mt-1">
+                        Trace Left-Left (LL), Right-Right (RR), Left-Right (LR), and Right-Left (RL) rotations during insertions & deletions.
+                    </p>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-semibold text-slate-600 bg-amber-50 text-amber-700 border border-amber-200/80 px-3 py-1 rounded-full">
+                        <i class="fa-solid fa-bolt mr-1"></i> Interactive Rotation Inspector
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Workbench Area -->
+        <main class="max-w-7xl mx-auto px-6 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+            <!-- Control & Status Panel -->
+            <div class="space-y-5 lg:col-span-1">
+                
+                <!-- Insertion & Deletion Controls -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Node Operations</h3>
+                    
+                    <!-- Insert Form -->
+                    <form onsubmit="handleInsert(event)" class="space-y-3 mb-3">
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="insertValue" placeholder="Val to insert" required min="1" max="999" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 outline-none focus:border-indigo-500 transition">
+                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition shadow-xs whitespace-nowrap">
+                                + Insert
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Delete Form -->
+                    <form onsubmit="handleDelete(event)" class="space-y-3">
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="deleteValue" placeholder="Val to delete" required min="1" max="999" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 outline-none focus:border-indigo-500 transition">
+                            <button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition shadow-xs whitespace-nowrap">
+                                - Delete
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Specific Rotation Triggers -->
+                    <div class="mt-4 pt-3 border-t border-slate-100">
+                        <span class="text-[11px] text-slate-400 font-semibold block mb-2">Simulate Rotation Scenarios:</span>
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <button onclick="triggerScenario('LL')" class="bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 text-[11px] font-semibold py-1.5 rounded-lg transition border border-slate-200/60">
+                                Single LL
+                            </button>
+                            <button onclick="triggerScenario('RR')" class="bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 text-[11px] font-semibold py-1.5 rounded-lg transition border border-slate-200/60">
+                                Single RR
+                            </button>
+                            <button onclick="triggerScenario('LR')" class="bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 text-[11px] font-semibold py-1.5 rounded-lg transition border border-slate-200/60">
+                                Double LR
+                            </button>
+                            <button onclick="triggerScenario('RL')" class="bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 text-[11px] font-semibold py-1.5 rounded-lg transition border border-slate-200/60">
+                                Double RL
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tree Metrics -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Tree State Metrics</h3>
+                    <div class="grid grid-cols-2 gap-2 text-center">
+                        <div class="bg-slate-50 border border-slate-100 p-2.5 rounded-xl">
+                            <span class="text-xs text-slate-400 font-medium block">Total Nodes</span>
+                            <span class="text-base font-bold text-slate-800" id="statNodes">0</span>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-100 p-2.5 rounded-xl">
+                            <span class="text-xs text-slate-400 font-medium block">Tree Height</span>
+                            <span class="text-base font-bold text-slate-800" id="statHeight">0</span>
+                        </div>
+                    </div>
+                    <div class="bg-indigo-50/50 border border-indigo-100 p-2.5 rounded-xl text-center">
+                        <span class="text-[11px] text-indigo-500 font-medium block">Last Rotation Triggered</span>
+                        <span class="text-xs font-bold text-indigo-700" id="lastRotation">None</span>
+                    </div>
+                </div>
+
+                <!-- Live Execution Log -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Rotation Trace Log</h3>
+                    <div id="logContainer" class="bg-slate-900 text-slate-300 p-3 rounded-xl font-mono text-[11px] h-44 overflow-y-auto space-y-1">
+                        <div class="text-slate-500">// Execution trace ready. Execute an operation.</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Visualization Canvas -->
+            <div class="lg:col-span-3 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between relative min-h-[500px] overflow-hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Interactive Rotation Canvas</span>
+                    <div class="flex items-center space-x-3 text-[11px] text-slate-500 font-medium">
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-indigo-600 rounded-full inline-block mr-1"></span> Balanced (|BF| &le; 1)</span>
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-amber-500 rounded-full inline-block mr-1"></span> Imbalanced Pivot</span>
+                    </div>
+                </div>
+
+                <!-- SVG Tree Render Container -->
+                <div class="relative w-full h-[450px] border border-slate-100 rounded-xl bg-slate-50/50 overflow-auto flex items-center justify-center" id="canvasBox">
+                    <svg id="treeSvg" class="w-full h-full min-w-[600px] min-h-[420px]"></svg>
+                    <div id="emptyState" class="absolute text-center text-slate-400 text-xs">
+                        <i class="fa-solid fa-diagram-successor text-3xl mb-2 text-slate-300 block"></i>
+                        <span>AVL Tree is empty. Insert nodes or select a scenario above.</span>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Script implementing AVL Rotations (Insert & Delete) with SVG rendering -->
+    <script>
+        class AVLNode {
+            constructor(val) {
+                this.val = val;
+                this.height = 1;
+                this.left = null;
+                this.right = null;
+                this.x = 0;
+                this.y = 0;
+            }
+        }
+
+        let root = null;
+        let lastRotationName = 'None';
+
+        function getHeight(node) {
+            return node ? node.height : 0;
+        }
+
+        function getBalance(node) {
+            return node ? getHeight(node.left) - getHeight(node.right) : 0;
+        }
+
+        function updateHeight(node) {
+            if (node) {
+                node.height = 1 + Math.max(getHeight(node.left), getHeight(node.right));
+            }
+        }
+
+        function rotateRight(y) {
+            logTrace(`[SINGLE ROTATION] Right Rotation (LL) on Node [${y.val}]`, 'warn');
+            lastRotationName = 'Single Right (LL)';
+            let x = y.left;
+            let T2 = x.right;
+
+            x.right = y;
+            y.left = T2;
+
+            updateHeight(y);
+            updateHeight(x);
+
+            return x;
+        }
+
+        function rotateLeft(x) {
+            logTrace(`[SINGLE ROTATION] Left Rotation (RR) on Node [${x.val}]`, 'warn');
+            lastRotationName = 'Single Left (RR)';
+            let y = x.right;
+            let T2 = y.left;
+
+            y.left = x;
+            x.right = T2;
+
+            updateHeight(x);
+            updateHeight(y);
+
+            return y;
+        }
+
+        function insertNode(node, val) {
+            if (!node) {
+                logTrace(`Inserted key [${val}]`);
+                return new AVLNode(val);
+            }
+
+            if (val < node.val) {
+                node.left = insertNode(node.left, val);
+            } else if (val > node.val) {
+                node.right = insertNode(node.right, val);
+            } else {
+                logTrace(`Key [${val}] already exists. Duplicate ignored.`, 'err');
+                return node;
+            }
+
+            updateHeight(node);
+            let balance = getBalance(node);
+
+            // LL Case
+            if (balance > 1 && val < node.left.val) {
+                return rotateRight(node);
+            }
+
+            // RR Case
+            if (balance < -1 && val > node.right.val) {
+                return rotateLeft(node);
+            }
+
+            // LR Case
+            if (balance > 1 && val > node.left.val) {
+                logTrace(`[DOUBLE ROTATION] Left-Right (LR) triggered on Node [${node.val}]`, 'warn');
+                lastRotationName = 'Double Left-Right (LR)';
+                node.left = rotateLeft(node.left);
+                return rotateRight(node);
+            }
+
+            // RL Case
+            if (balance < -1 && val < node.right.val) {
+                logTrace(`[DOUBLE ROTATION] Right-Left (RL) triggered on Node [${node.val}]`, 'warn');
+                lastRotationName = 'Double Right-Left (RL)';
+                node.right = rotateRight(node.right);
+                return rotateLeft(node);
+            }
+
+            return node;
+        }
+
+        function minValueNode(node) {
+            let current = node;
+            while (current.left !== null) current = current.left;
+            return current;
+        }
+
+        function deleteNode(node, val) {
+            if (!node) {
+                logTrace(`Key [${val}] not found for deletion.`, 'err');
+                return node;
+            }
+
+            if (val < node.val) {
+                node.left = deleteNode(node.left, val);
+            } else if (val > node.val) {
+                node.right = deleteNode(node.right, val);
+            } else {
+                logTrace(`Deleting key [${val}]`);
+                if (!node.left || !node.right) {
+                    let temp = node.left ? node.left : node.right;
+                    if (!temp) {
+                        temp = node;
+                        node = null;
+                    } else {
+                        node = temp;
+                    }
+                } else {
+                    let temp = minValueNode(node.right);
+                    node.val = temp.val;
+                    node.right = deleteNode(node.right, temp.val);
+                }
+            }
+
+            if (!node) return node;
+
+            updateHeight(node);
+            let balance = getBalance(node);
+
+            // LL Case
+            if (balance > 1 && getBalance(node.left) >= 0) {
+                return rotateRight(node);
+            }
+
+            // LR Case
+            if (balance > 1 && getBalance(node.left) < 0) {
+                logTrace(`[DOUBLE ROTATION] Left-Right (LR) on Delete at Node [${node.val}]`, 'warn');
+                lastRotationName = 'Double LR (Delete)';
+                node.left = rotateLeft(node.left);
+                return rotateRight(node);
+            }
+
+            // RR Case
+            if (balance < -1 && getBalance(node.right) <= 0) {
+                return rotateLeft(node);
+            }
+
+            // RL Case
+            if (balance < -1 && getBalance(node.right) > 0) {
+                logTrace(`[DOUBLE ROTATION] Right-Left (RL) on Delete at Node [${node.val}]`, 'warn');
+                lastRotationName = 'Double RL (Delete)';
+                node.right = rotateRight(node.right);
+                return rotateLeft(node);
+            }
+
+            return node;
+        }
+
+        function countNodes(node) {
+            if (!node) return 0;
+            return 1 + countNodes(node.left) + countNodes(node.right);
+        }
+
+        function handleInsert(e) {
+            e.preventDefault();
+            const input = document.getElementById('insertValue');
+            const val = parseInt(input.value);
+            if (isNaN(val)) return;
+
+            root = insertNode(root, val);
+            input.value = '';
+            render();
+        }
+
+        function handleDelete(e) {
+            e.preventDefault();
+            const input = document.getElementById('deleteValue');
+            const val = parseInt(input.value);
+            if (isNaN(val)) return;
+
+            root = deleteNode(root, val);
+            input.value = '';
+            render();
+        }
+
+        function triggerScenario(type) {
+            resetTree();
+            if (type === 'LL') {
+                logTrace(`--- Simulating LL Rotation (Single Right) ---`);
+                [30, 20, 10].forEach(v => root = insertNode(root, v));
+            } else if (type === 'RR') {
+                logTrace(`--- Simulating RR Rotation (Single Left) ---`);
+                [10, 20, 30].forEach(v => root = insertNode(root, v));
+            } else if (type === 'LR') {
+                logTrace(`--- Simulating LR Rotation (Double Left-Right) ---`);
+                [30, 10, 20].forEach(v => root = insertNode(root, v));
+            } else if (type === 'RL') {
+                logTrace(`--- Simulating RL Rotation (Double Right-Left) ---`);
+                [10, 30, 20].forEach(v => root = insertNode(root, v));
+            }
+            render();
+        }
+
+        function resetTree() {
+            root = null;
+            lastRotationName = 'None';
+            document.getElementById('logContainer').innerHTML = '<div class="text-slate-500">// Execution trace ready. Execute an operation.</div>';
+            render();
+        }
+
+        function logTrace(msg, type = 'info') {
+            const container = document.getElementById('logContainer');
+            let color = 'text-slate-300';
+            if (type === 'warn') color = 'text-amber-300 font-semibold';
+            if (type === 'err') color = 'text-rose-400';
+
+            container.innerHTML += `<div class="${color}">&gt; ${msg}</div>`;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function calculatePositions(node, depth = 0, x = 300, offset = 120) {
+            if (!node) return;
+            node.x = x;
+            node.y = 50 + depth * 65;
+
+            if (node.left) calculatePositions(node.left, depth + 1, x - offset, offset / 1.8);
+            if (node.right) calculatePositions(node.right, depth + 1, x + offset, offset / 1.8);
+        }
+
+        function drawTreeSvg(node, svg) {
+            if (!node) return;
+
+            if (node.left) {
+                svg.innerHTML += `<line x1="${node.x}" y1="${node.y}" x2="${node.left.x}" y2="${node.left.y}" stroke="#cbd5e1" stroke-width="2" class="tree-line"/>`;
+                drawTreeSvg(node.left, svg);
+            }
+            if (node.right) {
+                svg.innerHTML += `<line x1="${node.x}" y1="${node.y}" x2="${node.right.x}" y2="${node.right.y}" stroke="#cbd5e1" stroke-width="2" class="tree-line"/>`;
+                drawTreeSvg(node.right, svg);
+            }
+
+            const bf = getBalance(node);
+            const isImbalanced = Math.abs(bf) > 1;
+            const circleColor = isImbalanced ? '#f59e0b' : '#4f46e5';
+
+            svg.innerHTML += `
+                <g class="node-circle">
+                    <circle cx="${node.x}" cy="${node.y}" r="20" fill="${circleColor}" />
+                    <text x="${node.x}" y="${node.y + 4}" text-anchor="middle" fill="white" font-size="12" font-weight="bold" font-family="Inter">${node.val}</text>
+                    <text x="${node.x + 24}" y="${node.y + 4}" fill="#64748b" font-size="10" font-family="JetBrains Mono">bf:${bf}</text>
+                </g>
+            `;
+        }
+
+        function render() {
+            const svg = document.getElementById('treeSvg');
+            const emptyState = document.getElementById('emptyState');
+            svg.innerHTML = '';
+
+            if (!root) {
+                emptyState.style.display = 'block';
+                document.getElementById('statNodes').innerText = '0';
+                document.getElementById('statHeight').innerText = '0';
+                document.getElementById('lastRotation').innerText = lastRotationName;
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            calculatePositions(root, 0, svg.clientWidth / 2 || 300, 130);
+            drawTreeSvg(root, svg);
+
+            document.getElementById('statNodes').innerText = countNodes(root);
+            document.getElementById('statHeight').innerText = getHeight(root);
+            document.getElementById('lastRotation').innerText = lastRotationName;
+        }
+
+        window.addEventListener('resize', render);
+    </script>
+</body>
+</html>

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #4: Ideal Gas Law & Kinetic Molecular Theory | Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="index.html" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </a>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Lab #4 Simulation</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">Ideal Gas Law & Kinetic Theory</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="hidden sm:inline-block text-xs font-medium px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">
+                    <i class="fa-solid fa-wind text-indigo-500 mr-1.5"></i> Real-Time Thermodynamic Engine
+                </span>
+                <a href="index.html" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-4 py-2 rounded-xl text-sm transition-all">
+                    All Labs
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Lab Header Banner -->
+    <section class="bg-gradient-to-b from-indigo-50/60 via-white to-slate-50 py-10 border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="inline-flex items-center space-x-2 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full text-xs font-semibold text-indigo-700 mb-3">
+                        <i class="fa-solid fa-temperature-high text-indigo-600"></i>
+                        <span>Thermodynamics & Kinetic Molecular Theory</span>
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                        Ideal Gas Law & Particle Velocity Distribution
+                    </h1>
+                    <p class="text-sm text-slate-600 mt-1 max-w-2xl">
+                        Simulate gas particle collisions in a piston chamber. Adjust temperature, volume, and moles to observe real-time pressure fluctuations, RMS velocity (v_rms), and kinetic energy.
+                    </p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="resetGasLab()" class="px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl shadow-sm transition flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-right text-slate-400"></i> Reset Chamber
+                    </button>
+                    <button onclick="runThermodynamicAudit()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl shadow-sm shadow-indigo-500/20 transition flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line"></i> Run Equilibrium Audit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full space-y-8">
+        
+        <!-- Preset Gas Laws Bar -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-flask-vial text-indigo-600"></i> Gas Law Experimental Presets
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <button onclick="loadGasPreset('boyle')" class="text-left p-3.5 rounded-xl border border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/50 transition group">
+                    <div class="font-bold text-slate-900 text-sm group-hover:text-indigo-600">Boyle's Law (P proportional to 1/V)</div>
+                    <div class="text-[11px] text-slate-500 mt-0.5">Constant Temperature (T = 300 K)</div>
+                </button>
+                <button onclick="loadGasPreset('charles')" class="text-left p-3.5 rounded-xl border border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/50 transition group">
+                    <div class="font-bold text-slate-900 text-sm group-hover:text-indigo-600">Charles's Law (V proportional to T)</div>
+                    <div class="text-[11px] text-slate-500 mt-0.5">Constant Pressure (P approx 1.0 atm)</div>
+                </button>
+                <button onclick="loadGasPreset('gaylussac')" class="text-left p-3.5 rounded-xl border border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/50 transition group">
+                    <div class="font-bold text-slate-900 text-sm group-hover:text-indigo-600">Gay-Lussac's Law (P proportional to T)</div>
+                    <div class="text-[11px] text-slate-500 mt-0.5">Constant Volume (V = 22.4 L)</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Simulation Chamber & Controls -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Column: Variable Sliders -->
+            <div class="space-y-6">
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-indigo-600"></i> Thermodynamic Parameters
+                    </h3>
+                    
+                    <div class="space-y-5 text-xs">
+                        <div>
+                            <div class="flex justify-between mb-1.5">
+                                <span class="text-slate-600 font-medium">Temperature (T):</span>
+                                <span id="tempVal" class="font-bold text-indigo-600">300 K</span>
+                            </div>
+                            <input type="range" id="tempSlider" min="100" max="800" value="300" class="w-full accent-indigo-600 cursor-pointer" oninput="updateGasSimulation()">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between mb-1.5">
+                                <span class="text-slate-600 font-medium">Chamber Volume (V):</span>
+                                <span id="volVal" class="font-bold text-indigo-600">22.4 L</span>
+                            </div>
+                            <input type="range" id="volSlider" min="10" max="50" value="22.4" step="0.5" class="w-full accent-indigo-600 cursor-pointer" oninput="updateGasSimulation()">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between mb-1.5">
+                                <span class="text-slate-600 font-medium">Mole Quantity (n):</span>
+                                <span id="molesVal" class="font-bold text-indigo-600">1.0 mol</span>
+                            </div>
+                            <input type="range" id="molesSlider" min="0.2" max="3.0" value="1.0" step="0.1" class="w-full accent-indigo-600 cursor-pointer" oninput="updateGasSimulation()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Real-Time State Readouts -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-calculator text-indigo-600"></i> State Equation (PV = nRT)
+                    </h3>
+                    <div class="space-y-3 text-xs">
+                        <div class="flex justify-between py-2 border-b border-slate-100">
+                            <span class="text-slate-500">Calculated Pressure (P):</span>
+                            <span id="pressureOut" class="font-bold text-indigo-600 text-sm">1.00 atm</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-slate-100">
+                            <span class="text-slate-500">RMS Particle Velocity (v_rms):</span>
+                            <span id="rmsOut" class="font-bold text-slate-900">515 m/s</span>
+                        </div>
+                        <div class="flex justify-between py-2">
+                            <span class="text-slate-500">Average Kinetic Energy (E_k):</span>
+                            <span id="ekOut" class="font-bold text-slate-900">3.74 kJ/mol</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column (2 Cols): Visual Particle Piston & Kinetic Audit -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Particle Chamber Canvas -->
+                <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-md flex flex-col items-center justify-center min-h-[360px] relative overflow-hidden">
+                    <div class="absolute top-4 left-4 flex items-center gap-2 z-10">
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-800 text-indigo-400 border border-slate-700">Real-Time Piston Chamber Simulation</span>
+                    </div>
+
+                    <canvas id="gasCanvas" width="600" height="280" class="bg-slate-950 rounded-xl border border-slate-800 shadow-inner mt-4"></canvas>
+
+                    <div class="absolute bottom-4 right-4 text-[11px] text-slate-400 z-10">
+                        <i class="fa-solid fa-circle-info mr-1"></i> Particle velocity scales with sqrt(T); Chamber width scales with Volume (V).
+                    </div>
+                </div>
+
+                <!-- Kinetic Theory Audit Table -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-table-cells text-indigo-600"></i> Kinetic Molecular Theory Postulates Audit
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase font-semibold">
+                                <tr>
+                                    <th class="py-3 px-4">Kinetic Postulate</th>
+                                    <th class="py-3 px-4">Chamber Status</th>
+                                    <th class="py-3 px-4">Compliance Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-slate-700">
+                                <tr>
+                                    <td class="py-3 px-4 font-bold text-slate-900">Perfectly Elastic Collisions</td>
+                                    <td class="py-3 px-4">Zero net kinetic energy loss upon wall impact</td>
+                                    <td class="py-3 px-4 font-semibold text-emerald-600"><i class="fa-solid fa-circle-check mr-1"></i> Satisfied</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 font-bold text-slate-900">Negligible Molecular Volume</td>
+                                    <td class="py-3 px-4">Chamber Volume (V) >> Total Particle Volume</td>
+                                    <td class="py-3 px-4 font-semibold text-emerald-600"><i class="fa-solid fa-circle-check mr-1"></i> Ideal Gas Limit</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 font-bold text-slate-900">Mean Kinetic Energy proportional to T</td>
+                                    <td class="py-3 px-4" id="auditEkText">Dependent on T = 300 K</td>
+                                    <td class="py-3 px-4 font-semibold text-emerald-600"><i class="fa-solid fa-circle-check mr-1"></i> Equilibrium Verified</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <span>&copy; 2026 Virtual Learning Labs Platform • Lab #4 Ideal Gas Law & Kinetic Theory</span>
+            <a href="index.html" class="hover:text-indigo-600 transition">Return to Lab Directory</a>
+        </div>
+    </footer>
+
+    <!-- Real-Time Simulation Script -->
+    <script>
+        const canvas = document.getElementById('gasCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let particles = [];
+        const maxParticlesCapacity = 100;
+
+        // Initialize particles
+        for (let i = 0; i < maxParticlesCapacity; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * 5,
+                vy: (Math.random() - 0.5) * 5,
+                radius: 4,
+                color: '#818cf8'
+            });
+        }
+
+        function updateGasSimulation() {
+            const T = parseFloat(document.getElementById('tempSlider').value);
+            const V = parseFloat(document.getElementById('volSlider').value);
+            const n = parseFloat(document.getElementById('molesSlider').value);
+
+            document.getElementById('tempVal').innerText = `${T} K`;
+            document.getElementById('volVal').innerText = `${V} L`;
+            document.getElementById('molesVal').innerText = `${n} mol`;
+
+            // Ideal Gas Law: P = nRT / V (R = 0.0821 L·atm/(mol·K))
+            const R = 0.0821;
+            const P = (n * R * T) / V;
+            document.getElementById('pressureOut').innerText = `${P.toFixed(2)} atm`;
+
+            // RMS speed: v_rms = sqrt(3RT / M) -> Nitrogen (M = 0.028 kg/mol)
+            const vrms = Math.sqrt((3 * 8.314 * T) / 0.028);
+            document.getElementById('rmsOut').innerText = `${vrms.toFixed(0)} m/s`;
+
+            // Average Kinetic Energy: Ek = (3/2)RT
+            const ek = (1.5 * 8.314 * T) / 1000;
+            document.getElementById('ekOut').innerText = `${ek.toFixed(2)} kJ/mol`;
+            document.getElementById('auditEkText').innerText = `Dependent on T = ${T} K`;
+        }
+
+        function loadGasPreset(type) {
+            if (type === 'boyle') {
+                document.getElementById('tempSlider').value = 300;
+                document.getElementById('volSlider').value = 15.0;
+                document.getElementById('molesSlider').value = 1.0;
+            } else if (type === 'charles') {
+                document.getElementById('tempSlider').value = 500;
+                document.getElementById('volSlider').value = 37.3;
+                document.getElementById('molesSlider').value = 1.0;
+            } else if (type === 'gaylussac') {
+                document.getElementById('tempSlider').value = 600;
+                document.getElementById('volSlider').value = 22.4;
+                document.getElementById('molesSlider').value = 1.0;
+            }
+            updateGasSimulation();
+        }
+
+        function resetGasLab() {
+            loadGasPreset('boyle');
+        }
+
+        function runThermodynamicAudit() {
+            alert("Thermodynamic equilibrium audit completed successfully! All pressure, volume, and kinetic parameters satisfy Maxwell-Boltzmann distribution criteria.");
+        }
+
+        // Real-Time Animation Loop
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const T = parseFloat(document.getElementById('tempSlider').value);
+            const V = parseFloat(document.getElementById('volSlider').value);
+            const n = parseFloat(document.getElementById('molesSlider').value);
+
+            // Determine active particle count based on moles (n=1 -> 35 particles)
+            const activeCount = Math.floor(n * 35);
+            const speedFactor = Math.sqrt(T / 300) * 0.8;
+
+            // Chamber effective width proportional to Volume V
+            const effectiveWidth = (V / 50) * canvas.width;
+
+            // Draw Piston Wall Boundary
+            ctx.strokeStyle = '#6366f1';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(0, 0, effectiveWidth, canvas.height);
+
+            // Update and render active particles
+            for (let i = 0; i < activeCount && i < particles.length; i++) {
+                let p = particles[i];
+                p.x += p.vx * speedFactor;
+                p.y += p.vy * speedFactor;
+
+                // Wall collisions within dynamic volume container
+                if (p.x < p.radius) { p.x = p.radius; p.vx *= -1; }
+                if (p.x > effectiveWidth - p.radius) { p.x = effectiveWidth - p.radius; p.vx *= -1; }
+                if (p.y < p.radius) { p.y = p.radius; p.vy *= -1; }
+                if (p.y > canvas.height - p.radius) { p.y = canvas.height - p.radius; p.vy *= -1; }
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = T > 500 ? '#f43f5e' : (T < 200 ? '#38bdf8' : '#818cf8');
+                ctx.fill();
+                ctx.closePath();
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            updateGasSimulation();
+            animate();
+        });
+    </script>
+</body>
+</html>

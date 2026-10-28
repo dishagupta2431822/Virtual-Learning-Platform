@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #9: Reaction Rates & Arrhenius Equation | Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="../index.html" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 hover:opacity-90 transition-opacity">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </a>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Virtual Lab #9</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">Chemistry & Kinetics</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Live Simulation Engine
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Simulation Workspace -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+        <!-- Lab Header Info -->
+        <div class="mb-8">
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Reaction Rates & Arrhenius Equation</h1>
+            <p class="text-sm text-slate-500 mt-1">Determine activation energy (Ea), temperature dependency, and rate constants (k) interactively in real time.</p>
+        </div>
+
+        <!-- Simulation Grid Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Control Panel -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between space-y-6">
+                <div>
+                    <h2 class="font-bold text-slate-900 text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-indigo-600"></i> Parameters Control
+                    </h2>
+
+                    <!-- Temperature Slider -->
+                    <div class="mb-5">
+                        <div class="flex justify-between text-xs font-medium text-slate-600 mb-2">
+                            <span>Temperature (T)</span>
+                            <span id="tempVal" class="text-indigo-600 font-bold">298 K (25.0 °C)</span>
+                        </div>
+                        <input type="range" id="tempRange" min="200" max="500" value="298" class="w-full accent-indigo-600 cursor-pointer">
+                        <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+                            <span>200 K (-73°C)</span>
+                            <span>500 K (227°C)</span>
+                        </div>
+                    </div>
+
+                    <!-- Activation Energy Slider -->
+                    <div class="mb-5">
+                        <div class="flex justify-between text-xs font-medium text-slate-600 mb-2">
+                            <span>Activation Energy (Ea)</span>
+                            <span id="eaVal" class="text-indigo-600 font-bold">50.0 kJ/mol</span>
+                        </div>
+                        <input type="range" id="eaRange" min="10" max="120" value="50" step="1" class="w-full accent-indigo-600 cursor-pointer">
+                        <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+                            <span>10 kJ/mol</span>
+                            <span>120 kJ/mol</span>
+                        </div>
+                    </div>
+
+                    <!-- Frequency Factor Input -->
+                    <div class="mb-4">
+                        <label class="block text-xs font-medium text-slate-600 mb-2">Pre-exponential Factor (A)</label>
+                        <input type="text" id="aInput" value="1e11" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+
+                <button id="resetBtn" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2.5 px-4 rounded-xl text-xs transition-all">
+                    Reset Defaults
+                </button>
+            </div>
+
+            <!-- Right Visualizer & Output Panel -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Live Output Metrics Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="text-xs text-slate-500 font-medium mb-1">Rate Constant (k)</div>
+                        <div id="rateConstant" class="text-2xl font-bold text-indigo-600 font-mono">--</div>
+                        <div class="text-[11px] text-slate-400 mt-1">Calculated via Arrhenius Law</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="text-xs text-slate-500 font-medium mb-1">Boltzmann Fraction</div>
+                        <div id="boltzmannFactor" class="text-2xl font-bold text-emerald-600 font-mono">--</div>
+                        <div class="text-[11px] text-slate-400 mt-1">Fraction with energy &ge; Ea</div>
+                    </div>
+                </div>
+
+                <!-- Graphical Representation / Energy Profile Simulator -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-chart-line text-indigo-600"></i> Reaction Energy Profile & Arrhenius Fit
+                        </h3>
+                        <span id="speedIndicator" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700">Reaction Speed: Moderate</span>
+                    </div>
+
+                    <!-- Visual Energy Barrier Bar -->
+                    <div class="space-y-3 mb-6">
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-500 mb-1">
+                                <span>Thermal Energy vs Energy Barrier</span>
+                                <span id="barrierRatio" class="font-medium text-slate-700">--</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden p-0.5 border border-slate-200">
+                                <div id="progressBar" class="bg-indigo-600 h-full rounded-full transition-all duration-300" style="width: 50%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 font-mono text-xs text-slate-700 text-center">
+                        k = A &middot; exp(-Ea / (R &middot; T))
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                        <span>Universal Gas Constant (R): 8.314 J/(mol&middot;K)</span>
+                        <a href="../index.html" class="text-indigo-600 font-medium hover:underline">Return to Library &rarr;</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs border-t border-slate-800">
+        &copy; 2026 Virtual Learning Platform. All rights reserved.
+    </footer>
+
+    <!-- Simulation Script -->
+    <script>
+        const tempRange = document.getElementById('tempRange');
+        const eaRange = document.getElementById('eaRange');
+        const aInput = document.getElementById('aInput');
+        const tempVal = document.getElementById('tempVal');
+        const eaVal = document.getElementById('eaVal');
+        const rateConstant = document.getElementById('rateConstant');
+        const boltzmannFactor = document.getElementById('boltzmannFactor');
+        const progressBar = document.getElementById('progressBar');
+        const barrierRatio = document.getElementById('barrierRatio');
+        const speedIndicator = document.getElementById('speedIndicator');
+        const resetBtn = document.getElementById('resetBtn');
+
+        const R = 8.314; // J/(mol*K)
+
+        function calculateArrhenius() {
+            const T = parseFloat(tempRange.value);
+            const Ea = parseFloat(eaRange.value) * 1000; // convert kJ to J
+            const A = parseFloat(aInput.value) || 1e11;
+
+            // Update UI labels
+            const celsius = (T - 273.15).toFixed(1);
+            tempVal.textContent = `${T} K (${celsius} °C)`;
+            eaVal.textContent = `${eaRange.value}.0 kJ/mol`;
+
+            // Calculate Boltzmann fraction and k
+            const exponent = -Ea / (R * T);
+            const factor = Math.exp(exponent);
+            const k = A * factor;
+
+            // Format outputs
+            boltzmannFactor.textContent = factor.toExponential(4);
+            if (k > 1e6 || k < 0.001) {
+                rateConstant.textContent = k.toExponential(4);
+            } else {
+                rateConstant.textContent = k.toFixed(4);
+            }
+
+            // Visual bar calculation (Thermal energy RT relative to Ea)
+            const RT = R * T;
+            const ratio = (RT / Ea) * 100;
+            const visualWidth = Math.min(Math.max(ratio * 5, 5), 100);
+            progressBar.style.width = `${visualWidth}%`;
+            barrierRatio.textContent = `RT / Ea Ratio: ${(RT / Ea).toFixed(3)}`;
+
+            // Speed category update
+            if (k > 1000) {
+                speedIndicator.textContent = "Reaction Speed: Extremely Fast";
+                speedIndicator.className = "text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700";
+            } else if (k > 1) {
+                speedIndicator.textContent = "Reaction Speed: Moderate";
+                speedIndicator.className = "text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700";
+            } else {
+                speedIndicator.textContent = "Reaction Speed: Very Slow / Dormant";
+                speedIndicator.className = "text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700";
+            }
+        }
+
+        tempRange.addEventListener('input', calculateArrhenius);
+        eaRange.addEventListener('input', calculateArrhenius);
+        aInput.addEventListener('input', calculateArrhenius);
+
+        resetBtn.addEventListener('click', () => {
+            tempRange.value = 298;
+            eaRange.value = 50;
+            aInput.value = '1e11';
+            calculateArrhenius();
+        });
+
+        // Initial calculation on load
+        calculateArrhenius();
+    </script>
+</body>
+</html>

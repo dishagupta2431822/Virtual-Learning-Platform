@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Management & Virtual Memory Virtual Lab</title>
+    <style>
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --accent-blue: #2563eb;
+            --accent-blue-hover: #1d4ed8;
+            --accent-green: #16a34a;
+            --accent-orange: #ea580c;
+            --accent-red: #dc2626;
+            --accent-purple: #9333ea;
+            --border-color: #cbd5e1;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            line-height: 1.5;
+            padding: 1rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background-color: var(--bg-card);
+            padding: 1.25rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        h1 {
+            font-size: clamp(1.2rem, 2vw, 1.5rem);
+            color: var(--accent-blue);
+        }
+
+        p.subtitle {
+            color: var(--text-secondary);
+            font-size: clamp(0.8rem, 1.2vw, 0.9rem);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 0.35rem;
+            background-color: #e2e8f0;
+            padding: 0.3rem;
+            border-radius: 6px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 0.45rem 0.85rem;
+            border: none;
+            background: none;
+            font-weight: 600;
+            font-size: clamp(0.75rem, 1vw, 0.85rem);
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background-color: var(--bg-card);
+            color: var(--accent-blue);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tutorial-banner {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #ffffff;
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            border-left: 6px solid var(--accent-blue);
+        }
+
+        .tutorial-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tutorial-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tutorial-step-badge {
+            background-color: var(--accent-blue);
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .tutorial-body {
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .tutorial-body strong {
+            color: #f8fafc;
+        }
+
+        .tutorial-controls {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .tut-btn {
+            padding: 0.4rem 0.85rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tut-btn-next { background-color: var(--accent-blue); color: white; }
+        .tut-btn-next:hover { background-color: var(--accent-blue-hover); }
+        .tut-btn-prev { background-color: #475569; color: white; }
+        .tut-btn-prev:hover { background-color: #334155; }
+        .tut-btn-close { background-color: transparent; border: 1px solid #64748b; color: #94a3b8; }
+        .tut-btn-close:hover { color: white; border-color: white; }
+
+        .desc-card {
+            background-color: #eff6ff;
+            border-left: 5px solid var(--accent-blue);
+            border-radius: 6px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            width: 100%;
+        }
+
+        .desc-title {
+            font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-bottom: 0.3rem;
+        }
+
+        .desc-text {
+            font-size: clamp(0.8rem, 1.2vw, 0.9rem);
+            color: var(--text-primary);
+        }
+
+        .lab-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            width: 100%;
+            margin-bottom: 1.5rem;
+            transition: outline 0.3s ease;
+        }
+
+        .card-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--bg-body);
+        }
+
+        .btn {
+            padding: 0.55rem 0.9rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.825rem;
+            transition: all 0.2s;
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-primary { background-color: var(--accent-blue); color: white; }
+        .btn-primary:hover { background-color: var(--accent-blue-hover); }
+        .btn-success { background-color: var(--accent-green); color: white; }
+        .btn-warning { background-color: var(--accent-orange); color: white; }
+        .btn-danger { background-color: var(--accent-red); color: white; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 0.4rem;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: var(--text-secondary);
+        }
+
+        input[type="number"], input[type="text"], select {
+            width: 100%;
+            padding: 0.4rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 0.85rem;
+            background-color: #fff;
+        }
+
+        .logger {
+            height: min(220px, 30vh);
+            background-color: #0f172a;
+            color: #38bdf8;
+            font-family: monospace;
+            font-size: 0.775rem;
+            padding: 0.75rem;
+            border-radius: 6px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            width: 100%;
+        }
+
+        .log-success { color: #4ade80; }
+        .log-info { color: #38bdf8; }
+        .log-warning { color: #facc15; }
+        .log-danger { color: #f87171; }
+
+        .memory-visualizer {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            background-color: #f1f5f9;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            min-height: 250px;
+        }
+
+        .mem-block {
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: #ffffff;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .mem-free {
+            background-color: #94a3b8;
+            border: 1px dashed #64748b;
+            color: #0f172a;
+        }
+
+        .mem-allocated {
+            background-color: var(--accent-blue);
+        }
+
+        .page-table-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+        }
+
+        .translation-box {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .page-replacement-table {
+            overflow-x: auto;
+        }
+
+        .highlight-target {
+            outline: 3px solid var(--accent-blue) !important;
+            box-shadow: 0 0 12px rgba(37, 99, 235, 0.5) !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div>
+                <h1>Memory Management & Paging Virtual Lab</h1>
+                <p class="subtitle">Interactive simulator for contiguous allocation, address translation, and page replacement</p>
+            </div>
+            <div class="header-actions">
+                <button class="tut-btn tut-btn-next" onclick="restartTutorial()">🎓 Start Interactive Tutorial</button>
+                <div class="tab-buttons">
+                    <button class="tab-btn active" id="tabAllocation" onclick="switchTab('allocation')">Contiguous Allocation</button>
+                    <button class="tab-btn" id="tabTranslation" onclick="switchTab('translation')">Paging & Segmentation</button>
+                    <button class="tab-btn" id="tabReplacement" onclick="switchTab('replacement')">Page Replacement</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dynamic Guided Tutorial Banner -->
+        <div class="tutorial-banner" id="tutorialBanner" style="display: none;">
+            <div class="tutorial-header">
+                <div class="tutorial-title">
+                    <span>💡 Interactive Guided Tutorial</span>
+                    <span class="tutorial-step-badge" id="tutStepBadge">Step 1 of 6</span>
+                </div>
+                <button class="tut-btn tut-btn-close" onclick="closeTutorial()">✕ Close Guide</button>
+            </div>
+            <div class="tutorial-body" id="tutBodyText">
+                Welcome to the Memory Management Virtual Lab! Click <strong>Next</strong> to begin the tour.
+            </div>
+            <div class="tutorial-controls">
+                <button class="tut-btn tut-btn-prev" id="tutPrevBtn" onclick="prevTutorialStep()">◄ Previous</button>
+                <button class="tut-btn tut-btn-next" id="tutNextBtn" onclick="nextTutorialStep()">Next Step ►</button>
+            </div>
+        </div>
+
+        <div class="desc-card" id="tabDesc"></div>
+
+        <div class="lab-grid">
+            <div>
+                <div class="card" id="controlsCard"></div>
+
+                <div class="card" id="loggerCard">
+                    <div class="card-title">Execution & Trace Log</div>
+                    <div class="logger" id="eventLog"></div>
+                    <button class="btn btn-warning" style="margin-top: 0.5rem;" onclick="clearLog()">Clear Log</button>
+                </div>
+            </div>
+
+            <div>
+                <div class="card" id="visualizerCard">
+                    <div class="card-title" id="visualizerTitle">State Visualizer</div>
+                    <div id="visualizerContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTab = 'allocation';
+
+        // Contiguous Memory Allocation State
+        let memoryBlocks = [
+            { id: 1, size: 100, free: true, process: null },
+            { id: 2, size: 500, free: true, process: null },
+            { id: 3, size: 200, free: true, process: null },
+            { id: 4, size: 300, free: true, process: null },
+            { id: 5, size: 600, free: true, process: null }
+        ];
+
+        // Translation State
+        let pageSize = 4; // KB
+        let pageTable = [
+            { page: 0, frame: 2, valid: true },
+            { page: 1, frame: 5, valid: true },
+            { page: 2, frame: 1, valid: true },
+            { page: 3, frame: 0, valid: false }
+        ];
+
+        let segmentTable = [
+            { segment: 0, base: 1400, limit: 1000 },
+            { segment: 1, base: 6300, limit: 400 },
+            { segment: 2, base: 4300, limit: 400 },
+            { segment: 3, base: 3200, limit: 1100 }
+        ];
+
+        // Page Replacement State
+        let referenceString = [7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2, 1, 2, 0, 1, 7, 0, 1];
+        let numFrames = 3;
+
+        // --- GUIDED TUTORIAL STEPS ---
+        let currentTutStep = 0;
+        const tutorialSteps = [
+            {
+                tab: 'allocation',
+                title: 'Welcome to the Memory Management Virtual Lab!',
+                text: 'This lab covers contiguous memory strategies (First-Fit, Best-Fit, Worst-Fit), logical-to-physical address translation (Paging & Segmentation), and page replacement algorithms.',
+                target: null
+            },
+            {
+                tab: 'allocation',
+                title: 'Step 1: Contiguous Memory Allocation Strategies',
+                text: 'Enter a process size (e.g. 212 KB) and choose an allocation strategy: <strong>First-Fit</strong> (first large enough block), <strong>Best-Fit</strong> (smallest suitable block), or <strong>Worst-Fit</strong> (largest block). Click <strong>Allocate Process</strong> to visualize placement.',
+                target: 'controlsCard'
+            },
+            {
+                tab: 'translation',
+                title: 'Step 2: Paging Address Translation Scheme',
+                text: 'Switched to <strong>Paging & Segmentation</strong>! Enter a logical address (e.g. 5 KB or Page 1 Offset 1024 B). Click <strong>Translate Address</strong> to compute the exact physical frame and byte offset.',
+                target: 'controlsCard'
+            },
+            {
+                tab: 'translation',
+                title: 'Step 3: Segmentation Protection Check',
+                text: 'Select <strong>Segmentation Mode</strong> to map <code>Segment Number + Offset</code>. The system checks if the offset exceeds the segment limit to prevent illegal access faults.',
+                target: 'controlsCard'
+            },
+            {
+                tab: 'replacement',
+                title: 'Step 4: Page Replacement Simulations',
+                text: 'Now on <strong>Page Replacement</strong>! Select an algorithm: <strong>FIFO</strong>, <strong>LRU</strong>, <strong>Optimal</strong>, or <strong>Clock/Second-Chance</strong>. Click <strong>Run Page Replacement Simulation</strong> to build the frame allocation grid and count Page Faults.',
+                target: 'controlsCard'
+            },
+            {
+                tab: 'replacement',
+                title: 'Step 5: Compare Replacement Performance',
+                text: 'Adjust the available frame count (e.g., from 3 to 4) and re-run to observe how frame size affects hit ratios and Belady\'s Anomaly.',
+                target: 'visualizerCard'
+            }
+        ];
+
+        function startTutorial() {
+            document.getElementById('tutorialBanner').style.display = 'block';
+            currentTutStep = 0;
+            renderTutorialStep();
+        }
+
+        function closeTutorial() {
+            document.getElementById('tutorialBanner').style.display = 'none';
+            removeHighlights();
+        }
+
+        function restartTutorial() {
+            startTutorial();
+        }
+
+        function nextTutorialStep() {
+            if (currentTutStep < tutorialSteps.length - 1) {
+                currentTutStep++;
+                renderTutorialStep();
+            } else {
+                closeTutorial();
+                log("Tutorial completed! Explore all modules freely.", 'log-success');
+            }
+        }
+
+        function prevTutorialStep() {
+            if (currentTutStep > 0) {
+                currentTutStep--;
+                renderTutorialStep();
+            }
+        }
+
+        function renderTutorialStep() {
+            const step = tutorialSteps[currentTutStep];
+            if (currentTab !== step.tab) {
+                switchTab(step.tab);
+            }
+
+            document.getElementById('tutStepBadge').innerText = `Step ${currentTutStep + 1} of ${tutorialSteps.length}`;
+            document.getElementById('tutBodyText').innerHTML = `<strong>${step.title}</strong><br>${step.text}`;
+            document.getElementById('tutPrevBtn').style.display = currentTutStep === 0 ? 'none' : 'inline-block';
+            document.getElementById('tutNextBtn').innerText = currentTutStep === tutorialSteps.length - 1 ? 'Finish Guide ✓' : 'Next Step ►';
+
+            removeHighlights();
+            if (step.target) {
+                const el = document.getElementById(step.target);
+                if (el) el.classList.add('highlight-target');
+            }
+        }
+
+        function removeHighlights() {
+            document.querySelectorAll('.highlight-target').forEach(el => el.classList.remove('highlight-target'));
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            const btnIdx = { 'allocation': 0, 'translation': 1, 'replacement': 2 }[tab];
+            document.querySelectorAll('.tab-btn')[btnIdx].classList.add('active');
+
+            clearLog();
+            renderTab();
+        }
+
+        function renderTab() {
+            const desc = document.getElementById('tabDesc');
+            const controls = document.getElementById('controlsCard');
+            const visTitle = document.getElementById('visualizerTitle');
+
+            if (currentTab === 'allocation') {
+                visTitle.innerText = "Physical RAM Partition Layout";
+                desc.innerHTML = `
+                    <div class="desc-title">Contiguous Memory Allocation Algorithms</div>
+                    <div class="desc-text">
+                        Simulates <strong>First-Fit</strong>, <strong>Best-Fit</strong>, and <strong>Worst-Fit</strong> strategies for placing variable-sized processes into main memory partitions.
+                    </div>
+                `;
+
+                controls.innerHTML = `
+                    <div class="card-title">Allocation Controls</div>
+                    <div style="margin-bottom: 0.75rem;">
+                        <label style="font-size:0.8rem; font-weight:600;">Process ID & Size (KB):</label>
+                        <div style="display: flex; gap: 0.5rem; margin-top:0.25rem;">
+                            <input type="text" id="procId" placeholder="Process Name" value="P1">
+                            <input type="number" id="procSize" placeholder="Size (KB)" value="212">
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 0.75rem;">
+                        <label style="font-size:0.8rem; font-weight:600;">Allocation Strategy:</label>
+                        <select id="allocStrategy" style="margin-top:0.25rem;">
+                            <option value="first">First-Fit</option>
+                            <option value="best">Best-Fit</option>
+                            <option value="worst">Worst-Fit</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="allocateProcess()">Allocate Process</button>
+                    <button class="btn btn-danger" onclick="resetMemory()">Reset Partitions</button>
+                `;
+
+                renderMemoryVisualizer();
+            } else if (currentTab === 'translation') {
+                visTitle.innerText = "Address Translation Mapping Tables";
+                desc.innerHTML = `
+                    <div class="desc-title">Paging & Segmentation Address Translation</div>
+                    <div class="desc-text">
+                        Translates <strong>Logical Address</strong> to <strong>Physical Address</strong> using Page Tables or Segment Table Limit/Base offset verification.
+                    </div>
+                `;
+
+                controls.innerHTML = `
+                    <div class="card-title">Translation Controls</div>
+                    <div style="margin-bottom: 0.75rem;">
+                        <label style="font-size:0.8rem; font-weight:600;">Translation Scheme:</label>
+                        <select id="transScheme" onchange="updateTransInputs()" style="margin-top:0.25rem;">
+                            <option value="paging">Paging System (4 KB Pages)</option>
+                            <option value="segmentation">Segmentation System</option>
+                        </select>
+                    </div>
+                    <div id="transInputs" style="margin-bottom: 0.75rem;"></div>
+                    <button class="btn btn-primary" onclick="translateAddress()">Translate Address</button>
+                `;
+
+                updateTransInputs();
+                renderTranslationTables();
+            } else if (currentTab === 'replacement') {
+                visTitle.innerText = "Page Replacement Step-by-Step Trace Grid";
+                desc.innerHTML = `
+                    <div class="desc-title">Virtual Memory Page Replacement Algorithms</div>
+                    <div class="desc-text">
+                        Simulates page faults and frame swapping strategies: <strong>FIFO</strong>, <strong>LRU</strong>, <strong>Optimal</strong>, and <strong>Clock (Second-Chance)</strong>.
+                    </div>
+                `;
+
+                controls.innerHTML = `
+                    <div class="card-title">Replacement Controls</div>
+                    <div style="margin-bottom: 0.75rem;">
+                        <label style="font-size:0.8rem; font-weight:600;">Page Reference String:</label>
+                        <input type="text" id="refStringInput" value="7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2, 1, 2, 0, 1, 7, 0, 1" style="margin-top:0.25rem;">
+                    </div>
+                    <div style="margin-bottom: 0.75rem;">
+                        <label style="font-size:0.8rem; font-weight:600;">Number of Page Frames:</label>
+                        <input type="number" id="frameNumInput" value="3" min="1" max="6" style="margin-top:0.25rem;">
+                    </div>
+                    <div style="margin-bottom: 0.75rem;">
+                        <label style="font-size:0.8rem; font-weight:600;">Algorithm:</label>
+                        <select id="pageAlgo" style="margin-top:0.25rem;">
+                            <option value="fifo">First-In First-Out (FIFO)</option>
+                            <option value="lru">Least Recently Used (LRU)</option>
+                            <option value="opt">Optimal Page Replacement</option>
+                            <option value="clock">Clock / Second-Chance</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="runPageReplacement()">Run Page Replacement Simulation</button>
+                `;
+
+                renderPageReplacementPlaceholder();
+            }
+        }
+
+        // --- 1. ALLOCATION LOGIC ---
+        function allocateProcess() {
+            let pId = document.getElementById('procId').value || 'P1';
+            let size = parseInt(document.getElementById('procSize').value);
+            let strategy = document.getElementById('allocStrategy').value;
+
+            if (isNaN(size) || size <= 0) {
+                log("Invalid process size entered.", 'log-danger');
+                return;
+            }
+
+            let targetIdx = -1;
+
+            if (strategy === 'first') {
+                for (let i = 0; i < memoryBlocks.length; i++) {
+                    if (memoryBlocks[i].free && memoryBlocks[i].size >= size) {
+                        targetIdx = i;
+                        break;
+                    }
+                }
+            } else if (strategy === 'best') {
+                let bestSize = Infinity;
+                for (let i = 0; i < memoryBlocks.length; i++) {
+                    if (memoryBlocks[i].free && memoryBlocks[i].size >= size) {
+                        if (memoryBlocks[i].size < bestSize) {
+                            bestSize = memoryBlocks[i].size;
+                            targetIdx = i;
+                        }
+                    }
+                }
+            } else if (strategy === 'worst') {
+                let worstSize = -1;
+                for (let i = 0; i < memoryBlocks.length; i++) {
+                    if (memoryBlocks[i].free && memoryBlocks[i].size >= size) {
+                        if (memoryBlocks[i].size > worstSize) {
+                            worstSize = memoryBlocks[i].size;
+                            targetIdx = i;
+                        }
+                    }
+                }
+            }
+
+            if (targetIdx !== -1) {
+                let block = memoryBlocks[targetIdx];
+                block.free = false;
+                block.process = pId;
+                log(`ALLOCATED: Process ${pId} (${size} KB) placed in Block ${block.id} (${block.size} KB) using ${strategy.toUpperCase()}-FIT. Internal Fragmentation = ${block.size - size} KB.`, 'log-success');
+            } else {
+                log(`ALLOCATION FAILED: No suitable contiguous memory block available for Process ${pId} (${size} KB) using ${strategy.toUpperCase()}-FIT.`, 'log-danger');
+            }
+
+            renderMemoryVisualizer();
+        }
+
+        function resetMemory() {
+            memoryBlocks = [
+                { id: 1, size: 100, free: true, process: null },
+                { id: 2, size: 500, free: true, process: null },
+                { id: 3, size: 200, free: true, process: null },
+                { id: 4, size: 300, free: true, process: null },
+                { id: 5, size: 600, free: true, process: null }
+            ];
+            log("Memory partitions reset to default free states.", 'log-info');
+            renderMemoryVisualizer();
+        }
+
+        function renderMemoryVisualizer() {
+            const container = document.getElementById('visualizerContainer');
+            let html = `<div class="memory-visualizer">`;
+            memoryBlocks.forEach(b => {
+                if (b.free) {
+                    html += `
+                        <div class="mem-block mem-free">
+                            <span>Block ${b.id} [Free]</span>
+                            <span>${b.size} KB</span>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="mem-block mem-allocated">
+                            <span>Block ${b.id} [${b.process}]</span>
+                            <span>${b.size} KB Allocated</span>
+                        </div>
+                    `;
+                }
+            });
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        // --- 2. ADDRESS TRANSLATION LOGIC ---
+        function updateTransInputs() {
+            const scheme = document.getElementById('transScheme').value;
+            const container = document.getElementById('transInputs');
+
+            if (scheme === 'paging') {
+                container.innerHTML = `
+                    <label style="font-size:0.8rem; font-weight:600;">Logical Address (Bytes):</label>
+                    <input type="number" id="logAddr" value="5120" placeholder="e.g. 5120" style="margin-top:0.25rem;">
+                `;
+            } else {
+                container.innerHTML = `
+                    <div style="display: flex; gap: 0.5rem;">
+                        <div style="flex:1;">
+                            <label style="font-size:0.8rem; font-weight:600;">Segment #:</label>
+                            <input type="number" id="segNum" value="2" placeholder="0-3">
+                        </div>
+                        <div style="flex:1;">
+                            <label style="font-size:0.8rem; font-weight:600;">Offset (Bytes):</label>
+                            <input type="number" id="segOffset" value="250" placeholder="Offset">
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function translateAddress() {
+            const scheme = document.getElementById('transScheme').value;
+
+            if (scheme === 'paging') {
+                let logicalAddr = parseInt(document.getElementById('logAddr').value);
+                if (isNaN(logicalAddr) || logicalAddr < 0) {
+                    log("Invalid logical address entered.", 'log-danger');
+                    return;
+                }
+
+                let pageSizeBytes = pageSize * 1024;
+                let pageNum = Math.floor(logicalAddr / pageSizeBytes);
+                let offset = logicalAddr % pageSizeBytes;
+
+                log(`PAGING CALCULATION: Logical Address ${logicalAddr} Bytes ➔ Page Number = ${pageNum}, Offset = ${offset} Bytes`, 'log-info');
+
+                if (pageNum < pageTable.length && pageTable[pageNum].valid) {
+                    let frame = pageTable[pageNum].frame;
+                    let physAddr = (frame * pageSizeBytes) + offset;
+                    log(`SUCCESS: Page ${pageNum} mapped to Frame ${frame}. Physical Address = (${frame} * ${pageSizeBytes}) + ${offset} = ${physAddr} Bytes.`, 'log-success');
+                } else {
+                    log(`PAGE FAULT / INVALID: Page ${pageNum} is not currently present in physical RAM frame!`, 'log-danger');
+                }
+            } else {
+                let seg = parseInt(document.getElementById('segNum').value);
+                let offset = parseInt(document.getElementById('segOffset').value);
+
+                if (isNaN(seg) || isNaN(offset) || seg < 0 || seg >= segmentTable.length) {
+                    log("Invalid segment parameters.", 'log-danger');
+                    return;
+                }
+
+                let entry = segmentTable[seg];
+                log(`SEGMENT LOOKUP: Segment ${seg} ➔ Base = ${entry.base}, Limit = ${entry.limit} Bytes.`, 'log-info');
+
+                if (offset < entry.limit) {
+                    let physAddr = entry.base + offset;
+                    log(`SUCCESS: Offset ${offset} < Limit ${entry.limit}. Physical Address = ${entry.base} + ${offset} = ${physAddr} Bytes.`, 'log-success');
+                } else {
+                    log(`SEGMENTATION TRAP FAULT: Offset ${offset} exceeds Segment ${seg} Limit (${entry.limit})! Access violation blocked.`, 'log-danger');
+                }
+            }
+        }
+
+        function renderTranslationTables() {
+            const container = document.getElementById('visualizerContainer');
+
+            let pageTableHTML = `
+                <h4>Page Table (4 KB Pages)</h4>
+                <table>
+                    <tr><th>Page #</th><th>Frame #</th><th>Valid Bit</th></tr>
+            `;
+            pageTable.forEach(p => {
+                pageTableHTML += `<tr><td>${p.page}</td><td>${p.frame}</td><td>${p.valid ? '1 (Valid)' : '0 (Invalid)'}</td></tr>`;
+            });
+            pageTableHTML += `</table>`;
+
+            let segTableHTML = `
+                <h4>Segment Table</h4>
+                <table>
+                    <tr><th>Segment #</th><th>Base Address</th><th>Limit (Size)</th></tr>
+            `;
+            segmentTable.forEach(s => {
+                segTableHTML += `<tr><td>${s.segment}</td><td>${s.base} B</td><td>${s.limit} B</td></tr>`;
+            });
+            segTableHTML += `</table>`;
+
+            container.innerHTML = `
+                <div class="page-table-grid">
+                    <div>${pageTableHTML}</div>
+                    <div>${segTableHTML}</div>
+                </div>
+            `;
+        }
+
+        // --- 3. PAGE REPLACEMENT LOGIC ---
+        function runPageReplacement() {
+            let refStrInput = document.getElementById('refStringInput').value;
+            let refStr = refStrInput.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+            let framesCount = parseInt(document.getElementById('frameNumInput').value);
+            let algo = document.getElementById('pageAlgo').value;
+
+            if (refStr.length === 0 || isNaN(framesCount) || framesCount < 1) {
+                log("Invalid page reference string or frame count.", 'log-danger');
+                return;
+            }
+
+            let frames = [];
+            let pageFaults = 0;
+            let history = [];
+
+            if (algo === 'fifo') {
+                let fifoQueue = [];
+                refStr.forEach(page => {
+                    let hit = frames.includes(page);
+                    if (!hit) {
+                        pageFaults++;
+                        if (frames.length < framesCount) {
+                            frames.push(page);
+                            fifoQueue.push(page);
+                        } else {
+                            let victim = fifoQueue.shift();
+                            let idx = frames.indexOf(victim);
+                            frames[idx] = page;
+                            fifoQueue.push(page);
+                        }
+                    }
+                    history.push({ page, frames: [...frames], hit });
+                });
+            } else if (algo === 'lru') {
+                let usage = [];
+                refStr.forEach(page => {
+                    let hit = frames.includes(page);
+                    if (!hit) {
+                        pageFaults++;
+                        if (frames.length < framesCount) {
+                            frames.push(page);
+                        } else {
+                            let lruPage = usage[0];
+                            let idx = frames.indexOf(lruPage);
+                            frames[idx] = page;
+                        }
+                    }
+                    if (usage.includes(page)) {
+                        usage = usage.filter(x => x !== page);
+                    }
+                    usage.push(page);
+                    history.push({ page, frames: [...frames], hit });
+                });
+            } else if (algo === 'opt') {
+                refStr.forEach((page, i) => {
+                    let hit = frames.includes(page);
+                    if (!hit) {
+                        pageFaults++;
+                        if (frames.length < framesCount) {
+                            frames.push(page);
+                        } else {
+                            let farthest = -1;
+                            let victimIdx = -1;
+                            for (let f = 0; f < frames.length; f++) {
+                                let nextUse = refStr.slice(i + 1).indexOf(frames[f]);
+                                if (nextUse === -1) {
+                                    victimIdx = f;
+                                    break;
+                                } else if (nextUse > farthest) {
+                                    farthest = nextUse;
+                                    victimIdx = f;
+                                }
+                            }
+                            frames[victimIdx] = page;
+                        }
+                    }
+                    history.push({ page, frames: [...frames], hit });
+                });
+            } else if (algo === 'clock') {
+                let secondChance = {};
+                let pointer = 0;
+                refStr.forEach(page => {
+                    let hit = frames.includes(page);
+                    if (hit) {
+                        secondChance[page] = 1;
+                    } else {
+                        pageFaults++;
+                        if (frames.length < framesCount) {
+                            frames.push(page);
+                            secondChance[page] = 0;
+                        } else {
+                            while (true) {
+                                let candidate = frames[pointer];
+                                if (secondChance[candidate] === 1) {
+                                    secondChance[candidate] = 0;
+                                    pointer = (pointer + 1) % framesCount;
+                                } else {
+                                    frames[pointer] = page;
+                                    secondChance[page] = 0;
+                                    pointer = (pointer + 1) % framesCount;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    history.push({ page, frames: [...frames], hit });
+                });
+            }
+
+            log(`PAGE REPLACEMENT COMPLETED (${algo.toUpperCase()}): Total Page Faults = ${pageFaults}, Hit Ratio = ${(((refStr.length - pageFaults) / refStr.length) * 100).toFixed(1)}%`, 'log-success');
+            renderPageReplacementGrid(refStr, history, framesCount, pageFaults);
+        }
+
+        function renderPageReplacementPlaceholder() {
+            const container = document.getElementById('visualizerContainer');
+            container.innerHTML = `<p style="color:var(--text-secondary); text-align:center; padding:2rem;">Click "Run Page Replacement Simulation" to generate trace matrix.</p>`;
+        }
+
+        function renderPageReplacementGrid(refStr, history, framesCount, faults) {
+            const container = document.getElementById('visualizerContainer');
+
+            let tableHTML = `
+                <div class="page-replacement-table">
+                <table>
+                    <tr><th>Ref Page</th>${refStr.map(p => `<th>${p}</th>`).join('')}</tr>
+            `;
+
+            for (let f = 0; f < framesCount; f++) {
+                tableHTML += `<tr><td><strong>Frame ${f + 1}</strong></td>`;
+                history.forEach(h => {
+                    let val = h.frames[f] !== undefined ? h.frames[f] : '-';
+                    tableHTML += `<td>${val}</td>`;
+                });
+                tableHTML += `</tr>`;
+            }
+
+            tableHTML += `<tr><td><strong>Status</strong></td>`;
+            history.forEach(h => {
+                tableHTML += `<td>${h.hit ? '<span style="color:var(--accent-green);font-weight:bold;">H</span>' : '<span style="color:var(--accent-red);font-weight:bold;">F</span>'}</td>`;
+            });
+            tableHTML += `</tr></table></div>`;
+
+            tableHTML += `<div style="margin-top:1rem; font-weight:600;">Total Page Faults: <span style="color:var(--accent-red);">${faults}</span> | Total Hits: <span style="color:var(--accent-green);">${refStr.length - faults}</span></div>`;
+
+            container.innerHTML = tableHTML;
+        }
+
+        // --- HELPERS ---
+        function log(msg, className = 'log-info') {
+            const logger = document.getElementById('eventLog');
+            let time = new Date().toLocaleTimeString().split(' ')[0];
+            logger.innerHTML += `<div class="${className}">[${time}] ${msg}</div>`;
+            logger.scrollTop = logger.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('eventLog').innerHTML = '';
+        }
+
+        // Initialize Virtual Lab
+        renderTab();
+        log("Memory Management Virtual Lab initialized.", 'log-info');
+        startTutorial();
+    </script>
+</body>
+</html>

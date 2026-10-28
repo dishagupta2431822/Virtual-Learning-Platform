@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-900 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS & Data Structures Interactive Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+        /* Custom scrollbar styles */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        .glow-indigo {
+            box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.3);
+        }
+        .glow-cyan {
+            box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.3);
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+
+    <!-- TOP NAVIGATION HEADER -->
+    <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo & Brand -->
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-400 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+                        <i class="fa-solid font-bold fa-microchip text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="text-xl font-extrabold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">Virtual Labs</span>
+                        <span class="hidden sm:inline-block ml-2 px-2 py-0.5 text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-full">CS & Data Structures</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="hidden md:flex items-center space-x-6 text-sm font-medium text-slate-300">
+                    <a href="#overview" class="hover:text-indigo-400 transition-colors">Overview</a>
+                    <a href="#labs-grid" class="hover:text-indigo-400 transition-colors">All 32 Labs</a>
+                    <a href="#key-benefits" class="hover:text-indigo-400 transition-colors">Key Benefits</a>
+                    <a href="#contact" class="hover:text-indigo-400 transition-colors">Contact</a>
+                </nav>
+
+                <!-- Action CTA -->
+                <div class="flex items-center gap-3">
+                    <a href="#labs-grid" class="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-all shadow-md shadow-indigo-600/30 flex items-center gap-2">
+                        <span>Explore Labs</span>
+                        <i class="fa-solid fa-arrow-down text-xs"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN DASHBOARD WRAPPER -->
+    <main class="flex-1" id="overview">
+        <!-- HERO SECTION -->
+        <section class="relative overflow-hidden py-16 md:py-20 border-b border-slate-800 bg-gradient-to-b from-slate-900 via-slate-900/90 to-slate-950">
+            <!-- Background Radial Glows -->
+            <div class="absolute -top-40 -left-40 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute top-1/2 -right-40 w-96 h-96 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-center max-w-3xl mx-auto">
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/80 border border-slate-700 text-xs text-slate-300 mb-6">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span>Interactive Computer Science Suite</span>
+                    </div>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white mb-6">
+                        Computer Science & <br/>
+                        <span class="bg-gradient-to-r from-indigo-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">Data Structures Interactive Labs</span>
+                    </h1>
+                    <p class="text-lg text-slate-400 mb-8 leading-relaxed">
+                        Master trees, graph algorithms, dynamic programming, sorting mechanisms, and advanced data structures with interactive step-by-step visualizers in real-time right inside your browser.
+                    </p>
+
+                    <!-- Key Stats Badges -->
+                    <div class="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-slate-300">
+                        <div class="flex items-center gap-3 px-5 py-3 rounded-2xl bg-slate-800/60 border border-slate-700/60">
+                            <i class="fa-solid fa-cubes text-indigo-400 text-xl"></i>
+                            <div class="text-left">
+                                <div class="text-xl font-bold text-white">32</div>
+                                <div class="text-xs text-slate-400">Labs Available</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 px-5 py-3 rounded-2xl bg-slate-800/60 border border-slate-700/60">
+                            <i class="fa-solid fa-code-commit text-cyan-400 text-xl"></i>
+                            <div class="text-left">
+                                <div class="text-xl font-bold text-white">Step-by-Step</div>
+                                <div class="text-xs text-slate-400">Visual Debugger</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 px-5 py-3 rounded-2xl bg-slate-800/60 border border-slate-700/60">
+                            <i class="fa-solid fa-bolt text-emerald-400 text-xl"></i>
+                            <div class="text-left">
+                                <div class="text-xl font-bold text-white">Real-Time</div>
+                                <div class="text-xs text-slate-400">State Execution</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LABS CATALOGUE SECTION -->
+        <section id="labs-grid" class="py-12 md:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Search & Category Filters Header -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 pb-6 border-b border-slate-800">
+                <div>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Virtual Lab Directory</h2>
+                    <p class="text-sm text-slate-400 mt-1">Select a lab to launch its interactive step-by-step simulation engine.</p>
+                </div>
+
+                <!-- Search Input & Filters -->
+                <div class="flex flex-col sm:flex-row items-center gap-3">
+                    <div class="relative w-full sm:w-72">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+                        <input type="text" id="searchInput" placeholder="Search lab or algorithm..." 
+                            class="w-full bg-slate-800/80 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                    </div>
+                    <select id="categoryFilter" class="w-full sm:w-auto bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                        <option value="All">All Categories</option>
+                        <option value="Trees & Hierarchies">Trees & Hierarchies</option>
+                        <option value="Graphs & Networks">Graphs & Networks</option>
+                        <option value="Sorting & Searching">Sorting & Searching</option>
+                        <option value="Dynamic Programming">Dynamic Programming</option>
+                        <option value="Advanced Structures">Advanced Structures</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- LAB CARDS GRID -->
+            <div id="labsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Cards will be populated dynamically via Javascript -->
+            </div>
+        </section>
+
+        <!-- KEY BENEFITS SECTION -->
+        <section id="key-benefits" class="py-16 bg-slate-950/60 border-t border-slate-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-2xl mx-auto mb-12">
+                    <h2 class="text-3xl font-extrabold text-white">Why Learn with Interactive Labs?</h2>
+                    <p class="text-slate-400 mt-2">Transforming complex theoretical computer science concepts into intuitive interactive simulations.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="p-6 rounded-2xl bg-slate-800/40 border border-slate-800 hover:border-slate-700 transition-all">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center text-xl mb-4">
+                            <i class="fa-solid fa-eye"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Visual Mental Models</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Watch dynamic pointer relocations, recursive tree call stacks, and graph edge traversals unfolding in real time.</p>
+                    </div>
+
+                    <div class="p-6 rounded-2xl bg-slate-800/40 border border-slate-800 hover:border-slate-700 transition-all">
+                        <div class="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center justify-center text-xl mb-4">
+                            <i class="fa-solid fa-sliders"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Granular Step Playback</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Step forward, step back, adjust execution speed, or input custom node data sets to test edge cases.</p>
+                    </div>
+
+                    <div class="p-6 rounded-2xl bg-slate-800/40 border border-slate-800 hover:border-slate-700 transition-all">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center text-xl mb-4">
+                            <i class="fa-solid fa-terminal"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Synchronized Pseudocode</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Line-by-line active code highlighting paired with variable watch tables for seamless algorithm comprehension.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- INTERACTIVE SIMULATION LAB WORKSPACE (MODAL / FULL-SCREEN OVERLAY) -->
+    <div id="simModal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex-col overflow-hidden transition-all duration-300">
+        <!-- Top Workspace Bar -->
+        <div class="px-6 py-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-4">
+                <button id="closeSimBtn" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold flex items-center gap-2 border border-slate-700 transition-colors">
+                    <i class="fa-solid fa-arrow-left text-xs"></i>
+                    <span>Back to All Labs</span>
+                </button>
+                <div class="h-5 w-px bg-slate-800 hidden sm:block"></div>
+                <div>
+                    <span id="simCategoryBadge" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Category</span>
+                    <h2 id="simLabTitle" class="text-lg font-bold text-white mt-0.5">Lab Title Simulation</h2>
+                </div>
+            </div>
+
+            <!-- Header Quick Stats -->
+            <div class="hidden md:flex items-center gap-6 text-xs text-slate-400 code-font">
+                <div>Time Complexity: <span id="simTimeComp" class="text-emerald-400 font-bold">O(N log N)</span></div>
+                <div>Space Complexity: <span id="simSpaceComp" class="text-indigo-400 font-bold">O(N)</span></div>
+            </div>
+        </div>
+
+        <!-- Main Simulation Workspace Body -->
+        <div class="flex-1 flex flex-col lg:flex-row overflow-hidden bg-slate-950">
+            <!-- Left & Middle: Canvas Visualizer Area & Controls -->
+            <div class="flex-1 flex flex-col overflow-hidden border-b lg:border-b-0 lg:border-r border-slate-800">
+                <!-- Interactive Controls Bar -->
+                <div class="p-4 bg-slate-900/60 border-b border-slate-800 flex flex-wrap items-center justify-between gap-4">
+                    <!-- Playback Controls -->
+                    <div class="flex items-center gap-2">
+                        <button id="btnReset" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all border border-slate-700" title="Reset Simulation">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </button>
+                        <button id="btnStepBack" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all border border-slate-700" title="Step Backward">
+                            <i class="fa-solid fa-backward-step"></i>
+                        </button>
+                        <button id="btnPlayPause" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-all shadow-md shadow-indigo-600/30 flex items-center gap-2">
+                            <i id="playIcon" class="fa-solid fa-play"></i>
+                            <span id="playBtnText">Play</span>
+                        </button>
+                        <button id="btnStepForward" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all border border-slate-700" title="Step Forward">
+                            <i class="fa-solid fa-forward-step"></i>
+                        </button>
+                    </div>
+
+                    <!-- Custom Action Input Controls -->
+                    <div id="customControlsContainer" class="flex items-center gap-2 flex-wrap">
+                        <!-- Dynamic inputs per lab rendered here -->
+                    </div>
+
+                    <!-- Speed Control -->
+                    <div class="flex items-center gap-3 text-xs text-slate-400">
+                        <span>Speed:</span>
+                        <input type="range" id="speedSlider" min="100" max="1500" value="700" class="w-24 accent-indigo-500 bg-slate-800 rounded-lg cursor-pointer">
+                    </div>
+                </div>
+
+                <!-- Canvas Visualizer Display -->
+                <div class="flex-1 relative bg-slate-950 p-4 flex items-center justify-center overflow-auto" id="canvasContainer">
+                    <div id="simVisualizer" class="w-full h-full flex items-center justify-center relative min-h-[350px]">
+                        <!-- Dynamic Canvas / SVG / Element Visuals -->
+                    </div>
+                </div>
+
+                <!-- Simulation Status Banner -->
+                <div class="px-4 py-3 bg-slate-900/80 border-t border-slate-800 flex items-center justify-between text-xs text-slate-300">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+                        <span id="simStatusText">Ready for execution. Click Play or Step.</span>
+                    </div>
+                    <div id="simStepCounter" class="code-font text-slate-400">Step: 0 / 0</div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Debugger, Pseudocode, & Variable State -->
+            <div class="w-full lg:w-96 bg-slate-900 flex flex-col overflow-hidden shrink-0">
+                <!-- Tabs Header -->
+                <div class="flex border-b border-slate-800 text-xs font-semibold text-slate-400">
+                    <button class="flex-1 py-3 px-4 border-b-2 border-indigo-500 text-indigo-400 bg-slate-800/40">
+                        <i class="fa-solid fa-code mr-1.5"></i> Execution Debugger
+                    </button>
+                </div>
+
+                <!-- Debugger Content -->
+                <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                    <!-- Pseudocode View -->
+                    <div>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Algorithm Pseudocode</h4>
+                        <div id="pseudocodeContainer" class="bg-slate-950 rounded-xl p-3 border border-slate-800 code-font text-xs space-y-1">
+                            <!-- Pseudocode lines dynamically highlighted -->
+                        </div>
+                    </div>
+
+                    <!-- Live Variables Watch -->
+                    <div>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">State Watch & Memory</h4>
+                        <div id="stateWatchContainer" class="bg-slate-950 rounded-xl p-3 border border-slate-800 code-font text-xs text-slate-300 space-y-2">
+                            <!-- Variables state dynamically injected -->
+                        </div>
+                    </div>
+
+                    <!-- Step Explanation Box -->
+                    <div>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Current Step Log</h4>
+                        <div id="stepExplanation" class="bg-indigo-950/40 border border-indigo-500/20 text-indigo-200 rounded-xl p-3 text-xs leading-relaxed">
+                            Click Play or Step Forward to start stepping through the visualization.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer id="contact" class="bg-slate-950 border-t border-slate-800 py-12 text-slate-400 text-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white">
+                        <i class="fa-solid fa-microchip"></i>
+                    </div>
+                    <span class="text-white font-bold text-lg">Virtual Labs</span>
+                </div>
+                <p class="text-center md:text-left text-xs text-slate-500">
+                    © 2026 CS Virtual Labs Inc. Interactive Educational Data Structures & Algorithms Visualizer Platform.
+                </p>
+                <div class="flex items-center space-x-4">
+                    <a href="#" class="text-slate-400 hover:text-white transition-colors"><i class="fa-brands fa-github text-lg"></i></a>
+                    <a href="#" class="text-slate-400 hover:text-white transition-colors"><i class="fa-brands fa-twitter text-lg"></i></a>
+                    <a href="#" class="text-slate-400 hover:text-white transition-colors"><i class="fa-solid fa-envelope text-lg"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC & LAB Visualizer ENGINE -->
+    <script>
+        // DATA STRUCTURE: CATALOG OF ALL 32 VIRTUAL LABS
+        const LABS_DATA = [
+            {
+                id: 1,
+                title: "BST Insertion & Dynamic Balancing",
+                category: "Trees & Hierarchies",
+                icon: "fa-tree",
+                timeComp: "O(log N)",
+                spaceComp: "O(H)",
+                description: "Visualize BST dynamic insertion, recursive child node searching, key comparisons, and tree structural properties.",
+                pseudocode: [
+                    "function insert(node, val):",
+                    "  if node is null: return new Node(val)",
+                    "  if val < node.val: node.left = insert(node.left, val)",
+                    "  else: node.right = insert(node.right, val)",
+                    "  return node"
+                ]
+            },
+            {
+                id: 2,
+                title: "AVL Tree Rotations (Single & Double)",
+                category: "Trees & Hierarchies",
+                icon: "fa-diagram-project",
+                timeComp: "O(log N)",
+                spaceComp: "O(H)",
+                description: "Interactive Left, Right, Left-Right, and Right-Left self-balancing rotations maintaining Balance Factor |BF| <= 1.",
+                pseudocode: [
+                    "calcBalanceFactor(node)",
+                    "if BF > 1 and key < left.val: rotateRight(node)",
+                    "if BF < -1 and key > right.val: rotateLeft(node)",
+                    "if BF > 1 and key > left.val: leftRotate(left), rotateRight(node)",
+                    "if BF < -1 and key < right.val: rightRotate(right), rotateLeft(node)"
+                ]
+            },
+            {
+                id: 3,
+                title: "Lowest Common Ancestor (LCA)",
+                category: "Trees & Hierarchies",
+                icon: "fa-sitemap",
+                timeComp: "O(N)",
+                spaceComp: "O(H)",
+                description: "Find the deepest shared ancestral node for any two specified targets in binary trees.",
+                pseudocode: [
+                    "function findLCA(root, p, q):",
+                    "  if root is null or root == p or root == q: return root",
+                    "  left = findLCA(root.left, p, q)",
+                    "  right = findLCA(root.right, p, q)",
+                    "  if left and right: return root",
+                    "  return left != null ? left : right"
+                ]
+            },
+            {
+                id: 4,
+                title: "Binary Tree Diameter & Depth",
+                category: "Trees & Hierarchies",
+                icon: "fa-ruler-combined",
+                timeComp: "O(N)",
+                spaceComp: "O(H)",
+                description: "Calculate maximum path distance between any two leaf nodes dynamic recursion bottom-up traversal.",
+                pseudocode: [
+                    "maxDiameter = 0",
+                    "function height(node):",
+                    "  if node is null: return 0",
+                    "  lh = height(node.left), rh = height(node.right)",
+                    "  maxDiameter = max(maxDiameter, lh + rh)",
+                    "  return 1 + max(lh, rh)"
+                ]
+            },
+            {
+                id: 5,
+                title: "Serialize & Deserialize Binary Trees",
+                category: "Trees & Hierarchies",
+                icon: "fa-file-code",
+                timeComp: "O(N)",
+                spaceComp: "O(N)",
+                description: "Convert binary trees to flattened string representations (Pre-order BFS) and reconstruct structural memory.",
+                pseudocode: [
+                    "function serialize(root):",
+                    "  if root is null: append '#,'",
+                    "  append root.val + ','",
+                    "  serialize(root.left); serialize(root.right)",
+                    "function deserialize(queue):",
+                    "  val = queue.pop(); if val == '#': return null",
+                    "  node = Node(val); node.left = des(); node.right = des();"
+                ]
+            },
+            {
+                id: 6,
+                title: "Red-Black Tree Color Inversions",
+                category: "Trees & Hierarchies",
+                icon: "fa-shield-halved",
+                timeComp: "O(log N)",
+                spaceComp: "O(1)",
+                description: "Explore self-balancing binary search trees utilizing node coloring (Red/Black) and recoloring rules.",
+                pseudocode: [
+                    "if uncle.color == RED:",
+                    "  parent.color = BLACK, uncle.color = BLACK",
+                    "  grandparent.color = RED, check(grandparent)",
+                    "else if node is inner child:",
+                    "  rotate(parent); rotate(grandparent)"
+                ]
+            },
+            {
+                id: 7,
+                title: "Trie Search & Auto-Complete",
+                category: "Trees & Hierarchies",
+                icon: "fa-font",
+                timeComp: "O(L)",
+                spaceComp: "O(N * L)",
+                description: "Prefix tree structure simulation for fast dictionary string lookup and instant auto-complete predictions.",
+                pseudocode: [
+                    "function insertWord(word):",
+                    "  curr = root",
+                    "  for char in word:",
+                    "    if char not in curr.children: curr.children[char] = Node()",
+                    "    curr = curr.children[char]",
+                    "  curr.isWord = true"
+                ]
+            },
+            {
+                id: 8,
+                title: "Segment Tree Range Query & Lazy Prop",
+                category: "Trees & Hierarchies",
+                icon: "fa-chart-bar",
+                timeComp: "O(log N)",
+                spaceComp: "O(N)",
+                description: "Perform fast range min/max/sum updates and lazy propagation over static or dynamic integer arrays.",
+                pseudocode: [
+                    "function rangeQuery(node, start, end, l, r):",
+                    "  if lazy[node] != 0: pushLazy(node)",
+                    "  if r < start or l > end: return 0",
+                    "  if l <= start and end <= r: return tree[node]",
+                    "  return rangeQuery(left) + rangeQuery(right)"
+                ]
+            },
+            {
+                id: 9,
+                title: "BFS & DFS Graph Traversal State",
+                category: "Graphs & Networks",
+                icon: "fa-circle-nodes",
+                timeComp: "O(V + E)",
+                spaceComp: "O(V)",
+                description: "Compare Breadth-First Search (Queue level-order) vs Depth-First Search (Stack back-tracking) on graph structures.",
+                pseudocode: [
+                    "// BFS Traversal:",
+                    "queue.enqueue(start); visited.add(start)",
+                    "while queue not empty:",
+                    "  curr = queue.dequeue()",
+                    "  for neighbor in adj[curr]:",
+                    "    if neighbor not visited: visited.add(); queue.enqueue()"
+                ]
+            },
+            {
+                id: 10,
+                title: "Dijkstra's Shortest Path Trace",
+                category: "Graphs & Networks",
+                icon: "fa-route",
+                timeComp: "O((V + E) log V)",
+                spaceComp: "O(V)",
+                description: "Min-Priority Queue based non-negative edge weight path finder step-by-step relaxation trace.",
+                pseudocode: [
+                    "dist[start] = 0, pq.push((0, start))",
+                    "while pq not empty:",
+                    "  (d, u) = pq.pop()",
+                    "  for (v, weight) in adj[u]:",
+                    "    if dist[u] + weight < dist[v]:",
+                    "      dist[v] = dist[u] + weight; pq.push((dist[v], v))"
+                ]
+            },
+            {
+                id: 11,
+                title: "Topological Sort & Course Schedule",
+                category: "Graphs & Networks",
+                icon: "fa-arrow-down-short-wide",
+                timeComp: "O(V + E)",
+                spaceComp: "O(V)",
+                description: "Kahn's algorithm (In-Degree Queue) & DFS for Directed Acyclic Graph (DAG) dependency ordering.",
+                pseudocode: [
+                    "calcInDegrees()",
+                    "queue = nodes with inDegree == 0",
+                    "while queue:",
+                    "  curr = queue.pop(); order.append(curr)",
+                    "  for neighbor in adj[curr]:",
+                    "    inDegree[neighbor]--; if 0: queue.push(neighbor)"
+                ]
+            },
+            {
+                id: 12,
+                title: "Tarjan's Strongly Connected Components",
+                category: "Graphs & Networks",
+                icon: "fa-project-diagram",
+                timeComp: "O(V + E)",
+                spaceComp: "O(V)",
+                description: "Single pass DFS tracking low-link values and stack invariants to isolate strongly connected components.",
+                pseudocode: [
+                    "function dfs(u):",
+                    "  disc[u] = low[u] = ++time; stack.push(u)",
+                    "  for v in adj[u]:",
+                    "    if v not visited: dfs(v); low[u] = min(low[u], low[v])",
+                    "    else if v in stack: low[u] = min(low[u], disc[v])",
+                    "  if low[u] == disc[u]: pop SCC component"
+                ]
+            },
+            {
+                id: 13,
+                title: "Kruskal's & Prim's Minimum Spanning Tree",
+                category: "Graphs & Networks",
+                icon: "fa-network-wired",
+                timeComp: "O(E log E)",
+                spaceComp: "O(V + E)",
+                description: "Greedy edge sorting with Union-Find (Kruskal) vs Priority Queue node growth (Prim) for minimum spanning trees.",
+                pseudocode: [
+                    "sort edges by weight ascending",
+                    "for edge (u, v, w) in edges:",
+                    "  if find(u) != find(v):",
+                    "    union(u, v)",
+                    "    mst.append(edge)"
+                ]
+            },
+            {
+                id: 14,
+                title: "Bellman-Ford & Negative Cycles",
+                category: "Graphs & Networks",
+                icon: "fa-triangle-exclamation",
+                timeComp: "O(V * E)",
+                spaceComp: "O(V)",
+                description: "Iterative |V|-1 edge relaxation capable of handling and detecting negative weight cycles in directed graphs.",
+                pseudocode: [
+                    "for i from 1 to V-1:",
+                    "  for each edge (u, v, w):",
+                    "    if dist[u] + w < dist[v]: dist[v] = dist[u] + w",
+                    "// Check negative cycle",
+                    "for each edge (u, v, w): if dist[u] + w < dist[v]: REPORT_CYCLE"
+                ]
+            },
+            {
+                id: 15,
+                title: "Floyd-Warshall All-Pairs Shortest Path",
+                category: "Graphs & Networks",
+                icon: "fa-table-cells",
+                timeComp: "O(V³)",
+                spaceComp: "O(V²)",
+                description: "Dynamic programming matrix algorithm to compute shortest paths between all node pairs simultaneously.",
+                pseudocode: [
+                    "for k from 0 to V-1:",
+                    "  for i from 0 to V-1:",
+                    "    for j from 0 to V-1:",
+                    "      dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])"
+                ]
+            },
+            {
+                id: 16,
+                title: "Ford-Fulkerson & Edmonds-Karp Max Flow",
+                category: "Graphs & Networks",
+                icon: "fa-water",
+                timeComp: "O(V * E²)",
+                spaceComp: "O(V + E)",
+                description: "Augmenting path searching via BFS on residual graphs to calculate maximum network capacity throughput.",
+                pseudocode: [
+                    "maxFlow = 0",
+                    "while BFS path exists in residual graph:",
+                    "  pathFlow = min bottleneck capacity along path",
+                    "  maxFlow += pathFlow",
+                    "  update residual edge and reverse edge capacities"
+                ]
+            },
+            {
+                id: 17,
+                title: "Quicksort Partitioning & Pivot Selection",
+                category: "Sorting & Searching",
+                icon: "fa-arrow-down-up-across-line",
+                timeComp: "O(N log N)",
+                spaceComp: "O(log N)",
+                description: "Lomuto vs Hoare partitioning schemes animated with pivot selection and dual pointer swapping steps.",
+                pseudocode: [
+                    "function quicksort(arr, low, high):",
+                    "  if low < high:",
+                    "    p = partition(arr, low, high)",
+                    "    quicksort(arr, low, p - 1)",
+                    "    quicksort(arr, p + 1, high)"
+                ]
+            },
+            {
+                id: 18,
+                title: "Mergesort Divide & Conquer Recursion",
+                category: "Sorting & Searching",
+                icon: "fa-code-branch",
+                timeComp: "O(N log N)",
+                spaceComp: "O(N)",
+                description: "Stable divide-and-conquer sorting algorithm breaking arrays down to single elements before merging sorted subarrays.",
+                pseudocode: [
+                    "function mergesort(arr):",
+                    "  if len(arr) <= 1: return arr",
+                    "  mid = len / 2",
+                    "  left = mergesort(arr[0..mid])",
+                    "  right = mergesort(arr[mid..end])",
+                    "  return merge(left, right)"
+                ]
+            },
+            {
+                id: 19,
+                title: "Heap Sort & Max-Heapify Operations",
+                category: "Sorting & Searching",
+                icon: "fa-layer-group",
+                timeComp: "O(N log N)",
+                spaceComp: "O(1)",
+                description: "Binary max-heap construction and dynamic element extraction displaying array-to-tree mapped indices.",
+                pseudocode: [
+                    "buildMaxHeap(arr)",
+                    "for i from n-1 down to 1:",
+                    "  swap(arr[0], arr[i])",
+                    "  maxHeapify(arr, index=0, size=i)"
+                ]
+            },
+            {
+                id: 20,
+                title: "Radix Sort & Counting Sort Bucket State",
+                category: "Sorting & Searching",
+                icon: "fa-bars-staggered",
+                timeComp: "O(N + K)",
+                spaceComp: "O(N + K)",
+                description: "Non-comparative integer sorting distributing numbers into positional digit buckets (LSD to MSD).",
+                pseudocode: [
+                    "for exp = 1; maxVal / exp > 0; exp *= 10:",
+                    "  count = [0] * 10",
+                    "  for i in arr: count[(i / exp) % 10]++",
+                    "  prefixSums(count)",
+                    "  rebuildArrayByBucketPositions()"
+                ]
+            },
+            {
+                id: 21,
+                title: "0/1 Knapsack Dynamic Programming Table",
+                category: "Dynamic Programming",
+                icon: "fa-box-open",
+                timeComp: "O(N * W)",
+                spaceComp: "O(N * W)",
+                description: "2D DP matrix visualization calculating max value item choices under strict weight constraints.",
+                pseudocode: [
+                    "dp[i][w] = dp[i-1][w]",
+                    "if weights[i-1] <= w:",
+                    "  dp[i][w] = max(dp[i][w], values[i-1] + dp[i-1][w - weights[i-1]])"
+                ]
+            },
+            {
+                id: 22,
+                title: "Longest Common Subsequence (LCS)",
+                category: "Dynamic Programming",
+                icon: "fa-equals",
+                timeComp: "O(M * N)",
+                spaceComp: "O(M * N)",
+                description: "Grid matching matrix for finding longest sequence common to two string inputs.",
+                pseudocode: [
+                    "if str1[i-1] == str2[j-1]:",
+                    "  dp[i][j] = dp[i-1][j-1] + 1",
+                    "else:",
+                    "  dp[i][j] = max(dp[i-1][j], dp[i][j-1])"
+                ]
+            },
+            {
+                id: 23,
+                title: "Edit Distance (Levenshtein Matrix)",
+                category: "Dynamic Programming",
+                icon: "fa-spell-check",
+                timeComp: "O(M * N)",
+                spaceComp: "O(M * N)",
+                description: "Compute minimum insertions, deletions, and substitutions to transform String A into String B.",
+                pseudocode: [
+                    "if A[i] == B[j]: dp[i][j] = dp[i-1][j-1]",
+                    "else: dp[i][j] = 1 + min(",
+                    "  dp[i-1][j],   // Delete",
+                    "  dp[i][j-1],   // Insert",
+                    "  dp[i-1][j-1]  // Replace )"
+                ]
+            },
+            {
+                id: 24,
+                title: "Coin Change Minimum Ways & Combinations",
+                category: "Dynamic Programming",
+                icon: "fa-coins",
+                timeComp: "O(N * Amount)",
+                spaceComp: "O(Amount)",
+                description: "Bottom-up 1D DP array updating total minimum coins required to form target value amounts.",
+                pseudocode: [
+                    "dp = [INF] * (amount + 1); dp[0] = 0",
+                    "for coin in coins:",
+                    "  for i from coin to amount:",
+                    "    dp[i] = min(dp[i], dp[i - coin] + 1)"
+                ]
+            },
+            {
+                id: 25,
+                title: "Matrix Chain Multiplication",
+                category: "Dynamic Programming",
+                icon: "fa-border-all",
+                timeComp: "O(N³)",
+                spaceComp: "O(N²)",
+                description: "Determine optimal parenthesization order to minimize total scalar multiplications across matrices.",
+                pseudocode: [
+                    "for len from 2 to n:",
+                    "  for i from 1 to n - len + 1:",
+                    "    j = i + len - 1; dp[i][j] = INF",
+                    "    for k from i to j-1:",
+                    "      cost = dp[i][k] + dp[k+1][j] + p[i-1]*p[k]*p[j]",
+                    "      dp[i][j] = min(dp[i][j], cost)"
+                ]
+            },
+            {
+                id: 26,
+                title: "LRU & LFU Cache Eviction Policies",
+                category: "Advanced Structures",
+                icon: "fa-memory",
+                timeComp: "O(1)",
+                spaceComp: "O(Capacity)",
+                description: "Doubly Linked List + Hash Map (LRU) and Frequency Buckets (LFU) key access & memory eviction visualizer.",
+                pseudocode: [
+                    "function get(key):",
+                    "  if key not in map: return -1",
+                    "  moveToHead(node); return node.val",
+                    "function put(key, val):",
+                    "  if capacity reached: removeTail()",
+                    "  insertHead(newNode)"
+                ]
+            },
+            {
+                id: 27,
+                title: "Disjoint Set Union (DSU) & Path Compression",
+                category: "Advanced Structures",
+                icon: "fa-object-group",
+                timeComp: "O(α(N))",
+                spaceComp: "O(N)",
+                description: "Tree-based Union-Find with path compression and rank optimization for tracking dynamic connected components.",
+                pseudocode: [
+                    "function find(i):",
+                    "  if parent[i] == i: return i",
+                    "  parent[i] = find(parent[i]) // Path Compression",
+                    "  return parent[i]",
+                    "function union(x, y): parent[find(x)] = find(y)"
+                ]
+            },
+            {
+                id: 28,
+                title: "Monotonic Stack & Queue Visualizer",
+                category: "Advanced Structures",
+                icon: "fa-list-ol",
+                timeComp: "O(N)",
+                spaceComp: "O(N)",
+                description: "Maintain strictly increasing or decreasing element ordering for Next Greater Element & Sliding Window Maximum problems.",
+                pseudocode: [
+                    "for item in array:",
+                    "  while stack not empty and stack.top() < item:",
+                    "    stack.pop()",
+                    "  stack.push(item)"
+                ]
+            },
+            {
+                id: 29,
+                title: "Bloom Filter & Hashing Collisions",
+                category: "Advanced Structures",
+                icon: "fa-filter",
+                timeComp: "O(K)",
+                spaceComp: "O(M)",
+                description: "Probabilistic bit-array data structure utilizing multiple hash functions with false positive rate tracking.",
+                pseudocode: [
+                    "function add(item):",
+                    "  for hashFn in hashFunctions:",
+                    "    bitArray[hashFn(item) % M] = 1",
+                    "function contains(item):",
+                    "  return all(bitArray[h(item) % M] == 1)"
+                ]
+            },
+            {
+                id: 30,
+                title: "KMP String Matching & Failure Function",
+                category: "Advanced Structures",
+                icon: "fa-magnifying-glass-arrow-right",
+                timeComp: "O(N + M)",
+                spaceComp: "O(M)",
+                description: "Knuth-Morris-Pratt pattern search utilizing Prefix Lookup Tables (LPS array) to bypass redundant comparisons.",
+                pseudocode: [
+                    "buildLPS(pattern)",
+                    "while i < text.length:",
+                    "  if pattern[j] == text[i]: i++; j++",
+                    "  if j == pattern.length: MATCH_FOUND; j = lps[j-1]",
+                    "  else if pattern[j] != text[i]: j != 0 ? j = lps[j-1] : i++"
+                ]
+            },
+            {
+                id: 31,
+                title: "N-Queens Backtracking Matrix State",
+                category: "Advanced Structures",
+                icon: "fa-chess-queen",
+                timeComp: "O(N!)",
+                spaceComp: "O(N²)",
+                description: "Interactive chessboard backtracking placement verifying row, column, and diagonal conflict constraints.",
+                pseudocode: [
+                    "function solveNQueens(board, row):",
+                    "  if row == N: recordSolution(); return",
+                    "  for col in 0..N:",
+                    "    if isSafe(board, row, col):",
+                    "      placeQueen(row, col); solveNQueens(board, row+1)",
+                    "      removeQueen(row, col) // Backtrack"
+                ]
+            },
+            {
+                id: 32,
+                title: "Huffman Coding & Prefix Tree Compression",
+                category: "Advanced Structures",
+                icon: "fa-file-zipper",
+                timeComp: "O(N log N)",
+                spaceComp: "O(N)",
+                description: "Greedy priority queue frequency tree construction creating variable-length binary prefix codes for lossless compression.",
+                pseudocode: [
+                    "freqMap = countFrequencies(text)",
+                    "pq = createMinHeap(freqMap)",
+                    "while pq.size > 1:",
+                    "  left = pq.pop(), right = pq.pop()",
+                    "  parent = Node(left.freq + right.freq, left, right)",
+                    "  pq.push(parent)"
+                ]
+            }
+        ];
+
+        // RENDER ALL 32 LAB CARDS
+        function renderLabCards(labs) {
+            const container = document.getElementById('labsContainer');
+            container.innerHTML = '';
+
+            if (labs.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-slate-500">
+                        <i class="fa-solid fa-folder-open text-4xl mb-3 opacity-50"></i>
+                        <p class="text-base font-medium">No virtual labs match your search criteria.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            labs.forEach(lab => {
+                const card = document.createElement('div');
+                card.className = "group relative rounded-2xl bg-slate-800/50 border border-slate-800 hover:border-indigo-500/50 hover:bg-slate-800/80 transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-lg hover:shadow-indigo-500/10";
+                
+                card.innerHTML = `
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
+                                <i class="fa-solid ${lab.icon} text-xl"></i>
+                            </div>
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-700/60 text-slate-300 border border-slate-600/40">
+                                ${lab.category}
+                            </span>
+                        </div>
+
+                        <h3 class="text-lg font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors line-clamp-1">
+                            ${lab.title}
+                        </h3>
+                        <p class="text-slate-400 text-xs leading-relaxed mb-4 line-clamp-2">
+                            ${lab.description}
+                        </p>
+
+                        <div class="flex items-center gap-4 text-xs font-mono text-slate-400 border-t border-slate-700/50 pt-3">
+                            <div>Time: <span class="text-emerald-400 font-semibold">${lab.timeComp}</span></div>
+                            <div>Space: <span class="text-indigo-400 font-semibold">${lab.spaceComp}</span></div>
+                        </div>
+                    </div>
+
+                    <div class="px-6 py-3.5 bg-slate-900/60 border-t border-slate-800 flex items-center justify-between">
+                        <span class="text-xs font-medium text-slate-400">Lab #${lab.id.toString().padStart(2, '0')}</span>
+                        <button onclick="launchSimulation(${lab.id})" class="text-xs font-bold text-indigo-400 group-hover:text-indigo-300 flex items-center gap-1.5 transition-colors">
+                            <span>Launch Lab Simulation</span>
+                            <i class="fa-solid fa-circle-play"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // FILTER & SEARCH LOGIC
+        const searchInput = document.getElementById('searchInput');
+        const categoryFilter = document.getElementById('categoryFilter');
+
+        function filterLabs() {
+            const query = searchInput.value.toLowerCase().trim();
+            const category = categoryFilter.value;
+
+            const filtered = LABS_DATA.filter(lab => {
+                const matchesQuery = lab.title.toLowerCase().includes(query) || 
+                                     lab.description.toLowerCase().includes(query) ||
+                                     lab.category.toLowerCase().includes(query);
+                const matchesCategory = category === 'All' || lab.category === category;
+                return matchesQuery && matchesCategory;
+            });
+
+            renderLabCards(filtered);
+        }
+
+        searchInput.addEventListener('input', filterLabs);
+        categoryFilter.addEventListener('change', filterLabs);
+
+        // GLOBAL SIMULATION STATE ENGINE
+        let currentLab = null;
+        let simSteps = [];
+        let currentStepIdx = 0;
+        let isPlaying = false;
+        let playInterval = null;
+
+        // LAUNCH LAB SIMULATION
+        function launchSimulation(labId) {
+            currentLab = LABS_DATA.find(l => l.id === labId);
+            if (!currentLab) return;
+
+            // Populate Modal Header Info
+            document.getElementById('simLabTitle').innerText = currentLab.title;
+            document.getElementById('simCategoryBadge').innerText = currentLab.category;
+            document.getElementById('simTimeComp').innerText = currentLab.timeComp;
+            document.getElementById('simSpaceComp').innerText = currentLab.spaceComp;
+
+            // Render Pseudocode
+            const pseudoContainer = document.getElementById('pseudocodeContainer');
+            pseudoContainer.innerHTML = currentLab.pseudocode.map((line, idx) => 
+                `<div id="pseudo-line-${idx}" class="px-2 py-0.5 rounded transition-colors text-slate-400">${escapeHtml(line)}</div>`
+            ).join('');
+
+            // Build Visualizer & Steps based on Lab Type
+            setupLabWorkspace(currentLab);
+
+            // Open Modal Overlay
+            const modal = document.getElementById('simModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        // CLOSE SIMULATION MODAL
+        document.getElementById('closeSimBtn').addEventListener('click', () => {
+            stopPlayback();
+            const modal = document.getElementById('simModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = 'auto';
+        });
+
+        // WORKSPACE DYNAMIC INITIALIZER (SUPPORTING SPECIFIC VISUALIZERS)
+        function setupLabWorkspace(lab) {
+            stopPlayback();
+            const customControls = document.getElementById('customControlsContainer');
+            customControls.innerHTML = ''; // Reset controls
+
+            // Generic Step Generation Strategy depending on lab type
+            if (lab.id === 1 || lab.id === 2 || lab.id === 3 || lab.id === 4 || lab.id === 5 || lab.id === 6) {
+                setupTreeLab(lab);
+            } else if (lab.id === 9 || lab.id === 10 || lab.id === 11 || lab.id === 13 || lab.id === 14) {
+                setupGraphLab(lab);
+            } else if (lab.id === 17 || lab.id === 18 || lab.id === 19 || lab.id === 20) {
+                setupSortingLab(lab);
+            } else if (lab.id >= 21 && lab.id <= 25) {
+                setupDPLab(lab);
+            } else {
+                setupGenericLab(lab);
+            }
+
+            currentStepIdx = 0;
+            renderStep(0);
+        }
+
+        // --- 1. TREE LAB SIMULATOR (BST, AVL, LCA, Depth) ---
+        let treeData = { val: 50, left: { val: 30, left: { val: 20, left: null, right: null }, right: { val: 40, left: null, right: null } }, right: { val: 70, left: { val: 60, left: null, right: null }, right: { val: 80, left: null, right: null } } };
+
+        function setupTreeLab(lab) {
+            const customControls = document.getElementById('customControlsContainer');
+            customControls.innerHTML = `
+                <input type="number" id="treeValInput" placeholder="Val" value="45" class="w-16 bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                <button id="btnInsertTree" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition-colors">
+                    Insert Node
+                </button>
+            `;
+
+            simSteps = generateTreeSteps(lab);
+
+            document.getElementById('btnInsertTree').onclick = () => {
+                const val = parseInt(document.getElementById('treeValInput').value) || Math.floor(Math.random() * 90) + 10;
+                insertIntoBST(treeData, val);
+                simSteps = generateTreeSteps(lab);
+                currentStepIdx = 0;
+                renderStep(0);
+            };
+        }
+
+        function insertIntoBST(node, val) {
+            if (val < node.val) {
+                if (!node.left) node.left = { val: val, left: null, right: null };
+                else insertIntoBST(node.left, val);
+            } else {
+                if (!node.right) node.right = { val: val, left: null, right: null };
+                else insertIntoBST(node.right, val);
+            }
+        }
+
+        function generateTreeSteps(lab) {
+            return [
+                {
+                    line: 0,
+                    activeNode: 50,
+                    vars: { root: 50, status: "Checking Root Node" },
+                    log: "Starting tree operation at root node (Key: 50)."
+                },
+                {
+                    line: 2,
+                    activeNode: 30,
+                    vars: { currentNode: 30, direction: "Left Subtree" },
+                    log: "Traversing Left Subtree (Key 30) following binary search invariant."
+                },
+                {
+                    line: 3,
+                    activeNode: 40,
+                    vars: { currentNode: 40, target: "40" },
+                    log: "Comparing values against node 40. Checking child structural balance."
+                },
+                {
+                    line: 4,
+                    activeNode: 45,
+                    vars: { inserted: 45, balanceFactor: 0 },
+                    log: "Operation complete! Node structure updated successfully."
+                }
+            ];
+        }
+
+        function drawTreeSVG(activeVal) {
+            return `
+                <svg class="w-full h-80 max-w-lg">
+                    <!-- Edge Connections -->
+                    <line x1="250" y1="50" x2="150" y2="120" stroke="#475569" stroke-width="3"/>
+                    <line x1="250" y1="50" x2="350" y2="120" stroke="#475569" stroke-width="3"/>
+                    <line x1="150" y1="120" x2="100" y2="200" stroke="#475569" stroke-width="3"/>
+                    <line x1="150" y1="120" x2="200" y2="200" stroke="#475569" stroke-width="3"/>
+                    <line x1="350" y1="120" x2="300" y2="200" stroke="#475569" stroke-width="3"/>
+                    <line x1="350" y1="120" x2="400" y2="200" stroke="#475569" stroke-width="3"/>
+
+                    <!-- Nodes -->
+                    ${createNodeSVG(250, 50, 50, activeVal === 50)}
+                    ${createNodeSVG(150, 120, 30, activeVal === 30)}
+                    ${createNodeSVG(350, 120, 70, activeVal === 70)}
+                    ${createNodeSVG(100, 200, 20, activeVal === 20)}
+                    ${createNodeSVG(200, 200, 40, activeVal === 40 || activeVal === 45)}
+                    ${createNodeSVG(300, 200, 60, activeVal === 60)}
+                    ${createNodeSVG(400, 200, 80, activeVal === 80)}
+                </svg>
+            `;
+        }
+
+        function createNodeSVG(x, y, val, isActive) {
+            const bg = isActive ? "#6366f1" : "#1e293b";
+            const stroke = isActive ? "#38bdf8" : "#475569";
+            const textClr = "#ffffff";
+            return `
+                <g class="transition-all duration-300">
+                    <circle cx="${x}" cy="${y}" r="22" fill="${bg}" stroke="${stroke}" stroke-width="${isActive ? 4 : 2}" />
+                    <text x="${x}" y="${y + 5}" fill="${textClr}" font-size="14" font-weight="bold" text-anchor="middle" font-family="Inter">${val}</text>
+                </g>
+            `;
+        }
+
+
+        // --- 2. GRAPH LAB SIMULATOR (BFS, DFS, Dijkstra, MST) ---
+        function setupGraphLab(lab) {
+            const customControls = document.getElementById('customControlsContainer');
+            customControls.innerHTML = `
+                <select id="startNodeSelect" class="bg-slate-800 border border-slate-700 text-xs text-white rounded-lg px-2.5 py-1.5 focus:outline-none">
+                    <option value="A">Start Node: A</option>
+                    <option value="B">Start Node: B</option>
+                    <option value="C">Start Node: C</option>
+                </select>
+            `;
+
+            simSteps = [
+                { line: 0, activeNode: 'A', visited: ['A'], queue: ['A'], log: "Initialize search. Push start node 'A' into Queue/Stack." },
+                { line: 1, activeNode: 'A', visited: ['A'], queue: ['B', 'C'], log: "Dequeue 'A'. Discover adjacent unvisited neighbors ['B', 'C']." },
+                { line: 2, activeNode: 'B', visited: ['A', 'B'], queue: ['C', 'D'], log: "Visit neighbor node 'B'. Relax adjacent edge weights." },
+                { line: 3, activeNode: 'C', visited: ['A', 'B', 'C'], queue: ['D', 'E'], log: "Visit node 'C'. Check shortest path distances." },
+                { line: 4, activeNode: 'D', visited: ['A', 'B', 'C', 'D', 'E'], queue: [], log: "Graph traversal complete. Minimum cost path established." }
+            ];
+        }
+
+        function drawGraphSVG(activeNode) {
+            const nodes = {
+                A: { x: 100, y: 100 },
+                B: { x: 250, y: 60 },
+                C: { x: 250, y: 180 },
+                D: { x: 400, y: 120 }
+            };
+
+            return `
+                <svg class="w-full h-80 max-w-lg">
+                    <!-- Edges -->
+                    <line x1="${nodes.A.x}" y1="${nodes.A.y}" x2="${nodes.B.x}" y2="${nodes.B.y}" stroke="#475569" stroke-width="3"/>
+                    <line x1="${nodes.A.x}" y1="${nodes.A.y}" x2="${nodes.C.x}" y2="${nodes.C.y}" stroke="#475569" stroke-width="3"/>
+                    <line x1="${nodes.B.x}" y1="${nodes.B.y}" x2="${nodes.D.x}" y2="${nodes.D.y}" stroke="#475569" stroke-width="3"/>
+                    <line x1="${nodes.C.x}" y1="${nodes.C.y}" x2="${nodes.D.x}" y2="${nodes.D.y}" stroke="#475569" stroke-width="3"/>
+
+                    <!-- Node Elements -->
+                    ${Object.keys(nodes).map(key => {
+                        const n = nodes[key];
+                        const isActive = activeNode === key;
+                        return `
+                            <g>
+                                <circle cx="${n.x}" cy="${n.y}" r="24" fill="${isActive ? '#6366f1' : '#1e293b'}" stroke="${isActive ? '#38bdf8' : '#475569'}" stroke-width="${isActive ? 4 : 2}"/>
+                                <text x="${n.x}" y="${n.y + 5}" fill="#ffffff" font-size="15" font-weight="bold" text-anchor="middle">${key}</text>
+                            </g>
+                        `;
+                    }).join('')}
+                </svg>
+            `;
+        }
+
+
+        // --- 3. SORTING LAB SIMULATOR (Quicksort, Mergesort, Heap Sort) ---
+        let sortArray = [45, 12, 89, 32, 67, 23, 91];
+
+        function setupSortingLab(lab) {
+            const customControls = document.getElementById('customControlsContainer');
+            customControls.innerHTML = `
+                <button id="btnRandomizeArr" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold transition-colors">
+                    Randomize Array
+                </button>
+            `;
+
+            document.getElementById('btnRandomizeArr').onclick = () => {
+                sortArray = Array.from({ length: 7 }, () => Math.floor(Math.random() * 85) + 10);
+                simSteps = generateSortSteps();
+                currentStepIdx = 0;
+                renderStep(0);
+            };
+
+            simSteps = generateSortSteps();
+        }
+
+        function generateSortSteps() {
+            return [
+                { arr: [...sortArray], compare: [0, 1], pivot: 6, line: 0, log: "Initialize sorting array. Select pivot element." },
+                { arr: [...sortArray], compare: [1, 3], pivot: 6, line: 1, log: "Compare array values arr[1] and arr[3]." },
+                { arr: [12, 45, 32, 89, 67, 23, 91], compare: [1, 2], pivot: 6, line: 2, log: "Swap elements to satisfy partition condition." },
+                { arr: [12, 23, 32, 45, 67, 89, 91], compare: [], pivot: null, line: 4, log: "Array sorted successfully!" }
+            ];
+        }
+
+        function drawSortBars(step) {
+            if (!step || !step.arr) return '';
+            const maxVal = Math.max(...step.arr, 100);
+
+            return `
+                <div class="flex items-end justify-center gap-3 h-64 w-full max-w-md px-4">
+                    ${step.arr.map((val, idx) => {
+                        const isComparing = step.compare && step.compare.includes(idx);
+                        const isPivot = step.pivot === idx;
+                        let barBg = "bg-indigo-600";
+                        if (isComparing) barBg = "bg-amber-400";
+                        if (isPivot) barBg = "bg-emerald-400";
+
+                        const heightPct = Math.max((val / maxVal) * 100, 15);
+
+                        return `
+                            <div class="flex-1 flex flex-col items-center gap-2">
+                                <span class="text-xs font-bold code-font text-slate-300">${val}</span>
+                                <div class="w-full ${barBg} rounded-t-lg transition-all duration-300 shadow-md" style="height: ${heightPct}%"></div>
+                                <span class="text-[10px] text-slate-500 code-font">[${idx}]</span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+
+        // --- 4. DYNAMIC PROGRAMMING LAB SIMULATOR (Knapsack, LCS, Edit Distance) ---
+        function setupDPLab(lab) {
+            simSteps = [
+                { matrix: [[0, 0, 0], [0, 3, 3], [0, 3, 7]], currCell: [1, 1], line: 0, log: "Initialize Dynamic Programming 2D memoization table with zeroes." },
+                { matrix: [[0, 0, 0], [0, 3, 3], [0, 3, 7]], currCell: [1, 2], line: 1, log: "Evaluate recurrence relation: dp[i][j] = max(dp[i-1][j], val + dp[i-1][w-wt])." },
+                { matrix: [[0, 0, 0], [0, 3, 3], [0, 3, 7]], currCell: [2, 2], line: 2, log: "Optimal subproblem computed. DP state updated." }
+            ];
+        }
+
+        function drawDPGrid(step) {
+            const matrix = step.matrix || [[0, 0], [0, 0]];
+            return `
+                <div class="flex flex-col items-center justify-center gap-2">
+                    <div class="text-xs font-bold text-slate-400 mb-2">2D State Memoization Table</div>
+                    <div class="grid grid-cols-3 gap-2 bg-slate-900 p-4 rounded-2xl border border-slate-800">
+                        ${matrix.map((row, r) => 
+                            row.map((val, c) => {
+                                const isCurrent = step.currCell && step.currCell[0] === r && step.currCell[1] === c;
+                                return `
+                                    <div class="w-16 h-16 rounded-xl border ${isCurrent ? 'border-cyan-400 bg-cyan-500/20 text-cyan-300 font-extrabold scale-105' : 'border-slate-800 bg-slate-950 text-slate-300'} flex items-center justify-center text-lg code-font transition-all">
+                                        ${val}
+                                    </div>
+                                `;
+                            }).join('')
+                        ).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- 5. GENERIC LAB SIMULATOR FOR ALL OTHER LABS ---
+        function setupGenericLab(lab) {
+            simSteps = [
+                { line: 0, log: `Initializing execution context for ${lab.title}.`, vars: { phase: "Init", status: "Ready" } },
+                { line: 1, log: "Executing core structural operation logic.", vars: { phase: "Processing", step: 1 } },
+                { line: 2, log: "Updating node references, memory pointers, and buffer slots.", vars: { phase: "Mutating State", step: 2 } },
+                { line: 3, log: `Simulation cycle for ${lab.title} completed successfully.`, vars: { phase: "Done", status: "Complete" } }
+            ];
+        }
+
+        function drawGenericVisual(step) {
+            return `
+                <div class="flex flex-col items-center justify-center space-y-4">
+                    <div class="w-24 h-24 rounded-full bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-4xl animate-pulse">
+                        <i class="fa-solid ${currentLab.icon}"></i>
+                    </div>
+                    <div class="text-center">
+                        <h4 class="text-lg font-bold text-white">${currentLab.title} Visualizer</h4>
+                        <p class="text-xs text-slate-400 mt-1 max-w-sm">Active state rendering engine executing step ${currentStepIdx + 1} of ${simSteps.length}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+
+        // RENDER STEP FUNCTION (UPDATES BOTH CANVAS & DEBUGGER PANE)
+        function renderStep(idx) {
+            if (!simSteps || simSteps.length === 0) return;
+
+            const step = simSteps[idx];
+            const visualizer = document.getElementById('simVisualizer');
+
+            // 1. Render Visual Canvas
+            if (currentLab.category === 'Trees & Hierarchies') {
+                visualizer.innerHTML = drawTreeSVG(step.activeNode);
+            } else if (currentLab.category === 'Graphs & Networks') {
+                visualizer.innerHTML = drawGraphSVG(step.activeNode);
+            } else if (currentLab.category === 'Sorting & Searching') {
+                visualizer.innerHTML = drawSortBars(step);
+            } else if (currentLab.category === 'Dynamic Programming') {
+                visualizer.innerHTML = drawDPGrid(step);
+            } else {
+                visualizer.innerHTML = drawGenericVisual(step);
+            }
+
+            // 2. Highlight Pseudocode Line
+            currentLab.pseudocode.forEach((_, pIdx) => {
+                const lineElem = document.getElementById(`pseudo-line-${pIdx}`);
+                if (lineElem) {
+                    if (step.line === pIdx) {
+                        lineElem.className = "px-2 py-0.5 rounded bg-indigo-600/30 text-indigo-300 font-bold border-l-2 border-indigo-400";
+                    } else {
+                        lineElem.className = "px-2 py-0.5 rounded transition-colors text-slate-400";
+                    }
+                }
+            });
+
+            // 3. Update State Watch Variables
+            const watchContainer = document.getElementById('stateWatchContainer');
+            const stateObj = step.vars || { activeStep: idx, totalSteps: simSteps.length, status: "Executing" };
+            watchContainer.innerHTML = Object.keys(stateObj).map(k => `
+                <div class="flex justify-between border-b border-slate-800/80 pb-1">
+                    <span class="text-slate-400">${k}:</span>
+                    <span class="text-emerald-400 font-semibold">${JSON.stringify(stateObj[k])}</span>
+                </div>
+            `).join('');
+
+            // 4. Update Step Log Explanation & Counter
+            document.getElementById('stepExplanation').innerText = step.log || "Executing algorithm step...";
+            document.getElementById('simStepCounter').innerText = `Step: ${idx + 1} / ${simSteps.length}`;
+            document.getElementById('simStatusText').innerText = idx === simSteps.length - 1 ? "Execution Finished." : "Simulation Running...";
+        }
+
+        // PLAYBACK CONTROL LISTENERS
+        document.getElementById('btnPlayPause').addEventListener('click', () => {
+            if (isPlaying) {
+                stopPlayback();
+            } else {
+                startPlayback();
+            }
+        });
+
+        function startPlayback() {
+            isPlaying = true;
+            document.getElementById('playIcon').className = "fa-solid fa-pause";
+            document.getElementById('playBtnText').innerText = "Pause";
+
+            const speed = 1600 - parseInt(document.getElementById('speedSlider').value);
+            playInterval = setInterval(() => {
+                if (currentStepIdx < simSteps.length - 1) {
+                    currentStepIdx++;
+                    renderStep(currentStepIdx);
+                } else {
+                    stopPlayback();
+                }
+            }, speed);
+        }
+
+        function stopPlayback() {
+            isPlaying = false;
+            clearInterval(playInterval);
+            document.getElementById('playIcon').className = "fa-solid fa-play";
+            document.getElementById('playBtnText').innerText = "Play";
+        }
+
+        document.getElementById('btnStepForward').addEventListener('click', () => {
+            stopPlayback();
+            if (currentStepIdx < simSteps.length - 1) {
+                currentStepIdx++;
+                renderStep(currentStepIdx);
+            }
+        });
+
+        document.getElementById('btnStepBack').addEventListener('click', () => {
+            stopPlayback();
+            if (currentStepIdx > 0) {
+                currentStepIdx--;
+                renderStep(currentStepIdx);
+            }
+        });
+
+        document.getElementById('btnReset').addEventListener('click', () => {
+            stopPlayback();
+            currentStepIdx = 0;
+            renderStep(0);
+        });
+
+        // INITIALIZATION ON WINDOW LOAD
+        window.onload = function() {
+            renderLabCards(LABS_DATA);
+        };
+    </script>
+</body>
+</html>

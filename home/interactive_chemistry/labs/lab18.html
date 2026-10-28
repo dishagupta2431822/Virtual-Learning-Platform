@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #18: Coordination Complexes & Ligands | Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="../index.html" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 hover:opacity-90 transition-opacity">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </a>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Virtual Lab #18</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">Coordination Complexes & Crystal Field Theory</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> CFT & Color Simulator
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+        <!-- Lab Header Info -->
+        <div class="mb-8">
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Coordination Complexes & Ligands</h1>
+            <p class="text-sm text-slate-500 mt-1">Explore transition metal complexes, crystal field splitting energy (Delta o), d-orbital occupancy, and complementary color absorption.</p>
+        </div>
+
+        <!-- Simulation Grid Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Control Panel -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between space-y-6">
+                <div>
+                    <h2 class="font-bold text-slate-900 text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-indigo-600"></i> Complex Parameters
+                    </h2>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Transition Metal Ion</label>
+                            <select id="metalSelect" onchange="updateSimulation()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:border-indigo-500">
+                                <option value="ti3">Titanium(III) [Ti(H2O)6]3+ (d1)</option>
+                                <option value="cu2" selected>Copper(II) [Cu(H2O)6]2+ (d9)</option>
+                                <option value="fe3">Iron(III) [Fe(H2O)6]3+ (d5)</option>
+                                <option value="co3">Cobalt(III) [Co(NH3)6]3+ (d6 - Low Spin)</option>
+                                <option value="cr3">Chromium(III) [Cr(H2O)6]3+ (d3)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Ligand (Spectrochemical Series)</label>
+                            <select id="ligandSelect" onchange="updateSimulation()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:border-indigo-500">
+                                <option value="weak_i">Iodide (I- - Weak Field)</option>
+                                <option value="weak_br">Bromide (Br- - Weak Field)</option>
+                                <option value="med_cl">Chloride (Cl- - Moderate)</option>
+                                <option value="med_h2o" selected>Water (H2O - Moderate)</option>
+                                <option value="strong_nh3">Ammonia (NH3 - Strong Field)</option>
+                                <option value="strong_cn">Cyanide (CN- - Very Strong Field)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 text-xs text-slate-400">
+                    <i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i> Hint: Strong-field ligands create a large crystal field splitting energy (Delta o), absorbing shorter wavelengths (higher energy UV-blue light).
+                </div>
+            </div>
+
+            <!-- Right Visualizer & Analysis Panel -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Crystal Field Splitting Visualizer Card -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 id="complexTitle" class="font-bold text-slate-900 text-base">[Cu(H2O)6]2+ Crystal Field Splitting</h3>
+                        <span id="solutionColorBadge" class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-sky-100 text-sky-800 border border-sky-200">Solution Color: Light Blue</span>
+                    </div>
+
+                    <!-- Splitting Diagram Container -->
+                    <div class="p-6 bg-slate-900 rounded-2xl border border-slate-800 text-white font-mono text-xs mb-6 flex flex-col items-center justify-center space-y-4 h-64">
+                        <div class="w-full flex justify-between items-center px-8 border-b border-slate-800 pb-3">
+                            <span class="text-indigo-300 font-bold">eg Level (dx2-y2, dz2)</span>
+                            <span id="egElectrons" class="bg-slate-800 px-3 py-1 rounded-lg border border-slate-700 text-emerald-400">↑↓ ↑↓ ↑↓ ↑</span>
+                        </div>
+                        <div class="text-center">
+                            <span id="deltaValue" class="text-amber-400 font-bold text-sm tracking-wide">Δo = 210 kJ/mol (Moderate Splitting)</span>
+                        </div>
+                        <div class="w-full flex justify-between items-center px-8 border-t border-slate-800 pt-3">
+                            <span class="text-indigo-300 font-bold">t2g Level (dxy, dxz, dyz)</span>
+                            <span id="t2gElectrons" class="bg-slate-800 px-3 py-1 rounded-lg border border-slate-700 text-emerald-400">↑↓ ↑↓ ↑↓</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Absorbed Wavelength</div>
+                            <div id="absWavelength" class="text-base font-bold text-indigo-600 font-mono">600 nm (Red-Orange)</div>
+                        </div>
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Unpaired d-Electrons</div>
+                            <div id="unpairedElectrons" class="text-base font-bold text-emerald-600 font-mono">1 Unpaired Electron</div>
+                        </div>
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Magnetic Property</div>
+                            <div id="magneticProperty" class="text-base font-bold text-slate-800 font-mono">Paramagnetic</div>
+                        </div>
+                    </div>
+
+                    <p id="complexDesc" class="text-xs text-slate-600 leading-relaxed">
+                        In an octahedral coordination complex, the six ligands cause electrostatic repulsion on the metal d-orbitals, splitting them into lower energy t2g and higher energy eg sets. Electronic transitions between these d-orbitals absorb specific wavelengths of visible light, imparting characteristic colors to transition metal solutions.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs border-t border-slate-800">
+        &copy; 2026 Virtual Learning Platform. All rights reserved.
+    </footer>
+
+    <!-- Simulation Script -->
+    <script>
+        const complexes = {
+            ti3: {
+                name: "[Ti(H2O)6]3+",
+                metal: "Titanium(III)",
+                config: "d1 System",
+                baseDelta: 240,
+                baseWavelength: 500,
+                colorName: "Deep Purple / Violet",
+                colorBadgeClass: "bg-purple-100 text-purple-800 border border-purple-200",
+                t2g: "↑",
+                eg: "",
+                unpaired: 1,
+                magnetic: "Paramagnetic",
+                desc: "Titanium(III) is a d1 system containing a single electron in the t2g set. Upon absorbing green-yellow light (~500 nm), the electron is promoted to the eg level, transmitting violet and red light to produce a characteristic purple solution."
+            },
+            cu2: {
+                name: "[Cu(H2O)6]2+",
+                metal: "Copper(II)",
+                config: "d9 System",
+                baseDelta: 210,
+                baseWavelength: 600,
+                colorName: "Light Blue",
+                colorBadgeClass: "bg-sky-100 text-sky-800 border border-sky-200",
+                t2g: "↑↓ ↑↓ ↑↓",
+                eg: "↑↓ ↑↓ ↑",
+                unpaired: 1,
+                magnetic: "Paramagnetic",
+                desc: "Copper(II) is a d9 system experiencing Jahn-Teller distortion. It absorbs red-orange light (~600 nm) and transmits blue light, resulting in the iconic vibrant blue color of aqueous copper solutions."
+            },
+            fe3: {
+                name: "[Fe(H2O)6]3+",
+                metal: "Iron(III)",
+                config: "d5 High-Spin System",
+                baseDelta: 160,
+                baseWavelength: 480,
+                colorName: "Pale Violet / Yellow-Brown (Hydrolysis)",
+                colorBadgeClass: "bg-amber-100 text-amber-800 border border-amber-200",
+                t2g: "↑ ↑ ↑",
+                eg: "↑ ↑",
+                unpaired: 5,
+                magnetic: "Strongly Paramagnetic",
+                desc: "Iron(III) is a high-spin d5 system with five unpaired electrons. Because d-d electronic transitions are spin-forbidden, dilute hexa-aquo iron(III) solutions appear very pale violet or yellowish-brown due to trace hydrolysis species."
+            },
+            co3: {
+                name: "[Co(NH3)6]3+",
+                metal: "Cobalt(III)",
+                config: "d6 Low-Spin System",
+                baseDelta: 320,
+                baseWavelength: 430,
+                colorName: "Yellow-Orange",
+                colorBadgeClass: "bg-yellow-100 text-yellow-800 border border-yellow-200",
+                t2g: "↑↓ ↑↓ ↑↓",
+                eg: "",
+                unpaired: 0,
+                magnetic: "Diamagnetic",
+                desc: "Cobalt(III) with strong-field ammonia ligands forms a low-spin d6 complex with all electrons paired in the t2g level. The large crystal field splitting shifts light absorption into the ultraviolet-violet region, making the solution appear yellow-orange."
+            },
+            cr3: {
+                name: "[Cr(H2O)6]3+",
+                metal: "Chromium(III)",
+                config: "d3 System",
+                baseDelta: 220,
+                baseWavelength: 570,
+                colorName: "Deep Green / Ruby Red",
+                colorBadgeClass: "bg-emerald-100 text-emerald-800 border border-emerald-200",
+                t2g: "↑ ↑ ↑",
+                eg: "",
+                unpaired: 3,
+                magnetic: "Paramagnetic",
+                desc: "Chromium(III) is a stable d3 system with three unpaired electrons in half-filled t2g orbitals. It absorbs yellow-green light (~570 nm) and transmits blue and red light, yielding a deep green solution (or ruby red in crystal lattices like sapphire/ruby)."
+            }
+        };
+
+        const ligandModifiers = {
+            weak_i: { factor: 0.75, name: "Iodide (Weak Field)" },
+            weak_br: { factor: 0.82, name: "Bromide (Weak Field)" },
+            med_cl: { factor: 0.90, name: "Chloride (Moderate)" },
+            med_h2o: { factor: 1.00, name: "Water (Moderate)" },
+            strong_nh3: { factor: 1.25, name: "Ammonia (Strong Field)" },
+            strong_cn: { factor: 1.50, name: "Cyanide (Very Strong Field)" }
+        };
+
+        function updateSimulation() {
+            const metalKey = document.getElementById('metalSelect').value;
+            const ligandKey = document.getElementById('ligandSelect').value;
+            const baseComplex = complexes[metalKey];
+            const modifier = ligandModifiers[ligandKey];
+
+            // Adjust delta and wavelength based on ligand field strength
+            const adjustedDelta = Math.round(baseComplex.baseDelta * modifier.factor);
+            const adjustedWavelength = Math.round(baseComplex.baseWavelength / modifier.factor);
+
+            document.getElementById('complexTitle').textContent = `${baseComplex.metal} Complex with ${modifier.name.split(' ')[0]} Ligands`;
+            const badge = document.getElementById('solutionColorBadge');
+            badge.className = `text-xs font-mono font-bold px-3 py-1 rounded-full ${baseComplex.colorBadgeClass}`;
+            badge.textContent = `Solution Color: ${baseComplex.colorName}`;
+
+            document.getElementById('t2gElectrons').textContent = baseComplex.t2g;
+            document.getElementById('egElectrons').textContent = baseComplex.eg || "Empty";
+            document.getElementById('deltaValue').textContent = `Δo = ${adjustedDelta} kJ/mol (${modifier.name})`;
+            document.getElementById('absWavelength').textContent = `${adjustedWavelength} nm`;
+            document.getElementById('unpairedElectrons').textContent = `${baseComplex.unpaired} Unpaired Electron${baseComplex.unpaired !== 1 ? 's' : ''}`;
+            document.getElementById('magneticProperty').textContent = baseComplex.magnetic;
+            document.getElementById('complexDesc').textContent = baseComplex.desc;
+        }
+
+        // Initial load
+        updateSimulation();
+    </script>
+</body>
+</html>

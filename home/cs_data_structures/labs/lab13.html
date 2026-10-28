@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #13: Minimum Spanning Tree (Kruskal's & Prim's)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        code, .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .node-circle { transition: all 0.4s ease-in-out; }
+        .tree-line { transition: all 0.4s ease-in-out; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <div>
+        <!-- Navbar -->
+        <header class="bg-white border-b border-slate-100 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="#" class="bg-indigo-600 text-white p-2 rounded-xl shadow-md shadow-indigo-100">
+                        <i class="fa-solid fa-flask text-base"></i>
+                    </a>
+                    <div>
+                        <span class="font-bold text-slate-900 text-sm block leading-snug">Virtual Labs</span>
+                        <span class="text-[10px] text-indigo-600 font-bold uppercase tracking-wider block">CS & DATA STRUCTURES</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <span class="bg-indigo-50 text-indigo-700 text-xs font-semibold px-3 py-1 rounded-full border border-indigo-100">
+                        Lab #13 of 32
+                    </span>
+                    <button onclick="resetMSTState()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Reset Graph
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Lab Title Banner -->
+        <div class="bg-white border-b border-slate-100 py-6 px-6">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center space-x-2 text-xs text-indigo-600 font-semibold mb-1">
+                        <span>Graphs</span>
+                        <i class="fa-solid fa-chevron-right text-[9px] text-slate-400"></i>
+                        <span class="text-slate-500">Kruskal's DSU & Prim's Greedy Studio</span>
+                    </div>
+                    <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">
+                        Lab #13: Minimum Spanning Tree (Kruskal's & Prim's)
+                    </h1>
+                    <p class="text-xs text-slate-500 mt-1">
+                        Input custom weighted edges, build graphs dynamically, and trace optimal MST selection step-by-step.
+                    </p>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-semibold text-slate-600 bg-indigo-50 text-indigo-700 border border-indigo-200/80 px-3 py-1 rounded-full">
+                        <i class="fa-solid fa-network-wired mr-1"></i> MST Custom Studio
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Workbench Area -->
+        <main class="max-w-7xl mx-auto px-6 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+            <!-- Control & Status Panel -->
+            <div class="space-y-5 lg:col-span-1">
+                
+                <!-- Custom Edge Input Form -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">1. Add Custom Weighted Edge</h3>
+                    <form onsubmit="handleAddEdge(event)" class="space-y-3">
+                        <div class="grid grid-cols-3 gap-2">
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-500 block mb-1">From</label>
+                                <input type="text" id="edgeU" placeholder="A" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs text-slate-800 outline-none focus:border-indigo-500 text-center font-mono uppercase">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-500 block mb-1">To</label>
+                                <input type="text" id="edgeV" placeholder="B" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs text-slate-800 outline-none focus:border-indigo-500 text-center font-mono uppercase">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-500 block mb-1">Weight</label>
+                                <input type="number" id="edgeW" placeholder="5" min="1" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs text-slate-800 outline-none focus:border-indigo-500 text-center font-mono">
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-xs">
+                            + Insert Edge into Graph
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Algorithm Controls -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">2. Run MST Algorithm</h3>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 block mb-1">Strategy</label>
+                        <select id="algoSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-2 text-xs text-slate-800 outline-none focus:border-indigo-500 transition font-semibold">
+                            <option value="KRUSKAL">Kruskal's Algorithm (DSU / Edge Sort)</option>
+                            <option value="PRIM">Prim's Algorithm (Vertex Priority Queue)</option>
+                        </select>
+                    </div>
+                    <button onclick="runMST()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-xs">
+                        Execute MST Solver
+                    </button>
+                    <div class="bg-emerald-50 border border-emerald-100 p-2.5 rounded-xl text-center">
+                        <span class="text-[11px] text-emerald-600 font-semibold block">Total MST Weight</span>
+                        <span class="text-xl font-black text-emerald-700" id="mstCost">--</span>
+                    </div>
+                </div>
+
+                <!-- Execution Log -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Execution Trace Log</h3>
+                    <div id="logContainer" class="bg-slate-900 text-slate-300 p-3 rounded-xl font-mono text-[11px] h-36 overflow-y-auto space-y-1">
+                        <div class="text-slate-500">// Engine ready. Add custom edges or run simulation.</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Visualization Canvas -->
+            <div class="lg:col-span-3 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between relative min-h-[550px] overflow-hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Interactive Undirected Weighted Graph Canvas</span>
+                    <div class="flex items-center space-x-3 text-[11px] text-slate-500 font-medium">
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-slate-300 rounded-full inline-block mr-1"></span> Standard Edge</span>
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-emerald-500 rounded-full inline-block mr-1"></span> MST Edge</span>
+                    </div>
+                </div>
+
+                <!-- SVG Graph Render Container -->
+                <div class="relative w-full h-[500px] border border-slate-100 rounded-xl bg-slate-50/50 overflow-auto flex items-center justify-center" id="canvasBox">
+                    <svg id="graphSvg" class="w-full h-full min-w-[700px] min-h-[480px]"></svg>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-100 py-6 text-center text-xs text-slate-400">
+        <span>&copy; 2026 Virtual Labs • Minimum Spanning Tree Studio Suite</span>
+    </footer>
+
+    <!-- Script implementing custom inputs, Kruskal's, and Prim's algorithms -->
+    <script>
+        let nodesMap = new Map(); // name -> {id, label, x, y}
+        let edges = []; // {u, v, weight, inMST}
+        let timer = null;
+
+        function initDefaultGraph() {
+            nodesMap.clear();
+            edges = [];
+
+            const defaultNodes = [
+                {id: 'A', label: 'A', x: 150, y: 120},
+                {id: 'B', label: 'B', x: 350, y: 80},
+                {id: 'C', label: 'C', x: 550, y: 150},
+                {id: 'D', label: 'D', x: 250, y: 280},
+                {id: 'E', label: 'E', x: 450, y: 300}
+            ];
+
+            defaultNodes.forEach(n => nodesMap.set(n.id, n));
+
+            const defaultEdges = [
+                {u: 'A', v: 'B', weight: 4},
+                {u: 'A', v: 'D', weight: 2},
+                {u: 'B', v: 'C', weight: 6},
+                {u: 'B', v: 'D', weight: 1},
+                {u: 'B', v: 'E', weight: 3},
+                {u: 'C', v: 'E', weight: 5},
+                {u: 'D', v: 'E', weight: 7}
+            ];
+
+            defaultEdges.forEach(e => edges.push({...e, inMST: false}));
+            render();
+        }
+
+        function handleAddEdge(e) {
+            e.preventDefault();
+            const u = document.getElementById('edgeU').value.trim().toUpperCase();
+            const v = document.getElementById('edgeV').value.trim().toUpperCase();
+            const weight = parseInt(document.getElementById('edgeW').value);
+
+            if (!u || !v || isNaN(weight) || u === v) return;
+
+            if (!nodesMap.has(u)) {
+                let count = nodesMap.size;
+                nodesMap.set(u, { id: u, label: u, x: 120 + (count * 90) % 550, y: 100 + (count * 70) % 320 });
+            }
+            if (!nodesMap.has(v)) {
+                let count = nodesMap.size;
+                nodesMap.set(v, { id: v, label: v, x: 120 + (count * 90) % 550, y: 100 + (count * 70) % 320 });
+            }
+
+            // Check if edge already exists
+            let existing = edges.find(e => (e.u === u && e.v === v) || (e.u === v && e.v === u));
+            if (existing) {
+                existing.weight = weight;
+                logTrace(`Updated edge (${u} - ${v}) weight to ${weight}`);
+            } else {
+                edges.push({u, v, weight, inMST: false});
+                logTrace(`Added edge (${u} - ${v}, w=${weight})`);
+            }
+
+            document.getElementById('edgeU').value = '';
+            document.getElementById('edgeV').value = '';
+            document.getElementById('edgeW').value = '';
+            render();
+        }
+
+        function runMST() {
+            if (timer) clearInterval(timer);
+            edges.forEach(e => e.inMST = false);
+            document.getElementById('logContainer').innerHTML = '';
+            document.getElementById('mstCost').innerText = '--';
+
+            const algo = document.getElementById('algoSelect').value;
+
+            if (algo === 'KRUSKAL') {
+                runKruskal();
+            } else {
+                runPrim();
+            }
+        }
+
+        function runKruskal() {
+            logTrace(`--- Running Kruskal's Algorithm (DSU) ---`);
+            let sortedEdges = [...edges].sort((a, b) => a.weight - b.weight);
+
+            let parent = new Map();
+            nodesMap.forEach((node, id) => parent.set(id, id));
+
+            function find(i) {
+                if (parent.get(i) === i) return i;
+                parent.set(i, find(parent.get(i)));
+                return parent.get(i);
+            }
+
+            function union(i, j) {
+                let rootI = find(i);
+                let rootJ = find(j);
+                if (rootI !== rootJ) {
+                    parent.set(rootI, rootJ);
+                    return true;
+                }
+                return false;
+            }
+
+            let totalCost = 0;
+            let count = 0;
+            let index = 0;
+
+            timer = setInterval(() => {
+                if (index >= sortedEdges.length || count >= nodesMap.size - 1) {
+                    clearInterval(timer);
+                    logTrace(`--- Kruskal's MST Complete. Total Cost: ${totalCost} ---`, 'highlight');
+                    document.getElementById('mstCost').innerText = totalCost;
+                    render();
+                    return;
+                }
+
+                let edge = sortedEdges[index++];
+                let setU = find(edge.u);
+                let setV = find(edge.v);
+
+                if (setU !== setV) {
+                    union(setU, setV);
+                    edge.inMST = true;
+                    totalCost += edge.weight;
+                    count++;
+                    logTrace(`Added edge (${edge.u} - ${edge.v}, w=${edge.weight}) to MST`, 'highlight');
+                } else {
+                    logTrace(`Skipped edge (${edge.u} - ${edge.v}, w=${edge.weight}) - forms cycle`);
+                }
+                render();
+            }, 1200);
+        }
+
+        function runPrim() {
+            logTrace(`--- Running Prim's Algorithm ---`);
+            let adj = new Map();
+            nodesMap.forEach((node, id) => adj.set(id, []));
+            edges.forEach(e => {
+                adj.get(e.u).push({to: e.v, weight: e.weight});
+                adj.get(e.v).push({to: e.u, weight: e.weight});
+            });
+
+            let visited = new Set();
+            let totalCost = 0;
+            let startNode = nodesMap.keys().next().value;
+            visited.add(startNode);
+
+            let mstEdges = [];
+
+            timer = setInterval(() => {
+                if (visited.size >= nodesMap.size) {
+                    clearInterval(timer);
+                    logTrace(`--- Prim's MST Complete. Total Cost: ${totalCost} ---`, 'highlight');
+                    document.getElementById('mstCost').innerText = totalCost;
+                    render();
+                    return;
+                }
+
+                let minEdge = null;
+                let minWeight = Infinity;
+
+                for (let u of visited) {
+                    for (let neighbor of adj.get(u)) {
+                        if (!visited.has(neighbor.to) && neighbor.weight < minWeight) {
+                            minWeight = neighbor.weight;
+                            minEdge = {u: u, v: neighbor.to, weight: minWeight};
+                        }
+                    }
+                }
+
+                if (!minEdge) {
+                    clearInterval(timer);
+                    logTrace(`Graph is disconnected. Partial MST found.`, 'err');
+                    return;
+                }
+
+                visited.add(minEdge.v);
+                totalCost += minEdge.weight;
+
+                // Match in global edges
+                let targetEdge = edges.find(e => (e.u === minEdge.u && e.v === minEdge.v) || (e.u === minEdge.v && e.v === minEdge.u));
+                if (targetEdge) targetEdge.inMST = true;
+
+                logTrace(`Prim connected vertex [${minEdge.v}] via edge (${minEdge.u} - ${minEdge.v}, w=${minEdge.weight})`, 'highlight');
+                render();
+            }, 1400);
+        }
+
+        function resetMSTState() {
+            if (timer) clearInterval(timer);
+            initDefaultGraph();
+            document.getElementById('mstCost').innerText = '--';
+            document.getElementById('logContainer').innerHTML = '<div class="text-slate-500">// Engine ready. Add custom edges or run simulation.</div>';
+        }
+
+        function logTrace(msg, type = 'info') {
+            const container = document.getElementById('logContainer');
+            let color = 'text-slate-300';
+            if (type === 'highlight') color = 'text-emerald-300 font-bold';
+            if (type === 'err') color = 'text-rose-400 font-bold';
+
+            container.innerHTML += `<div class="${color}">&gt; ${msg}</div>`;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function render() {
+            const svg = document.getElementById('graphSvg');
+            svg.innerHTML = '';
+
+            // Draw Edges & Weights
+            edges.forEach(e => {
+                let n1 = nodesMap.get(e.u);
+                let n2 = nodesMap.get(e.v);
+                if (n1 && n2) {
+                    let midX = (n1.x + n2.x) / 2;
+                    let midY = (n1.y + n2.y) / 2;
+                    let strokeColor = e.inMST ? '#10b981' : '#cbd5e1';
+                    let strokeWidth = e.inMST ? '4' : '2.5';
+
+                    svg.innerHTML += `<line x1="${n1.x}" y1="${n1.y}" x2="${n2.x}" y2="${n2.y}" stroke="${strokeColor}" stroke-width="${strokeWidth}" class="tree-line"/>`;
+                    svg.innerHTML += `<circle cx="${midX}" cy="${midY}" r="11" fill="white" stroke="${strokeColor}" stroke-width="1.5"/><text x="${midX}" y="${midY + 3.5}" text-anchor="middle" fill="#475569" font-size="10" font-weight="bold" font-family="JetBrains Mono">${e.weight}</text>`;
+                }
+            });
+
+            // Draw Nodes
+            nodesMap.forEach(n => {
+                svg.innerHTML += `
+                    <g class="node-circle">
+                        <circle cx="${n.x}" cy="${n.y}" r="24" fill="#4f46e5" />
+                        <text x="${n.x}" y="${n.y + 5}" text-anchor="middle" fill="white" font-size="12" font-weight="bold" font-family="Inter">${n.label}</text>
+                    </g>
+                `;
+            });
+        }
+
+        window.addEventListener('resize', render);
+        document.addEventListener('DOMContentLoaded', () => {
+            initDefaultGraph();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #17: 0/1 Knapsack Grid & Item Selection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        code, .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .dp-cell { transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <div>
+        <!-- Navbar -->
+        <header class="bg-white border-b border-slate-100 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="#" class="bg-indigo-600 text-white p-2 rounded-xl shadow-md shadow-indigo-100">
+                        <i class="fa-solid fa-flask text-base"></i>
+                    </a>
+                    <div>
+                        <span class="font-bold text-slate-900 text-sm block leading-snug">Virtual Labs</span>
+                        <span class="text-[10px] text-indigo-600 font-bold uppercase tracking-wider block">CS & DATA STRUCTURES</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <span class="bg-indigo-50 text-indigo-700 text-xs font-semibold px-3 py-1 rounded-full border border-indigo-100">
+                        Lab #17 of 32
+                    </span>
+                    <button onclick="resetKnapsackState()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Reset Studio
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Lab Title Banner -->
+        <div class="bg-white border-b border-slate-100 py-6 px-6">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center space-x-2 text-xs text-indigo-600 font-semibold mb-1">
+                        <span>Dynamic Programming</span>
+                        <i class="fa-solid fa-chevron-right text-[9px] text-slate-400"></i>
+                        <span class="text-slate-500">2D Matrix Filling & Backtracking</span>
+                    </div>
+                    <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">
+                        Lab #17: 0/1 Knapsack Grid & Item Selection
+                    </h1>
+                    <p class="text-xs text-slate-500 mt-1">
+                        Watch 2D DP matrix filling step-by-step and trace back selected item subsets for optimal knapsack value.
+                    </p>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-semibold text-slate-600 bg-indigo-50 text-indigo-700 border border-indigo-200/80 px-3 py-1 rounded-full">
+                        <i class="fa-solid fa-table-cells mr-1"></i> 0/1 DP Studio
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Workbench Area -->
+        <main class="max-w-7xl mx-auto px-6 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+            <!-- Control & Status Panel -->
+            <div class="space-y-5 lg:col-span-1">
+                
+                <!-- Knapsack Settings -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Knapsack Parameters</h3>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 block mb-1">Max Capacity (W)</label>
+                        <input type="number" id="maxCapacity" value="7" min="1" max="15" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 outline-none focus:border-indigo-500 font-mono transition">
+                    </div>
+                    <button onclick="runKnapsackDP()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-xs">
+                        Run DP Matrix Filling
+                    </button>
+                    <div class="bg-emerald-50 border border-emerald-100 p-3 rounded-xl text-center">
+                        <span class="text-[11px] text-emerald-600 font-semibold block">Max Achievable Value</span>
+                        <span class="text-xl font-black text-emerald-700" id="maxValueResult">--</span>
+                    </div>
+                </div>
+
+                <!-- Items Table Box -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Available Items</h3>
+                    <div class="space-y-1.5 font-mono text-xs">
+                        <div class="flex justify-between bg-slate-50 p-2 rounded-lg border border-slate-100"><span>Item 1:</span> <span>wt: 2, val: $3</span></div>
+                        <div class="flex justify-between bg-slate-50 p-2 rounded-lg border border-slate-100"><span>Item 2:</span> <span>wt: 3, val: $4</span></div>
+                        <div class="flex justify-between bg-slate-50 p-2 rounded-lg border border-slate-100"><span>Item 3:</span> <span>wt: 4, val: $5</span></div>
+                        <div class="flex justify-between bg-slate-50 p-2 rounded-lg border border-slate-100"><span>Item 4:</span> <span>wt: 5, val: $8</span></div>
+                    </div>
+                </div>
+
+                <!-- Execution Log -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">DP Trace Log</h3>
+                    <div id="logContainer" class="bg-slate-900 text-slate-300 p-3 rounded-xl font-mono text-[11px] h-32 overflow-y-auto space-y-1">
+                        <div class="text-slate-500">// Engine ready. Click Run DP Matrix Filling.</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Visualization Canvas -->
+            <div class="lg:col-span-3 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between relative min-h-[550px] overflow-hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Interactive 2D DP Matrix (Items x Capacity)</span>
+                    <div class="flex items-center space-x-3 text-[11px] text-slate-500 font-medium">
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-indigo-500 rounded-full inline-block mr-1"></span> Active Cell</span>
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-emerald-500 rounded-full inline-block mr-1"></span> Selected Item (Backtrack)</span>
+                    </div>
+                </div>
+
+                <!-- DP Grid Container -->
+                <div class="relative w-full h-[500px] border border-slate-100 rounded-xl bg-slate-50/50 overflow-auto flex items-center justify-center p-4">
+                    <div id="dpMatrixContainer" class="text-xs font-mono"></div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-100 py-6 text-center text-xs text-slate-400">
+        <span>&copy; 2026 Virtual Labs • 0/1 Knapsack DP Studio Suite</span>
+    </footer>
+
+    <!-- Script implementing 0/1 Knapsack DP & Matrix visualization -->
+    <script>
+        const items = [
+            { id: 1, weight: 2, value: 3 },
+            { id: 2, weight: 3, value: 4 },
+            { id: 3, weight: 4, value: 5 },
+            { id: 4, weight: 5, value: 8 }
+        ];
+
+        let dpTable = [];
+        let capacity = 7;
+        let timer = null;
+
+        function resetKnapsackState() {
+            if (timer) clearInterval(timer);
+            capacity = parseInt(document.getElementById('maxCapacity').value) || 7;
+            document.getElementById('maxValueResult').innerText = '--';
+            document.getElementById('logContainer').innerHTML = '<div class="text-slate-500">// Engine ready. Click Run DP Matrix Filling.</div>';
+            renderInitialMatrix();
+        }
+
+        function renderInitialMatrix() {
+            capacity = parseInt(document.getElementById('maxCapacity').value) || 7;
+            const container = document.getElementById('dpMatrixContainer');
+            
+            let html = '<table class="border-collapse border border-slate-300 text-center bg-white shadow-xs rounded-lg overflow-hidden">';
+            html += '<tr class="bg-slate-100 text-slate-600 font-bold"><th class="border border-slate-300 p-2">Item \\ W</th>';
+            for (let w = 0; w <= capacity; w++) {
+                html += `<th class="border border-slate-300 p-2 w-10">${w}</th>`;
+            }
+            html += '</tr>';
+
+            for (let i = 0; i <= items.length; i++) {
+                let label = i === 0 ? '0 (None)' : `#${i} (wt:${items[i-1].weight}, $${items[i-1].value})`;
+                html += `<tr><th class="border border-slate-300 p-2 text-left bg-slate-50 text-[10px] font-sans">${label}</th>`;
+                for (let w = 0; w <= capacity; w++) {
+                    html += `<td class="border border-slate-300 p-2 font-bold text-slate-700 dp-cell" id="cell-${i}-${w}">0</td>`;
+                }
+                html += '</tr>';
+            }
+            html += '</table>';
+            container.innerHTML = html;
+        }
+
+        function runKnapsackDP() {
+            if (timer) clearInterval(timer);
+            capacity = parseInt(document.getElementById('maxCapacity').value) || 7;
+            renderInitialMatrix();
+            document.getElementById('logContainer').innerHTML = '';
+
+            let n = items.length;
+            let dp = Array.from({length: n + 1}, () => Array(capacity + 1).fill(0));
+            
+            logTrace(`--- Starting 0/1 Knapsack DP (Capacity W = ${capacity}) ---`);
+
+            let i = 1, w = 0;
+            timer = setInterval(() => {
+                if (i > n) {
+                    clearInterval(timer);
+                    logTrace(`--- DP Complete! Max Value: $${dp[n][capacity]} ---`, 'highlight');
+                    document.getElementById('maxValueResult').innerText = `$${dp[n][capacity]}`;
+                    
+                    // Backtrack
+                    traceback(dp, n, capacity);
+                    return;
+                }
+
+                let item = items[i - 1];
+                if (w <= capacity) {
+                    let prevCell = document.getElementById(`cell-${i-1}-${w}`);
+                    if (prevCell) prevCell.classList.remove('bg-indigo-500', 'text-white');
+
+                    if (item.weight <= w) {
+                        let valWithout = dp[i - 1][w];
+                        let valWith = dp[i - 1][w - item.weight] + item.value;
+                        dp[i][w] = Math.max(valWithout, valWith);
+                        logTrace(`Item #${i} (wt:${item.weight}, $${item.value}) at W=${w}: max(${valWithout}, ${valWith}) = <strong class="text-emerald-400">${dp[i][w]}</strong>`);
+                    } else {
+                        dp[i][w] = dp[i - 1][w];
+                        logTrace(`Item #${i} weight (${item.weight}) > W=${w} &rarr; carry over ${dp[i][w]}`);
+                    }
+
+                    let cell = document.getElementById(`cell-${i}-${w}`);
+                    if (cell) {
+                        cell.innerText = dp[i][w];
+                        cell.className += ' bg-indigo-500 text-white';
+                    }
+
+                    w++;
+                } else {
+                    w = 0;
+                    i++;
+                }
+            }, 80);
+        }
+
+        function traceback(dp, n, w) {
+            logTrace(`--- Backtracking Selected Items ---`, 'highlight');
+            let res = dp[n][w];
+            let wt = w;
+            let selected = [];
+
+            for (let i = n; i > 0 && res > 0; i--) {
+                if (res !== dp[i - 1][wt]) {
+                    selected.push(i);
+                    let item = items[i - 1];
+                    logTrace(`Included Item #${i} (wt:${item.weight}, val:$${item.value})`, 'match');
+                    let cell = document.getElementById(`cell-${i}-${wt}`);
+                    if (cell) cell.className = 'border border-slate-300 p-2 font-bold bg-emerald-500 text-white dp-cell';
+                    res -= item.value;
+                    wt -= item.weight;
+                }
+            }
+        }
+
+        function logTrace(msg, type = 'info') {
+            const container = document.getElementById('logContainer');
+            let color = 'text-slate-300';
+            if (type === 'match') color = 'text-emerald-300 font-bold';
+            if (type === 'highlight') color = 'text-indigo-300 font-bold';
+
+            container.innerHTML += `<div class="${color}">&gt; ${msg}</div>`;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            resetKnapsackState();
+        });
+    </script>
+</body>
+</html>

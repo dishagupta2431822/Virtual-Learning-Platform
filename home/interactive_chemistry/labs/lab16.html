@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #16: Periodic Trends Explorer (All Periods) | Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="../index.html" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 hover:opacity-90 transition-opacity">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </a>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Virtual Lab #16</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">Periodic Trends Explorer (Periods 1–7)</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Full Table Dataset
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+        <!-- Lab Header Info -->
+        <div class="mb-8">
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Periodic Trends Explorer (All Elements)</h1>
+            <p class="text-sm text-slate-500 mt-1">Analyze atomic radii, electronegativity, ionization energy, and electron affinity across Periods 1 through 7.</p>
+        </div>
+
+        <!-- Simulation Grid Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Control Panel -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between space-y-6">
+                <div>
+                    <h2 class="font-bold text-slate-900 text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line text-indigo-600"></i> Select Periodic Property
+                    </h2>
+
+                    <div class="space-y-2 mb-6">
+                        <button onclick="setTrend('radius', this)" class="trend-btn w-full text-left px-4 py-3 rounded-xl border border-indigo-500 bg-indigo-50 text-indigo-700 font-medium text-xs flex items-center justify-between transition-all">
+                            <span>Atomic Radius (pm)</span>
+                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </button>
+                        <button onclick="setTrend('electronegativity', this)" class="trend-btn w-full text-left px-4 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs flex items-center justify-between transition-all">
+                            <span>Electronegativity (Pauling)</span>
+                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </button>
+                        <button onclick="setTrend('ionization', this)" class="trend-btn w-full text-left px-4 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs flex items-center justify-between transition-all">
+                            <span>First Ionization Energy (kJ/mol)</span>
+                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </button>
+                        <button onclick="setTrend('affinity', this)" class="trend-btn w-full text-left px-4 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs flex items-center justify-between transition-all">
+                            <span>Electron Affinity (kJ/mol)</span>
+                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </button>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Select Period Series</label>
+                        <select id="periodSelect" onchange="updateTrendData()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:border-indigo-500">
+                            <option value="period1">Period 1 (H - He)</option>
+                            <option value="period2">Period 2 (Li - Ne)</option>
+                            <option value="period3" selected>Period 3 (Na - Ar)</option>
+                            <option value="period4">Period 4 (K - Kr)</option>
+                            <option value="period5">Period 5 (Rb - Xe)</option>
+                            <option value="period6">Period 6 (Cs - Rn)</option>
+                            <option value="period7">Period 7 (Fr - Og)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 text-xs text-slate-400">
+                    <i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i> Hint: Effective nuclear charge ($Z_{\text{eff}}$) increases across any period, drawing valence electrons closer.
+                </div>
+            </div>
+
+            <!-- Right Visualizer & Analysis Panel -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Interactive Trend Graph / Bar Visualizer -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 id="graphTitle" class="font-bold text-slate-900 text-base">Atomic Radius Across Period 3</h3>
+                        <span id="graphUnit" class="text-xs font-mono font-bold bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full">Unit: Picometers (pm)</span>
+                    </div>
+
+                    <!-- Dynamic Bar Chart Container -->
+                    <div id="chartContainer" class="h-60 flex items-end justify-between gap-1.5 p-4 bg-slate-50 rounded-xl border border-slate-200 mb-6 overflow-x-auto">
+                        <!-- Bars injected via JS -->
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Periodic Trend</div>
+                            <div id="trendDirection" class="text-sm font-bold text-slate-800">Decreases Left to Right</div>
+                        </div>
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Primary Driving Force</div>
+                            <div id="trendCause" class="text-sm font-bold text-indigo-600">Increasing Effective Nuclear Charge</div>
+                        </div>
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Group Trend (Down)</div>
+                            <div id="groupTrend" class="text-sm font-bold text-emerald-600">Increases (New Shells Added)</div>
+                        </div>
+                    </div>
+
+                    <p id="trendDesc" class="text-xs text-slate-600 leading-relaxed">
+                        As you move across any period from left to right, protons are added to the nucleus while electrons fill the same principal shell. The resulting increase in effective nuclear charge pulls the electron cloud inward.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs border-t border-slate-800">
+        &copy; 2026 Virtual Learning Platform. All rights reserved.
+    </footer>
+
+    <!-- Comprehensive Dataset for All 7 Periods -->
+    <script>
+        let currentTrend = 'radius';
+
+        const dataset = {
+            period1: {
+                radius: [{ symbol: "H", val: 53 }, { symbol: "He", val: 31 }],
+                electronegativity: [{ symbol: "H", val: 2.20 }, { symbol: "He", val: 0.0 }],
+                ionization: [{ symbol: "H", val: 1312 }, { symbol: "He", val: 2372 }],
+                affinity: [{ symbol: "H", val: 73 }, { symbol: "He", val: 0 }]
+            },
+            period2: {
+                radius: [{ symbol: "Li", val: 152 }, { symbol: "Be", val: 112 }, { symbol: "B", val: 88 }, { symbol: "C", val: 77 }, { symbol: "N", val: 75 }, { symbol: "O", val: 73 }, { symbol: "F", val: 71 }, { symbol: "Ne", val: 69 }],
+                electronegativity: [{ symbol: "Li", val: 0.98 }, { symbol: "Be", val: 1.57 }, { symbol: "B", val: 2.04 }, { symbol: "C", val: 2.55 }, { symbol: "N", val: 3.04 }, { symbol: "O", val: 3.44 }, { symbol: "F", val: 3.98 }, { symbol: "Ne", val: 0.0 }],
+                ionization: [{ symbol: "Li", val: 520 }, { symbol: "Be", val: 899 }, { symbol: "B", val: 801 }, { symbol: "C", val: 1086 }, { symbol: "N", val: 1402 }, { symbol: "O", val: 1314 }, { symbol: "F", val: 1681 }, { symbol: "Ne", val: 2081 }],
+                affinity: [{ symbol: "Li", val: 60 }, { symbol: "Be", val: 0 }, { symbol: "B", val: 27 }, { symbol: "C", val: 122 }, { symbol: "N", val: 0 }, { symbol: "O", val: 141 }, { symbol: "F", val: 328 }, { symbol: "Ne", val: 0 }]
+            },
+            period3: {
+                radius: [{ symbol: "Na", val: 186 }, { symbol: "Mg", val: 160 }, { symbol: "Al", val: 143 }, { symbol: "Si", val: 118 }, { symbol: "P", val: 110 }, { symbol: "S", val: 104 }, { symbol: "Cl", val: 99 }, { symbol: "Ar", val: 98 }],
+                electronegativity: [{ symbol: "Na", val: 0.93 }, { symbol: "Mg", val: 1.31 }, { symbol: "Al", val: 1.61 }, { symbol: "Si", val: 1.90 }, { symbol: "P", val: 2.19 }, { symbol: "S", val: 2.58 }, { symbol: "Cl", val: 3.16 }, { symbol: "Ar", val: 0.0 }],
+                ionization: [{ symbol: "Na", val: 496 }, { symbol: "Mg", val: 738 }, { symbol: "Al", val: 578 }, { symbol: "Si", val: 786 }, { symbol: "P", val: 1012 }, { symbol: "S", val: 1000 }, { symbol: "Cl", val: 1251 }, { symbol: "Ar", val: 1521 }],
+                affinity: [{ symbol: "Na", val: 53 }, { symbol: "Mg", val: 0 }, { symbol: "Al", val: 43 }, { symbol: "Si", val: 134 }, { symbol: "P", val: 72 }, { symbol: "S", val: 200 }, { symbol: "Cl", val: 349 }, { symbol: "Ar", val: 0 }]
+            },
+            period4: {
+                radius: [{ symbol: "K", val: 227 }, { symbol: "Ca", val: 197 }, { symbol: "Sc", val: 160 }, { symbol: "Ti", val: 147 }, { symbol: "V", val: 135 }, { symbol: "Cr", val: 128 }, { symbol: "Mn", val: 127 }, { symbol: "Fe", val: 126 }, { symbol: "Co", val: 125 }, { symbol: "Ni", val: 124 }, { symbol: "Cu", val: 128 }, { symbol: "Zn", val: 134 }, { symbol: "Ga", val: 135 }, { symbol: "Ge", val: 122 }, { symbol: "As", val: 120 }, { symbol: "Se", val: 117 }, { symbol: "Br", val: 114 }, { symbol: "Kr", val: 110 }],
+                electronegativity: [{ symbol: "K", val: 0.82 }, { symbol: "Ca", val: 1.00 }, { symbol: "Sc", val: 1.36 }, { symbol: "Ti", val: 1.54 }, { symbol: "V", val: 1.63 }, { symbol: "Cr", val: 1.66 }, { symbol: "Mn", val: 1.55 }, { symbol: "Fe", val: 1.83 }, { symbol: "Co", val: 1.88 }, { symbol: "Ni", val: 1.91 }, { symbol: "Cu", val: 1.90 }, { symbol: "Zn", val: 1.65 }, { symbol: "Ga", val: 1.81 }, { symbol: "Ge", val: 2.01 }, { symbol: "As", val: 2.18 }, { symbol: "Se", val: 2.55 }, { symbol: "Br", val: 2.96 }, { symbol: "Kr", val: 3.0 }],
+                ionization: [{ symbol: "K", val: 419 }, { symbol: "Ca", val: 590 }, { symbol: "Sc", val: 633 }, { symbol: "Ti", val: 659 }, { symbol: "V", val: 651 }, { symbol: "Cr", val: 653 }, { symbol: "Mn", val: 717 }, { symbol: "Fe", val: 762 }, { symbol: "Co", val: 760 }, { symbol: "Ni", val: 737 }, { symbol: "Cu", val: 746 }, { symbol: "Zn", val: 906 }, { symbol: "Ga", val: 579 }, { symbol: "Ge", val: 762 }, { symbol: "As", val: 947 }, { symbol: "Se", val: 941 }, { symbol: "Br", val: 1140 }, { symbol: "Kr", val: 1351 }],
+                affinity: [{ symbol: "K", val: 48 }, { symbol: "Ca", val: 2 }, { symbol: "Sc", val: 18 }, { symbol: "Ti", val: 8 }, { symbol: "V", val: 51 }, { symbol: "Cr", val: 65 }, { symbol: "Mn", val: 0 }, { symbol: "Fe", val: 16 }, { symbol: "Co", val: 64 }, { symbol: "Ni", val: 112 }, { symbol: "Cu", val: 119 }, { symbol: "Zn", val: 0 }, { symbol: "Ga", val: 29 }, { symbol: "Ge", val: 119 }, { symbol: "As", val: 78 }, { symbol: "Se", val: 195 }, { symbol: "Br", val: 325 }, { symbol: "Kr", val: 0 }]
+            },
+            period5: {
+                radius: [{ symbol: "Rb", val: 248 }, { symbol: "Sr", val: 215 }, { symbol: "Y", val: 180 }, { symbol: "Zr", val: 155 }, { symbol: "Nb", val: 145 }, { symbol: "Mo", val: 145 }, { symbol: "Tc", val: 135 }, { symbol: "Ru", val: 130 }, { symbol: "Rh", val: 135 }, { symbol: "Pd", val: 140 }, { symbol: "Ag", val: 144 }, { symbol: "Cd", val: 149 }, { symbol: "In", val: 142 }, { symbol: "Sn", val: 140 }, { symbol: "Sb", val: 140 }, { symbol: "Te", val: 142 }, { symbol: "I", val: 133 }, { symbol: "Xe", val: 108 }],
+                electronegativity: [{ symbol: "Rb", val: 0.82 }, { symbol: "Sr", val: 0.95 }, { symbol: "Y", val: 1.22 }, { symbol: "Zr", val: 1.33 }, { symbol: "Nb", val: 1.60 }, { symbol: "Mo", val: 2.16 }, { symbol: "Tc", val: 1.90 }, { symbol: "Ru", val: 2.20 }, { symbol: "Rh", val: 2.28 }, { symbol: "Pd", val: 2.20 }, { symbol: "Ag", val: 1.93 }, { symbol: "Cd", val: 1.69 }, { symbol: "In", val: 1.78 }, { symbol: "Sn", val: 1.96 }, { symbol: "Sb", val: 2.05 }, { symbol: "Te", val: 2.10 }, { symbol: "I", val: 2.66 }, { symbol: "Xe", val: 2.6 }],
+                ionization: [{ symbol: "Rb", val: 403 }, { symbol: "Sr", val: 549 }, { symbol: "Y", val: 600 }, { symbol: "Zr", val: 640 }, { symbol: "Nb", val: 652 }, { symbol: "Mo", val: 684 }, { symbol: "Tc", val: 702 }, { symbol: "Ru", val: 710 }, { symbol: "Rh", val: 720 }, { symbol: "Pd", val: 804 }, { symbol: "Ag", val: 731 }, { symbol: "Cd", val: 868 }, { symbol: "In", val: 558 }, { symbol: "Sn", val: 709 }, { symbol: "Sb", val: 834 }, { symbol: "Te", val: 869 }, { symbol: "I", val: 1008 }, { symbol: "Xe", val: 1170 }],
+                affinity: [{ symbol: "Rb", val: 47 }, { symbol: "Sr", val: 5 }, { symbol: "Y", val: 30 }, { symbol: "Zr", val: 41 }, { symbol: "Nb", val: 86 }, { symbol: "Mo", val: 72 }, { symbol: "Tc", val: 53 }, { symbol: "Ru", val: 101 }, { symbol: "Rh", val: 110 }, { symbol: "Pd", val: 54 }, { symbol: "Ag", val: 126 }, { symbol: "Cd", val: 0 }, { symbol: "In", val: 29 }, { symbol: "Sn", val: 107 }, { symbol: "Sb", val: 101 }, { symbol: "Te", val: 190 }, { symbol: "I", val: 295 }, { symbol: "Xe", val: 0 }]
+            },
+            period6: {
+                radius: [{ symbol: "Cs", val: 265 }, { symbol: "Ba", val: 215 }, { symbol: "La", val: 195 }, { symbol: "Hf", val: 159 }, { symbol: "Ta", val: 146 }, { symbol: "W", val: 139 }, { symbol: "Re", val: 137 }, { symbol: "Os", val: 135 }, { symbol: "Ir", val: 136 }, { symbol: "Pt", val: 139 }, { symbol: "Au", val: 144 }, { symbol: "Hg", val: 149 }, { symbol: "Tl", val: 148 }, { symbol: "Pb", val: 147 }, { symbol: "Bi", val: 146 }, { symbol: "Po", val: 140 }, { symbol: "At", val: 150 }, { symbol: "Rn", val: 120 }],
+                electronegativity: [{ symbol: "Cs", val: 0.79 }, { symbol: "Ba", val: 0.89 }, { symbol: "La", val: 1.10 }, { symbol: "Hf", val: 1.30 }, { symbol: "Ta", val: 1.50 }, { symbol: "W", val: 1.70 }, { symbol: "Re", val: 1.90 }, { symbol: "Os", val: 2.20 }, { symbol: "Ir", val: 2.20 }, { symbol: "Pt", val: 2.20 }, { symbol: "Au", val: 2.40 }, { symbol: "Hg", val: 1.90 }, { symbol: "Tl", val: 1.80 }, { symbol: "Pb", val: 1.90 }, { symbol: "Bi", val: 2.00 }, { symbol: "Po", val: 2.00 }, { symbol: "At", val: 2.20 }, { symbol: "Rn", val: 2.2 }],
+                ionization: [{ symbol: "Cs", val: 376 }, { symbol: "Ba", val: 503 }, { symbol: "La", val: 538 }, { symbol: "Hf", val: 659 }, { symbol: "Ta", val: 761 }, { symbol: "W", val: 770 }, { symbol: "Re", val: 760 }, { symbol: "Os", val: 840 }, { symbol: "Ir", val: 880 }, { symbol: "Pt", val: 870 }, { symbol: "Au", val: 890 }, { symbol: "Hg", val: 1007 }, { symbol: "Tl", val: 589 }, { symbol: "Pb", val: 716 }, { symbol: "Bi", val: 703 }, { symbol: "Po", val: 812 }, { symbol: "At", val: 920 }, { symbol: "Rn", val: 1037 }],
+                affinity: [{ symbol: "Cs", val: 45 }, { symbol: "Ba", val: 14 }, { symbol: "La", val: 48 }, { symbol: "Hf", val: 31 }, { symbol: "Ta", val: 31 }, { symbol: "W", val: 79 }, { symbol: "Re", val: 14 }, { symbol: "Os", val: 106 }, { symbol: "Ir", val: 151 }, { symbol: "Pt", val: 205 }, { symbol: "Au", val: 223 }, { symbol: "Hg", val: 0 }, { symbol: "Tl", val: 19 }, { symbol: "Pb", val: 35 }, { symbol: "Bi", val: 91 }, { symbol: "Po", val: 183 }, { symbol: "At", val: 270 }, { symbol: "Rn", val: 0 }]
+            },
+            period7: {
+                radius: [{ symbol: "Fr", val: 270 }, { symbol: "Ra", val: 215 }, { symbol: "Ac", val: 195 }, { symbol: "Rf", val: 150 }, { symbol: "Db", val: 145 }, { symbol: "Sg", val: 140 }, { symbol: "Bh", val: 135 }, { symbol: "Hs", val: 130 }, { symbol: "Mt", val: 125 }, { symbol: "Ds", val: 120 }, { symbol: "Rg", val: 125 }, { symbol: "Cn", val: 130 }, { symbol: "Nh", val: 150 }, { symbol: "Fl", val: 160 }, { symbol: "Mc", val: 170 }, { symbol: "Lv", val: 175 }, { symbol: "Ts", val: 165 }, { symbol: "Og", val: 150 }],
+                electronegativity: [{ symbol: "Fr", val: 0.7 }, { symbol: "Ra", val: 0.9 }, { symbol: "Ac", val: 1.1 }, { symbol: "Rf", val: 1.3 }, { symbol: "Db", val: 1.4 }, { symbol: "Sg", val: 1.5 }, { symbol: "Bh", val: 1.6 }, { symbol: "Hs", val: 1.7 }, { symbol: "Mt", val: 1.8 }, { symbol: "Ds", val: 1.9 }, { symbol: "Rg", val: 2.0 }, { symbol: "Cn", val: 2.1 }, { symbol: "Nh", val: 1.8 }, { symbol: "Fl", val: 1.9 }, { symbol: "Mc", val: 2.0 }, { symbol: "Lv", val: 2.1 }, { symbol: "Ts", val: 2.2 }, { symbol: "Og", val: 2.3 }],
+                ionization: [{ symbol: "Fr", val: 380 }, { symbol: "Ra", val: 509 }, { symbol: "Ac", val: 499 }, { symbol: "Rf", val: 580 }, { symbol: "Db", val: 600 }, { symbol: "Sg", val: 650 }, { symbol: "Bh", val: 680 }, { symbol: "Hs", val: 700 }, { symbol: "Mt", val: 720 }, { symbol: "Ds", val: 740 }, { symbol: "Rg", val: 750 }, { symbol: "Cn", val: 800 }, { symbol: "Nh", val: 600 }, { symbol: "Fl", val: 700 }, { symbol: "Mc", val: 750 }, { symbol: "Lv", val: 800 }, { symbol: "Ts", val: 850 }, { symbol: "Og", val: 900 }],
+                affinity: [{ symbol: "Fr", val: 40 }, { symbol: "Ra", val: 10 }, { symbol: "Ac", val: 34 }, { symbol: "Rf", val: 30 }, { symbol: "Db", val: 30 }, { symbol: "Sg", val: 30 }, { symbol: "Bh", val: 30 }, { symbol: "Hs", val: 30 }, { symbol: "Mt", val: 30 }, { symbol: "Ds", val: 30 }, { symbol: "Rg", val: 30 }, { symbol: "Cn", val: 30 }, { symbol: "Nh", val: 30 }, { symbol: "Fl", val: 30 }, { symbol: "Mc", val: 30 }, { symbol: "Lv", val: 30 }, { symbol: "Ts", val: 250 }, { symbol: "Og", val: 0 }]
+            }
+        };
+
+        const trendDescriptions = {
+            radius: {
+                title: "Atomic Radius",
+                unit: "Picometers (pm)",
+                direction: "Decreases Left to Right",
+                cause: "Increasing Effective Nuclear Charge",
+                groupTrend: "Increases Down a Group (New Shells Added)",
+                desc: "As you move from left to right across a period, protons are added to the nucleus while electrons fill the same principal shell. The resulting increase in effective nuclear charge pulls the electron cloud inward."
+            },
+            electronegativity: {
+                title: "Electronegativity (Pauling)",
+                unit: "Pauling Units",
+                direction: "Increases Left to Right",
+                cause: "Higher Nuclear Charge & Smaller Radius",
+                groupTrend: "Decreases Down a Group",
+                desc: "Electronegativity measures an atom's ability to attract shared electrons in a bond. Elements on the upper right exhibit maximum electronegativity due to strong nuclear attraction."
+            },
+            ionization: {
+                title: "First Ionization Energy",
+                unit: "Kilojoules per Mole (kJ/mol)",
+                direction: "Increases Left to Right",
+                cause: "Greater Attraction Between Nucleus & Valence Electrons",
+                groupTrend: "Decreases Down a Group",
+                desc: "First ionization energy is the energy required to remove an outermost valence electron. It generally increases across a period as effective nuclear charge increases."
+            },
+            affinity: {
+                title: "Electron Affinity",
+                unit: "Kilojoules per Mole (kJ/mol)",
+                direction: "Becomes More Negative (Exothermic) Left to Right",
+                cause: "Halogens & Nonmetals Strongly Attract Extra Electrons",
+                groupTrend: "Decreases in Magnitude Down a Group",
+                desc: "Electron affinity represents the energy change when a neutral gaseous atom gains an electron. Halogens exhibit high electron affinities because adding an electron completes their stable octet."
+            }
+        };
+
+        function setTrend(trendKey, btn) {
+            currentTrend = trendKey;
+            document.querySelectorAll('.trend-btn').forEach(b => {
+                b.className = "trend-btn w-full text-left px-4 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs flex items-center justify-between transition-all";
+            });
+            if (btn) {
+                btn.className = "trend-btn w-full text-left px-4 py-3 rounded-xl border border-indigo-500 bg-indigo-50 text-indigo-700 font-medium text-xs flex items-center justify-between transition-all";
+            }
+            updateTrendData();
+        }
+
+        function updateTrendData() {
+            const periodKey = document.getElementById('periodSelect').value;
+            const tData = trendDescriptions[currentTrend];
+            const dataList = dataset[periodKey][currentTrend];
+
+            const periodNames = {
+                period1: "Period 1 (H - He)",
+                period2: "Period 2 (Li - Ne)",
+                period3: "Period 3 (Na - Ar)",
+                period4: "Period 4 (K - Kr)",
+                period5: "Period 5 (Rb - Xe)",
+                period6: "Period 6 (Cs - Rn)",
+                period7: "Period 7 (Fr - Og)"
+            };
+
+            document.getElementById('graphTitle').textContent = `${tData.title} Across ${periodNames[periodKey]}`;
+            document.getElementById('graphUnit').textContent = `Unit: ${tData.unit}`;
+            document.getElementById('trendDirection').textContent = tData.direction;
+            document.getElementById('trendCause').textContent = tData.cause;
+            document.getElementById('groupTrend').textContent = tData.groupTrend;
+            document.getElementById('trendDesc').textContent = tData.desc;
+
+            const container = document.getElementById('chartContainer');
+            container.innerHTML = '';
+
+            const maxVal = dataList.reduce((m, item) => Math.max(m, item.val), 1);
+
+            dataList.forEach(item => {
+                const heightPct = Math.max(Math.round((item.val / maxVal) * 100), 8);
+                const col = document.createElement('div');
+                col.className = "flex flex-col items-center flex-grow h-full justify-end group min-w-[32px]";
+                col.innerHTML = `
+                    <span class="text-[9px] font-mono font-bold text-indigo-600 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">${item.val}</span>
+                    <div class="w-full max-w-[30px] bg-indigo-500 hover:bg-indigo-600 rounded-t-lg transition-all duration-300" style="height: ${heightPct}%;"></div>
+                    <span class="text-[11px] font-bold text-slate-700 mt-2 font-mono">${item.symbol}</span>
+                `;
+                container.appendChild(col);
+            });
+        }
+
+        // Initial load
+        updateTrendData();
+    </script>
+</body>
+</html>

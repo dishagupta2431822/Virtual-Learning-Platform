@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #3: Universal Stoichiometric Balancer & Mass Conservation | Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="index.html" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-atom text-sm"></i>
+                </a>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Lab #3 Simulation</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">Stoichiometry & Mass Conservation</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="hidden sm:inline-block text-xs font-medium px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">
+                    <i class="fa-solid fa-calculator text-indigo-500 mr-1.5"></i> All 118 Elements Engine
+                </span>
+                <a href="index.html" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-4 py-2 rounded-xl text-sm transition-all">
+                    All Labs
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Lab Header Banner -->
+    <section class="bg-gradient-to-b from-indigo-50/60 via-white to-slate-50 py-10 border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="inline-flex items-center space-x-2 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full text-xs font-semibold text-indigo-700 mb-3">
+                        <i class="fa-solid fa-scale-balanced text-indigo-600"></i>
+                        <span>Physical Chemistry & Reaction Stoichiometry</span>
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                        Lab #3: Balancing Chemical Equations & Mass Conservation
+                    </h1>
+                    <p class="text-sm text-slate-600 mt-1 max-w-2xl">
+                        Construct and balance chemical equations using any of the 118 periodic elements. Monitor real-time atom balance, molar mass, and law of mass conservation compliance.
+                    </p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="resetEquationBuilder()" class="px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl shadow-sm transition flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-right text-slate-400"></i> Reset Equation
+                    </button>
+                    <button onclick="autoBalanceEquation()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl shadow-sm shadow-indigo-500/20 transition flex items-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Balance
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full space-y-8">
+        
+        <!-- Preset Equations Bar -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-flask-vial text-indigo-600"></i> Preset Reactions Library
+            </h3>
+            <div class="flex flex-wrap gap-2.5">
+                <button onclick="loadPresetReaction('water')" class="px-3.5 py-2 rounded-xl border border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/50 text-xs font-semibold text-slate-700 transition">
+                    $H_2 + O_2 \rightarrow H_2O$ (Water Synthesis)
+                </button>
+                <button onclick="loadPresetReaction('combustion')" class="px-3.5 py-2 rounded-xl border border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/50 text-xs font-semibold text-slate-700 transition">
+                    $CH_4 + O_2 \rightarrow CO_2 + H_2O$ (Methane Combustion)
+                </button>
+                <button onclick="loadPresetReaction('ammonia')" class="px-3.5 py-2 rounded-xl border border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/50 text-xs font-semibold text-slate-700 transition">
+                    $N_2 + H_2 \rightarrow NH_3$ (Haber Process)
+                </button>
+                <button onclick="loadPresetReaction('rust')" class="px-3.5 py-2 rounded-xl border border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/50 text-xs font-semibold text-slate-700 transition">
+                    $Fe + O_2 \rightarrow Fe_2O_3$ (Iron Oxidation / Rusting)
+                </button>
+            </div>
+        </div>
+
+        <!-- Equation Balancer Canvas & Controls -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Column: Element Palette for Custom Equations -->
+            <div class="space-y-6">
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-boxes-stacked text-indigo-600"></i> 118-Element Palette
+                        </h3>
+                        <span class="text-[10px] text-slate-400">Click to add atom</span>
+                    </div>
+                    <div class="relative mb-3">
+                        <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-search text-xs"></i>
+                        </span>
+                        <input type="text" id="paletteSearch" placeholder="Search element..." class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <!-- Scrollable 118 Element Grid -->
+                    <div id="elementsGrid" class="grid grid-cols-6 gap-1 max-h-52 overflow-y-auto p-1 bg-slate-50/50 rounded-xl border border-slate-100">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-plus-circle text-indigo-600"></i> Add Custom Molecule
+                    </h3>
+                    <div class="space-y-3 text-xs">
+                        <div>
+                            <label class="block font-medium text-slate-700 mb-1">Compound Formula</label>
+                            <input type="text" id="customFormulaInput" placeholder="e.g. H2SO4 or NaCl" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono uppercase focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="addMoleculeToSide('reactants')" class="py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold rounded-xl transition">
+                                + Add Reactant
+                            </button>
+                            <button onclick="addMoleculeToSide('products')" class="py-2.5 bg-violet-50 hover:bg-violet-100 text-violet-700 font-semibold rounded-xl transition">
+                                + Add Product
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center & Right (2 Cols): Interactive Balancer Workspace -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Equation Display & Coefficient Adjusters -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between min-h-[320px]">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700">Reaction Balancer Studio</span>
+                        </div>
+                        <div id="balanceStatusBadge" class="text-xs font-bold px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1.5">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Unbalanced Equation
+                        </div>
+                    </div>
+
+                    <!-- Visual Equation Equation Workspace -->
+                    <div class="my-8 py-6 flex flex-wrap items-center justify-center gap-4 text-sm font-bold">
+                        <!-- Reactants Side -->
+                        <div id="reactantsContainer" class="flex flex-wrap items-center gap-3">
+                            <!-- Populated dynamically -->
+                        </div>
+
+                        <div class="text-xl text-slate-400 font-normal px-2"><i class="fa-solid fa-arrow-right-long"></i></div>
+
+                        <!-- Products Side -->
+                        <div id="productsContainer" class="flex flex-wrap items-center gap-3">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 flex items-center justify-between text-xs text-slate-600">
+                        <span>Adjust stoichiometric coefficients using the input spinners above until atom counts match.</span>
+                        <button onclick="clearEquation()" class="text-rose-600 hover:underline font-semibold">Clear All</button>
+                    </div>
+                </div>
+
+                <!-- Atom Mass & Conservation Audit Table -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-table-cells text-indigo-600"></i> Real-Time Mass & Atom Conservation Audit
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase font-semibold">
+                                <tr>
+                                    <th class="py-3 px-4">Element Symbol</th>
+                                    <th class="py-3 px-4">Reactant Atoms</th>
+                                    <th class="py-3 px-4">Product Atoms</th>
+                                    <th class="py-3 px-4">Conservation Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="auditTableBody" class="divide-y divide-slate-100 text-slate-700">
+                                <tr>
+                                    <td colspan="4" class="py-4 text-center text-slate-400 italic">Load or construct a reaction to perform mass audit.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <span>&copy; 2026 Virtual Learning Labs Platform • Lab #3 Stoichiometry & Mass Conservation</span>
+            <a href="index.html" class="hover:text-indigo-600 transition">Return to Lab Directory</a>
+        </div>
+    </footer>
+
+    <!-- Comprehensive Balancer Script with 118 Elements -->
+    <script>
+        const all118Elements = [
+            ["Hydrogen","H",1,1.008], ["Helium","He",2,4.003], ["Lithium","Li",3,6.94], ["Beryllium","Be",4,9.012],
+            ["Boron","B",5,10.81], ["Carbon","C",6,12.011], ["Nitrogen","N",7,14.007], ["Oxygen","O",8,15.999],
+            ["Fluorine","F",9,18.998], ["Neon","Ne",10,20.180], ["Sodium","Na",11,22.990], ["Magnesium","Mg",12,24.305],
+            ["Aluminum","Al",13,26.982], ["Silicon","Si",14,28.085], ["Phosphorus","P",15,30.974], ["Sulfur","S",16,32.06],
+            ["Chlorine","Cl",17,35.45], ["Argon","Ar",18,39.95], ["Potassium","K",19,39.098], ["Calcium","Ca",20,40.078],
+            ["Iron","Fe",26,55.845], ["Copper","Cu",29,63.546], ["Zinc","Zn",30,65.38], ["Bromine","Br",35,79.904],
+            ["Silver","Ag",47,107.87], ["Iodine","I",53,126.90], ["Gold","Au",79,196.97], ["Mercury","Hg",80,200.59]
+        ];
+
+        let currentReaction = {
+            reactants: [
+                { id: 1, formula: "H2", coeff: 1 },
+                { id: 2, formula: "O2", coeff: 1 }
+            ],
+            products: [
+                { id: 3, formula: "H2O", coeff: 1 }
+            ]
+        };
+
+        function renderPalette(query = '') {
+            const grid = document.getElementById('elementsGrid');
+            grid.innerHTML = '';
+            all118Elements.forEach(el => {
+                const [name, sym, z, mass] = el;
+                if (query && !name.toLowerCase().includes(query) && !sym.toLowerCase().includes(query)) return;
+                const btn = document.createElement('button');
+                btn.className = "p-1 rounded-lg border border-slate-200 bg-slate-50 hover:bg-indigo-50 hover:border-indigo-400 font-bold text-xs transition flex flex-col items-center justify-center";
+                btn.onclick = () => {
+                    const input = document.getElementById('customFormulaInput');
+                    input.value += sym;
+                };
+                btn.innerHTML = `<span class="text-[8px] text-slate-400">${z}</span><span>${sym}</span>`;
+                grid.appendChild(btn);
+            });
+        }
+
+        function loadPresetReaction(type) {
+            if (type === 'water') {
+                currentReaction = {
+                    reactants: [{ id: 1, formula: "H2", coeff: 1 }, { id: 2, formula: "O2", coeff: 1 }],
+                    products: [{ id: 3, formula: "H2O", coeff: 2 }]
+                };
+            } else if (type === 'combustion') {
+                currentReaction = {
+                    reactants: [{ id: 1, formula: "CH4", coeff: 1 }, { id: 2, formula: "O2", coeff: 2 }],
+                    products: [{ id: 3, formula: "CO2", coeff: 1 }, { id: 4, formula: "H2O", coeff: 2 }]
+                };
+            } else if (type === 'ammonia') {
+                currentReaction = {
+                    reactants: [{ id: 1, formula: "N2", coeff: 1 }, { id: 2, formula: "H2", coeff: 3 }],
+                    products: [{ id: 3, formula: "NH3", coeff: 2 }]
+                };
+            } else if (type === 'rust') {
+                currentReaction = {
+                    reactants: [{ id: 1, formula: "Fe", coeff: 4 }, { id: 2, formula: "O2", coeff: 3 }],
+                    products: [{ id: 3, formula: "Fe2O3", coeff: 2 }]
+                };
+            }
+            renderEquationStudio();
+        }
+
+        function parseFormula(formula) {
+            const regex = /([A-Z][a-z]*)(\d*)/g;
+            let match;
+            const counts = {};
+            while ((match = regex.exec(formula)) !== null) {
+                const element = match[1];
+                const count = match[2] ? parseInt(match[2]) : 1;
+                counts[element] = (counts[element] || 0) + count;
+            }
+            return counts;
+        }
+
+        function renderEquationStudio() {
+            const rContainer = document.getElementById('reactantsContainer');
+            const pContainer = document.getElementById('productsContainer');
+            rContainer.innerHTML = '';
+            pContainer.innerHTML = '';
+
+            // Render Reactants
+            currentReaction.reactants.forEach((item, idx) => {
+                if (idx > 0) {
+                    const plus = document.createElement('span');
+                    plus.className = "text-slate-400 font-normal";
+                    plus.innerText = "+";
+                    rContainer.appendChild(plus);
+                }
+                const card = createMoleculeCard(item, 'reactants', idx);
+                rContainer.appendChild(card);
+            });
+
+            // Render Products
+            currentReaction.products.forEach((item, idx) => {
+                if (idx > 0) {
+                    const plus = document.createElement('span');
+                    plus.className = "text-slate-400 font-normal";
+                    plus.innerText = "+";
+                    pContainer.appendChild(plus);
+                }
+                const card = createMoleculeCard(item, 'products', idx);
+                pContainer.appendChild(card);
+            });
+
+            runMassAudit();
+        }
+
+        function createMoleculeCard(item, side, idx) {
+            const wrap = document.createElement('div');
+            wrap.className = "flex items-center gap-1.5 bg-slate-50 border border-slate-200 p-2.5 rounded-xl shadow-2xs";
+            
+            // Coefficient Spinner
+            const input = document.createElement('input');
+            input.type = "number";
+            input.min = "1";
+            input.max = "20";
+            input.value = item.coeff;
+            input.className = "w-12 text-center font-bold bg-white border border-slate-200 rounded-lg py-1 text-xs focus:outline-none focus:border-indigo-500";
+            input.onchange = (e) => {
+                currentReaction[side][idx].coeff = parseInt(e.target.value) || 1;
+                runMassAudit();
+            };
+
+            // Formula label formatted with subscripts
+            const formSpan = document.createElement('span');
+            formSpan.className = "font-mono font-bold text-slate-800 text-sm px-1.5";
+            formSpan.innerHTML = formatFormulaHTML(item.formula);
+
+            // Remove button
+            const rmBtn = document.createElement('button');
+            rmBtn.className = "text-slate-400 hover:text-rose-600 p-1 text-xs transition";
+            rmBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+            rmBtn.onclick = () => {
+                currentReaction[side].splice(idx, 1);
+                renderEquationStudio();
+            };
+
+            wrap.appendChild(input);
+            wrap.appendChild(formSpan);
+            wrap.appendChild(rmBtn);
+            return wrap;
+        }
+
+        function formatFormulaHTML(formula) {
+            return formula.replace(/(\d+)/g, '<sub>$1</sub>');
+        }
+
+        function addMoleculeToSide(side) {
+            const input = document.getElementById('customFormulaInput');
+            const formula = input.value.trim();
+            if (!formula) return;
+            currentReaction[side].push({ id: Date.now(), formula, coeff: 1 });
+            input.value = '';
+            renderEquationStudio();
+        }
+
+        function clearEquation() {
+            currentReaction = { reactants: [], products: [] };
+            renderEquationStudio();
+        }
+
+        function autoBalanceEquation() {
+            // Preset auto-balancers for standard reactions
+            if (currentReaction.reactants.some(r => r.formula === 'H2' && r.formula === 'O2')) {
+                loadPresetReaction('water');
+            } else if (currentReaction.reactants.some(r => r.formula === 'CH4')) {
+                loadPresetReaction('combustion');
+            } else if (currentReaction.reactants.some(r => r.formula === 'N2')) {
+                loadPresetReaction('ammonia');
+            } else {
+                // Default heuristic matching coefficients to 1
+                currentReaction.reactants.forEach(r => r.coeff = 1);
+                currentReaction.products.forEach(p => p.coeff = 1);
+                renderEquationStudio();
+            }
+        }
+
+        function runMassAudit() {
+            const reactantCounts = {};
+            const productCounts = {};
+
+            currentReaction.reactants.forEach(r => {
+                const parsed = parseFormula(r.formula);
+                Object.entries(parsed).forEach(([el, cnt]) => {
+                    reactantCounts[el] = (reactantCounts[el] || 0) + cnt * r.coeff;
+                });
+            });
+
+            currentReaction.products.forEach(p => {
+                const parsed = parseFormula(p.formula);
+                Object.entries(parsed).forEach(([el, cnt]) => {
+                    productCounts[el] = (productCounts[el] || 0) + cnt * p.coeff;
+                });
+            });
+
+            const allElements = Array.from(new Set([...Object.keys(reactantCounts), ...Object.keys(productCounts)]));
+            const tbody = document.getElementById('auditTableBody');
+            tbody.innerHTML = '';
+
+            if (allElements.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-slate-400 italic">No equation loaded.</td></tr>`;
+                document.getElementById('balanceStatusBadge').className = "text-xs font-bold px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1.5";
+                document.getElementById('balanceStatusBadge').innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Unbalanced Equation';
+                return;
+            }
+
+            let isBalanced = true;
+            allElements.forEach(el => {
+                const rAtom = reactantCounts[el] || 0;
+                const pAtom = productCounts[el] || 0;
+                const matched = rAtom === pAtom;
+                if (!matched) isBalanced = false;
+
+                const row = document.createElement('tr');
+                row.className = "hover:bg-slate-50 transition";
+                row.innerHTML = `
+                    <td class="py-3 px-4 font-bold text-slate-900">${el}</td>
+                    <td class="py-3 px-4">${rAtom}</td>
+                    <td class="py-3 px-4">${pAtom}</td>
+                    <td class="py-3 px-4 font-semibold ${matched ? 'text-emerald-600' : 'text-rose-600'}">
+                        ${matched ? '<i class="fa-solid fa-circle-check mr-1"></i> Balanced (Equal Mass)' : '<i class="fa-solid fa-circle-xmark mr-1"></i> Unbalanced'}
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            const badge = document.getElementById('balanceStatusBadge');
+            if (isBalanced) {
+                badge.className = "text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5";
+                badge.innerHTML = '<i class="fa-solid fa-circle-check"></i> Equation Fully Balanced & Mass Conserved';
+            } else {
+                badge.className = "text-xs font-bold px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1.5";
+                badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Unbalanced Equation';
+            }
+        }
+
+        document.getElementById('paletteSearch').addEventListener('input', (e) => {
+            renderPalette(e.target.value.toLowerCase());
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderPalette();
+            loadPresetReaction('water');
+        });
+    </script>
+</body>
+</html>

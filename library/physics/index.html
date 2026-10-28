@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics & Circuit Design | Library</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+                    <i class="fa-solid fa-book-bookmark text-lg"></i>
+                </div>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Virtual Library</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">Physics & Circuits</span>
+                </div>
+            </div>
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-600">
+                <a href="#overview" class="hover:text-indigo-600 transition-colors">Overview</a>
+                <a href="#library" class="hover:text-indigo-600 transition-colors">Study Resources</a>
+                <a href="#benefits" class="hover:text-indigo-600 transition-colors">Key Features</a>
+                <a href="#contact" class="hover:text-indigo-600 transition-colors">Contact</a>
+            </nav>
+            <div class="flex items-center space-x-3">
+                <a href="#library" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-xl text-sm shadow-sm transition-all shadow-indigo-500/20">
+                    Explore Library
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="overview" class="relative overflow-hidden bg-gradient-to-b from-indigo-50/50 via-white to-slate-50 py-16 sm:py-24 border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-3xl mx-auto text-center">
+                <div class="inline-flex items-center space-x-2 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full text-xs font-semibold text-indigo-700 mb-6 shadow-sm">
+                    <i class="fa-solid fa-graduation-cap text-indigo-600"></i>
+                    <span>Comprehensive Academic Repository</span>
+                </div>
+                <h1 class="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-6">
+                    Physics & Circuit Design Library
+                </h1>
+                <p class="text-lg text-slate-600 mb-8 leading-relaxed">
+                    Access curated study notes, lecture modules, circuit formulas, and comprehensive reference guides covering digital logic, electromagnetism, and wave mechanics.
+                </p>
+                <div class="flex flex-wrap items-center justify-center gap-4">
+                    <div class="bg-white px-5 py-3 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-book"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-2xl font-bold text-slate-900">28</div>
+                            <div class="text-xs text-slate-500 font-medium">Topic Modules</div>
+                        </div>
+                    </div>
+                    <div class="bg-white px-5 py-3 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-file-pdf"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-2xl font-bold text-slate-900">PDF & Notes</div>
+                            <div class="text-xs text-slate-500 font-medium">Ready to Download</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content & 28 Resources Grid Section -->
+    <main id="library" class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Curated Study Materials</h2>
+                <p class="text-sm text-slate-500 mt-1">Browse notes, derivation walkthroughs, and problem sets spanning electronics, circuits, and optics.</p>
+            </div>
+            <!-- Search & Filter Bar -->
+            <div class="w-full md:w-72">
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-search"></i>
+                    </span>
+                    <input type="text" id="resourceSearch" placeholder="Search topics or notes..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 shadow-sm">
+                </div>
+            </div>
+        </div>
+
+        <!-- 28 Resources Grid Container -->
+        <div id="resourcesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Items will be dynamically injected here via JS -->
+        </div>
+    </main>
+
+    <!-- Key Benefits Section -->
+    <section id="benefits" class="bg-white py-16 border-t border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Why Use Our Study Library</h2>
+                <p class="text-slate-600 mt-2 text-sm">Engineered to support rigorous academic coursework and self-directed research.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xl mb-4 shadow-md shadow-indigo-500/20">
+                        <i class="fa-solid fa-book-open-reader"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-lg mb-2">Structured Notes</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed">Clean, formatted lecture notes detailing theoretical foundations, equations, and solved examples.</p>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xl mb-4 shadow-md shadow-indigo-500/20">
+                        <i class="fa-solid fa-file-arrow-down"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-lg mb-2">Instant Downloads</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed">Access concise PDF summaries, formula sheets, and circuit schematics for offline study.</p>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xl mb-4 shadow-md shadow-indigo-500/20">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-lg mb-2">Curated & Verified</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed">All materials are peer-reviewed and aligned with standard undergraduate physics syllabi.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Site Contact & Info Footer -->
+    <footer id="contact" class="bg-slate-900 text-slate-300 pt-16 pb-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+            <div>
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold">
+                        <i class="fa-solid fa-book-bookmark"></i>
+                    </div>
+                    <span class="font-bold text-white text-lg">Virtual Library</span>
+                </div>
+                <p class="text-slate-400 text-sm leading-relaxed mb-4">
+                    Providing students with comprehensive study guides, reference notes, and literature for physics and engineering disciplines.
+                </p>
+                <div class="flex space-x-4 text-slate-400">
+                    <a href="#" class="hover:text-white transition-colors"><i class="fa-brands fa-github text-lg"></i></a>
+                    <a href="#" class="hover:text-white transition-colors"><i class="fa-brands fa-twitter text-lg"></i></a>
+                    <a href="#" class="hover:text-white transition-colors"><i class="fa-brands fa-linkedin text-lg"></i></a>
+                </div>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Specializations</h4>
+                <ul class="space-y-2 text-sm text-slate-400">
+                    <li><a href="#" class="hover:text-white transition-colors">Digital Logic Theory</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Circuit Analysis References</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Wave Mechanics Handbooks</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Geometric Optics Guides</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
+                <ul class="space-y-2 text-sm text-slate-400">
+                    <li><a href="#overview" class="hover:text-white transition-colors">Overview</a></li>
+                    <li><a href="#library" class="hover:text-white transition-colors">Browse All 28 Topics</a></li>
+                    <li><a href="#benefits" class="hover:text-white transition-colors">Key Features</a></li>
+                    <li><a href="#contact" class="hover:text-white transition-colors">Support & Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Contact Info</h4>
+                <ul class="space-y-3 text-sm text-slate-400">
+                    <li class="flex items-center space-x-3">
+                        <i class="fa-solid fa-envelope text-indigo-400"></i>
+                        <span>library@virtuallabs.edu</span>
+                    </li>
+                    <li class="flex items-center space-x-3">
+                        <i class="fa-solid fa-phone text-indigo-400"></i>
+                        <span>+1 (555) 382-9421</span>
+                    </li>
+                    <li class="flex items-center space-x-3">
+                        <i class="fa-solid fa-location-dot text-indigo-400"></i>
+                        <span>Department of Physics & Engineering</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 border-t border-slate-800 text-center text-xs text-slate-500">
+            &copy; 2026 Virtual Learning Platform. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- JavaScript to Render 28 Library Resources -->
+    <script>
+        const libraryData = [
+            { id: 1, title: "AND & OR Logic Gates Theory", category: "Electronics", desc: "Comprehensive notes on combinatorial digital logic components, boolean expressions, and truth tables.", icon: "fa-microchip", file: "\AND & OR gates.pdf" },
+            { id: 2, title: "NAND & NOR Universal Gates Guide", category: "Electronics", desc: "Detailed breakdown of universal logic circuits and verification of De Morgan's laws.", icon: "fa-atom", file: "\Universal Gates.pdf" },
+            { id: 3, title: "XOR & XNOR Gates Reference", category: "Electronics", desc: "Study guide on parity checkers, binary comparators, and exclusive disjunction logic.", icon: "fa-bolt", file: "\Combinational Gates.pdf" },
+            { id: 4, title: "Half & Full Adder Circuits Handbook", category: "Electronics", desc: "In-depth analysis of arithmetic binary adders, carry propagation, and sum equations.", icon: "fa-calculator", file: "\Half Adder and Full Adder Circuits.pdf" },
+            { id: 5, title: "RC Circuit Charging & Discharging", category: "Circuits", desc: "Mathematical derivations for time constants, capacitor voltage curves, and exponential decay.", icon: "fa-battery-full", file: "\How Does an RC Circuit Charge and Discharge.pdf" },
+            { id: 6, title: "RL Circuit Transient Response Notes", category: "Circuits", desc: "Examination of inductive kickback, current growth rates, and magnetic field energy storage.", icon: "fa-magnet", file: "\RL Circuit Transient Response.pdf" },
+            { id: 7, title: "RLC Series Resonance Literature", category: "Circuits", desc: "Comprehensive guide on resonant frequency equations, impedance curves, and quality factor (Q).", icon: "fa-wave-square", file: "\RLC Series Resonance.pdf" },
+            { id: 8, title: "Ohm's Law & Kirchhoff's Rules", category: "Circuits", desc: "Step-by-step problem-solving guide for nodal voltages and mesh currents in resistor networks.", icon: "fa-gauge", file: "\Ohm's Law & KIRCHHOFF’S RULES.pdf" },
+            { id: 9, title: "Wheatstone Bridge Circuit Manual", category: "Circuits", desc: "Theoretical principles for determining unknown resistances using null-deflection balancing.", icon: "fa-bridge", file: "\WHEATSTONE BRIDGE CIRCUIT.pdf" },
+            { id: 10, title: "Diode Rectifier & Smoothing Theory", category: "Electronics", desc: "Analysis of AC-to-DC waveform conversion, ripple factors, and bridge rectifier circuits.", icon: "fa-plug", file: "\DIODE RECTIFIER AND SMOOTHING.pdf" },
+            { id: 11, title: "Transistor Common-Emitter Amplifier", category: "Electronics", desc: "Lecture notes on voltage gain calculations, DC biasing points, and load-line characteristics.", icon: "fa-sliders", file: "\TRANSISTOR COMMON EMITTER AMPLIFIER.pdf" },
+            { id: 12, title: "Op-Amp Inverting & Non-Inverting", category: "Electronics", desc: "Operational amplifier feedback configurations, gain formulas, and virtual ground concepts.", icon: "fa-microchip", file: "\Op-Amp Inverting & Non-inverting.pdf" },
+            { id: 13, title: "Reflection & Refraction (Snell's Law)", category: "Optics", desc: "Ray optics theory, boundary conditions, critical angles, and refractive index calculations.", icon: "fa-sun", file: "\REFLECTION AND REFRACTION(Snell's Law).pdf" },
+            { id: 14, title: "Thin Lenses & Ray Tracing Guide", category: "Optics", desc: "Formulas and diagrammatic guides for real/virtual image formation by lenses.", icon: "fa-glasses", file: "\THIN LENSES AND RAY TRACING.pdf" },
+            { id: 15, title: "Young's Double Slit Interference", category: "Optics", desc: "Wave optics analysis covering fringe spacing, wavelength effects, and path difference equations.", icon: "fa-water", file: "\Young's Double Slit Interference.pdf" },
+            { id: 16, title: "Single Slit Diffraction Notes", category: "Optics", desc: "Comprehensive review of central maxima width, secondary minima angles, and intensity patterns.", icon: "fa-circle-dot", file: "\Single Slit Diffraction.pdf" },
+            { id: 17, title: "Polarization of Light Waves Manual", category: "Optics", desc: "Theoretical exploration of transverse waves, Malus's Law, and crossed linear polarizers.", icon: "fa-eye", file: "\Polarization of Light Waves.pdf" },
+            { id: 18, title: "Transverse Wave Generator on String", category: "Waves", desc: "Standing wave equations, harmonic modes, string tension relationships, and node locations.", icon: "fa-wave-square", file: "\Transverse Wave Generator on  String.pdf" },
+            { id: 19, title: "Speed of Sound in Air Tube Notes", category: "Waves", desc: "Acoustic resonance principles in open and closed pipes with harmonic correction formulas.", icon: "fa-volume-high", file: "\Speed of Sound in Air Tube.pdf" },
+            { id: 20, title: "Doppler Effect Simulator Guide", category: "Waves", desc: "Mathematical derivations for frequency shifts involving moving sound sources and observers.", icon: "fa-bullhorn", file: "\Doppler Effect Simulator.pdf" },
+            { id: 21, title: "Simple Pendulum & Gravity Theory", category: "Mechanics", desc: "Harmonic motion analysis, oscillation period formulas, and gravitational acceleration studies.", icon: "fa-clock", file: "\Simple Pendulum and  Gravity.pdf" },
+            { id: 22, title: "Spring-Mass Harmonic Oscillator", category: "Mechanics", desc: "Hooke's Law derivations, elastic potential energy, and damped oscillation coefficients.", icon: "fa-arrows-split-up-and-left", file: "\Spring-mass Harmonic Oscillator.pdf" },
+            { id: 23, title: "Electromagnetic Induction (Faraday)", category: "Electromagnetism", desc: "Magnetic flux theory, Lenz's Law, and induced electromotive force calculations.", icon: "fa-bolt-lightning", file: "\Electromagnetic Induction.pdf" },
+            { id: 24, title: "Transformer Voltage & Turns Ratio", category: "Electromagnetism", desc: "Mutual induction principles, step-up/step-down formulas, and efficiency calculations.", icon: "fa-network-wired", file: "\Transformer Voltage & Turns Ratio.pdf" },
+            { id: 25, title: "Photoelectric Effect Literature", category: "Quantum", desc: "Quantum theory of light, photon energy equations, work function, and Planck's constant.", icon: "fa-lightbulb", file: "\Photoelectric Effect Lab.pdf" },
+            { id: 26, title: "RC Filter Frequency Response Notes", category: "Circuits", desc: "Bode plot analysis, low-pass/high-pass cutoff frequencies, and phase shift equations.", icon: "fa-chart-area", file: "\RC Filter Frequency Response.pdf" },
+            { id: 27, title: "Logic Gates Multiplexers & Decoders", category: "Electronics", desc: "Advanced digital design notes covering data routing, MUX, and DEMUX architectures.", icon: "fa-code-branch", file: "\logic gates multiplexers and decoders.pdf" },
+            { id: 28, title: "Laser Interferometer (Michelson)", category: "Optics", desc: "Coherent light wave principles, fringe displacement equations, and precision measurements.", icon: "fa-compass-drafting", file: "\Laser Interferometer(michelson).pdf" }
+        ];
+
+        const grid = document.getElementById('resourcesGrid');
+        const searchInput = document.getElementById('resourceSearch');
+
+        function renderLibrary(filter = '') {
+            grid.innerHTML = '';
+            const filtered = libraryData.filter(item => 
+                item.title.toLowerCase().includes(filter.toLowerCase()) || 
+                item.category.toLowerCase().includes(filter.toLowerCase()) ||
+                item.desc.toLowerCase().includes(filter.toLowerCase())
+            );
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400">No study resources found matching your search.</div>`;
+                return;
+            }
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl border border-slate-200 p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                <i class="fa-solid ${item.icon}"></i>
+                            </div>
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">${item.category}</span>
+                        </div>
+                        <h3 class="font-bold text-slate-900 text-base mb-2 group-hover:text-indigo-600 transition-colors">Module #${item.id}: ${item.title}</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed mb-6">${item.desc}</p>
+                    </div>
+                    <a href="${item.file}" class="w-full bg-slate-100 hover:bg-indigo-600 hover:text-white text-slate-700 font-medium py-2.5 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 transition-all">
+                        <span>Download Study Notes</span>
+                        <i class="fa-solid fa-download text-[10px]"></i>
+                    </a>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            renderLibrary(e.target.value);
+        });
+
+        // Initial render
+        renderLibrary();
+    </script>
+</body>
+</html>

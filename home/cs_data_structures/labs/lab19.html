@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #19: Edit Distance (Levenshtein)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        code, .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .dp-cell { transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <div>
+        <!-- Navbar -->
+        <header class="bg-white border-b border-slate-100 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="#" class="bg-indigo-600 text-white p-2 rounded-xl shadow-md shadow-indigo-100">
+                        <i class="fa-solid fa-flask text-base"></i>
+                    </a>
+                    <div>
+                        <span class="font-bold text-slate-900 text-sm block leading-snug">Virtual Labs</span>
+                        <span class="text-[10px] text-indigo-600 font-bold uppercase tracking-wider block">CS & DATA STRUCTURES</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <span class="bg-indigo-50 text-indigo-700 text-xs font-semibold px-3 py-1 rounded-full border border-indigo-100">
+                        Lab #19 of 32
+                    </span>
+                    <button onclick="resetEditDistanceState()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Reset Studio
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Lab Title Banner -->
+        <div class="bg-white border-b border-slate-100 py-6 px-6">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center space-x-2 text-xs text-indigo-600 font-semibold mb-1">
+                        <span>Dynamic Programming</span>
+                        <i class="fa-solid fa-chevron-right text-[9px] text-slate-400"></i>
+                        <span class="text-slate-500">Insertions, Deletions, and Substitutions</span>
+                    </div>
+                    <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">
+                        Lab #19: Edit Distance (Levenshtein)
+                    </h1>
+                    <p class="text-xs text-slate-500 mt-1">
+                        Step through insertions, deletions, and substitutions across 2D string boundary matrices.
+                    </p>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-semibold text-slate-600 bg-indigo-50 text-indigo-700 border border-indigo-200/80 px-3 py-1 rounded-full">
+                        <i class="fa-solid fa-pen-to-square mr-1"></i> Levenshtein Studio
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Workbench Area -->
+        <main class="max-w-7xl mx-auto px-6 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+            <!-- Control & Status Panel -->
+            <div class="space-y-5 lg:col-span-1">
+                
+                <!-- Input Strings -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Transform Strings</h3>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 block mb-1">Source String (X)</label>
+                        <input type="text" id="stringX" value="KITTEN" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 outline-none focus:border-indigo-500 font-mono uppercase transition">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 block mb-1">Target String (Y)</label>
+                        <input type="text" id="stringY" value="SITTING" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 outline-none focus:border-indigo-500 font-mono uppercase transition">
+                    </div>
+                    <button onclick="runEditDistanceDP()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-xs">
+                        Run Levenshtein DP Matrix
+                    </button>
+                    <div class="bg-indigo-50 border border-indigo-100 p-3 rounded-xl text-center">
+                        <span class="text-[11px] text-indigo-600 font-semibold block mb-0.5">Minimum Edit Distance</span>
+                        <span class="text-xl font-black text-indigo-800 font-mono" id="editDistResultBox">--</span>
+                    </div>
+                </div>
+
+                <!-- Execution Log -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Edit Trace Log</h3>
+                    <div id="logContainer" class="bg-slate-900 text-slate-300 p-3 rounded-xl font-mono text-[11px] h-44 overflow-y-auto space-y-1">
+                        <div class="text-slate-500">// Engine ready. Click Run Levenshtein DP Matrix.</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Visualization Canvas -->
+            <div class="lg:col-span-3 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between relative min-h-[550px] overflow-hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Interactive Levenshtein Matrix Canvas</span>
+                    <div class="flex items-center space-x-3 text-[11px] text-slate-500 font-medium">
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-indigo-500 rounded-full inline-block mr-1"></span> Active Cell</span>
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-emerald-500 rounded-full inline-block mr-1"></span> Min Edit Path</span>
+                    </div>
+                </div>
+
+                <!-- DP Matrix Container -->
+                <div class="relative w-full h-[500px] border border-slate-100 rounded-xl bg-slate-50/50 overflow-auto flex items-center justify-center p-4">
+                    <div id="editMatrixContainer" class="text-xs font-mono"></div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-100 py-6 text-center text-xs text-slate-400">
+        <span>&copy; 2026 Virtual Labs • Edit Distance (Levenshtein) Studio Suite</span>
+    </footer>
+
+    <!-- Script implementing Levenshtein DP and matrix rendering -->
+    <script>
+        let timer = null;
+
+        function resetEditDistanceState() {
+            if (timer) clearInterval(timer);
+            document.getElementById('editDistResultBox').innerText = '--';
+            document.getElementById('logContainer').innerHTML = '<div class="text-slate-500">// Engine ready. Click Run Levenshtein DP Matrix.</div>';
+            renderInitialMatrix();
+        }
+
+        function renderInitialMatrix() {
+            const X = document.getElementById('stringX').value.trim().toUpperCase() || 'KITTEN';
+            const Y = document.getElementById('stringY').value.trim().toUpperCase() || 'SITTING';
+            const container = document.getElementById('editMatrixContainer');
+
+            let html = '<table class="border-collapse border border-slate-300 text-center bg-white shadow-xs rounded-lg overflow-hidden">';
+            html += '<tr class="bg-slate-100 text-slate-600 font-bold"><th class="border border-slate-300 p-2">\\</th><th class="border border-slate-300 p-2">&epsilon;</th>';
+            for (let j = 0; j < Y.length; j++) {
+                html += `<th class="border border-slate-300 p-2 w-10">${Y[j]}</th>`;
+            }
+            html += '</tr>';
+
+            html += '<tr><th class="border border-slate-300 p-2 bg-slate-50">&epsilon;</th>';
+            for (let j = 0; j <= Y.length; j++) {
+                html += `<td class="border border-slate-300 p-2 font-bold text-slate-700 dp-cell" id="cell-0-${j}">${j}</td>`;
+            }
+            html += '</tr>';
+
+            for (let i = 1; i <= X.length; i++) {
+                html += `<tr><th class="border border-slate-300 p-2 bg-slate-50">${X[i-1]}</th>`;
+                html += `<td class="border border-slate-300 p-2 font-bold text-slate-700 dp-cell" id="cell-${i}-0">${i}</td>`;
+                for (let j = 1; j <= Y.length; j++) {
+                    html += `<td class="border border-slate-300 p-2 font-bold text-slate-700 dp-cell" id="cell-${i}-${j}">0</td>`;
+                }
+                html += '</tr>';
+            }
+            html += '</table>';
+            container.innerHTML = html;
+        }
+
+        function runEditDistanceDP() {
+            if (timer) clearInterval(timer);
+            renderInitialMatrix();
+            document.getElementById('logContainer').innerHTML = '';
+
+            const X = document.getElementById('stringX').value.trim().toUpperCase() || 'KITTEN';
+            const Y = document.getElementById('stringY').value.trim().toUpperCase() || 'SITTING';
+            const m = X.length;
+            const n = Y.length;
+
+            let dp = Array.from({length: m + 1}, () => Array(n + 1).fill(0));
+            for (let i = 0; i <= m; i++) dp[i][0] = i;
+            for (let j = 0; j <= n; j++) dp[0][j] = j;
+
+            logTrace(`--- Starting Levenshtein DP Matrix (X: "${X}", Y: "${Y}") ---`);
+
+            let i = 1, j = 1;
+            timer = setInterval(() => {
+                if (i > m) {
+                    clearInterval(timer);
+                    logTrace(`--- Levenshtein Computation Complete! Min Edit Distance: ${dp[m][n]} ---`, 'highlight');
+                    document.getElementById('editDistResultBox').innerText = dp[m][n];
+                    backtrackEditDistance(dp, X, Y, m, n);
+                    return;
+                }
+
+                if (j <= n) {
+                    if (j > 1) {
+                        let prevCell = document.getElementById(`cell-${i}-${j-1}`);
+                        if (prevCell && !prevCell.classList.contains('bg-emerald-500')) {
+                            prevCell.classList.remove('bg-indigo-500', 'text-white');
+                        }
+                    }
+
+                    if (X[i - 1] === Y[j - 1]) {
+                        dp[i][j] = dp[i - 1][j - 1];
+                        logTrace(`Match ('${X[i-1]}' == '${Y[j-1]}') at [${i},{j}]: carry over ${dp[i][j]}`);
+                    } else {
+                        let deletion = dp[i - 1][j];
+                        let insertion = dp[i][j - 1];
+                        let substitution = dp[i - 1][j - 1];
+                        dp[i][j] = 1 + Math.min(deletion, insertion, substitution);
+                        logTrace(`Mismatch ('${X[i-1]}' vs '${Y[j-1]}') at [${i},{j}]: min(del:${deletion}, ins:${insertion}, sub:${substitution}) + 1 = <strong class="text-emerald-400">${dp[i][j]}</strong>`);
+                    }
+
+                    let cell = document.getElementById(`cell-${i}-${j}`);
+                    if (cell) {
+                        cell.innerText = dp[i][j];
+                        cell.className += ' bg-indigo-500 text-white';
+                    }
+
+                    j++;
+                } else {
+                    j = 1;
+                    i++;
+                }
+            }, 60);
+        }
+
+        function backtrackEditDistance(dp, X, Y, m, n) {
+            logTrace(`--- Tracing Optimal Transformation Path ---`, 'highlight');
+            let i = m, j = n;
+
+            while (i > 0 || j > 0) {
+                let cell = document.getElementById(`cell-${i}-${j}`);
+                if (cell) cell.className = 'border border-slate-300 p-2 font-bold bg-emerald-500 text-white dp-cell';
+
+                if (i > 0 && j > 0 && X[i - 1] === Y[j - 1]) {
+                    i--;
+                    j--;
+                } else {
+                    let sub = (i > 0 && j > 0) ? dp[i - 1][j - 1] : Infinity;
+                    let del = (i > 0) ? dp[i - 1][j] : Infinity;
+                    let ins = (j > 0) ? dp[i][j - 1] : Infinity;
+
+                    if (sub <= del && sub <= ins) {
+                        logTrace(`Substitute '${X[i-1]}' with '${Y[j-1]}'`, 'match');
+                        i--;
+                        j--;
+                    } else if (del <= ins) {
+                        logTrace(`Delete '${X[i-1]}'`, 'match');
+                        i--;
+                    } else {
+                        logTrace(`Insert '${Y[j-1]}'`, 'match');
+                        j--;
+                    }
+                }
+            }
+        }
+
+        function logTrace(msg, type = 'info') {
+            const container = document.getElementById('logContainer');
+            let color = 'text-slate-300';
+            if (type === 'match') color = 'text-emerald-300 font-bold';
+            if (type === 'highlight') color = 'text-indigo-300 font-bold';
+
+            container.innerHTML += `<div class="${color}">&gt; ${msg}</div>`;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            resetEditDistanceState();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduRead E-Library | Next-Gen Academic & Exam Resources</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Family: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f4f3ff',
+              100: '#ebe9fe',
+              200: '#d9d6fe',
+              500: '#6366f1',
+              600: '#5850ec',
+              700: '#4f46e5',
+              800: '#4338ca',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom Scrollbar for Reader Modal */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- ================= NAVBAR ================= -->
+  <nav class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-100 transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        <!-- Brand Logo -->
+        <a href="#" class="flex items-center gap-3 group">
+          <div class="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white shadow-md shadow-brand-500/30 group-hover:scale-105 transition-transform">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+            </svg>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-xl font-extrabold tracking-tight text-gray-900 leading-none">EduRead</span>
+            <span class="text-[10px] font-bold tracking-wider text-brand-600 uppercase mt-0.5">ACADEMIC E-LIBRARY</span>
+          </div>
+        </a>
+
+        <!-- Desktop Navigation Links -->
+        <div class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-600">
+          <a href="#hero" class="hover:text-brand-600 transition-colors">Home</a>
+          <a href="#tracks" class="hover:text-brand-600 transition-colors">Specializations</a>
+          <a href="#benefits" class="hover:text-brand-600 transition-colors">Key Benefits</a>
+          <a href="#featured" class="hover:text-brand-600 transition-colors">Featured Books</a>
+          <a href="#footer" class="hover:text-brand-600 transition-colors">Contact</a>
+        </div>
+
+        <!-- Auth Actions -->
+        <div class="hidden sm:flex items-center space-x-4">
+          
+          <a href="#tracks" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-md shadow-brand-500/25 transition-all hover:shadow-lg hover:shadow-brand-500/35 active:scale-95">Get Started</a>
+        </div>
+
+        <!-- Mobile Menu Toggle -->
+        <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 focus:outline-none">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Nav Dropdown -->
+    <div id="mobile-menu" class="hidden md:hidden border-b border-gray-200 bg-white px-4 pt-2 pb-6 space-y-3">
+      <a href="#hero" class="block py-2 text-sm font-medium text-gray-700 hover:text-brand-600">Home</a>
+      <a href="#tracks" class="block py-2 text-sm font-medium text-gray-700 hover:text-brand-600">Specializations</a>
+      <a href="#benefits" class="block py-2 text-sm font-medium text-gray-700 hover:text-brand-600">Key Benefits</a>
+      <a href="#featured" class="block py-2 text-sm font-medium text-gray-700 hover:text-brand-600">Featured Books</a>
+      <a href="#footer" class="block py-2 text-sm font-medium text-gray-700 hover:text-brand-600">Contact</a>
+      <div class="pt-3 border-t border-gray-100 flex flex-col gap-2">
+        <button onclick="openNotification('Sign In clicked!')" class="w-full text-center py-2 text-sm font-semibold text-gray-700">Sign In</button>
+        <a href="#tracks" class="w-full text-center bg-brand-600 text-white py-2.5 rounded-xl text-sm font-semibold shadow">Get Started</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ================= HERO SECTION ================= -->
+  <section id="hero" class="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-28 bg-gradient-to-b from-brand-50/70 via-indigo-50/30 to-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+        
+        <!-- Left Column: Typography & CTAs -->
+        <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+          <!-- Top Badge -->
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-100/80 border border-brand-200 text-brand-700 text-xs font-bold tracking-wider uppercase">
+            <span class="w-2 h-2 rounded-full bg-brand-600 animate-pulse"></span>
+            NEXT-GEN ACADEMIC & EXAM RESOURCES
+          </div>
+
+          <!-- Headline -->
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 tracking-tight leading-[1.15]">
+            Master Concepts Through <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-purple-600">Curated E-Library</span>
+          </h1>
+
+          <!-- Subtitle -->
+          <p class="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto lg:mx-0 font-normal leading-relaxed">
+            Accelerate learning with peer-reviewed reference textbooks, interactive syllabus notes, search-indexed research papers, and curated study tracks designed specifically for university exams and technical mastery.
+          </p>
+
+          <!-- Buttons & Stats -->
+          <div class="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+            <a href="#tracks" class="w-full sm:w-auto inline-flex items-center justify-center px-7 py-3.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-base font-semibold shadow-lg shadow-brand-500/30 transition-all hover:-translate-y-0.5">
+              Explore Books
+              <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+              </svg>
+            </a>
+            <button onclick="openVideoTourModal()" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 rounded-xl bg-white hover:bg-gray-50 border border-gray-200 text-gray-800 text-base font-semibold shadow-sm transition-all hover:-translate-y-0.5">
+              <svg class="w-5 h-5 mr-2 text-brand-600 fill-current" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+              Watch 2-Min Tour
+            </button>
+          </div>
+
+          <!-- Feature highlights under hero buttons -->
+          <div class="pt-6 border-t border-gray-200/80 grid grid-cols-3 gap-4 text-center lg:text-left">
+            <div>
+              <p class="text-xl sm:text-2xl font-extrabold text-gray-900">12,000+</p>
+              <p class="text-xs text-gray-500 font-medium">Digital Textbooks</p>
+            </div>
+            <div>
+              <p class="text-xl sm:text-2xl font-extrabold text-gray-900">100%</p>
+              <p class="text-xs text-gray-500 font-medium">Syllabus Aligned</p>
+            </div>
+            <div>
+              <p class="text-xl sm:text-2xl font-extrabold text-gray-900">24/7</p>
+              <p class="text-xs text-gray-500 font-medium">Instant Access</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Interactive Digital Reader Preview Widget -->
+        <div class="lg:col-span-5 relative">
+          <!-- Background Glow Effect -->
+          <div class="absolute -inset-2 bg-gradient-to-r from-brand-500 to-purple-500 rounded-3xl blur-2xl opacity-20 transform -rotate-1"></div>
+
+          <!-- Main Reader Card Mockup -->
+          <div class="relative bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+            <!-- Window Bar -->
+            <div class="bg-gray-900 px-4 py-3 flex items-center justify-between text-white text-xs">
+              <div class="flex items-center space-x-2">
+                <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+                <span class="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
+                <span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
+                <span class="ml-2 font-mono text-gray-400 text-[11px]">EduReader Reader v3.8</span>
+              </div>
+              <span class="bg-emerald-500/20 text-emerald-300 font-semibold px-2 py-0.5 rounded text-[10px] tracking-wide border border-emerald-500/30">Live Reading Mode</span>
+            </div>
+
+            <!-- Content Simulator Box -->
+            <div class="p-6 bg-slate-950 text-slate-100 space-y-4">
+              <!-- Book Header inside Widget -->
+              <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center space-x-2">
+                  <svg class="w-4 h-4 text-brand-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path>
+                  </svg>
+                  <span class="text-xs font-bold tracking-wider text-slate-300 uppercase">ALGORITHM ANALYSIS CH. 4</span>
+                </div>
+                <button onclick="shuffleChapterCode()" class="px-2.5 py-1 bg-brand-600 hover:bg-brand-700 text-white text-[11px] font-medium rounded transition">
+                  Next Chapter
+                </button>
+              </div>
+
+              <!-- Interactive Simulated Progress Graph/Bar -->
+              <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
+                <div class="flex justify-between text-xs text-slate-300 font-medium">
+                  <span id="active-topic-title">Topic: QuickSort Partitioning Algorithm</span>
+                  <span class="text-brand-400 font-bold">Page 142 / 380</span>
+                </div>
+
+                <!-- Animated Reading Visual Bars -->
+                <div class="h-20 bg-slate-950 rounded-lg p-2.5 flex items-end gap-1.5 border border-slate-800/80">
+                  <div class="bg-brand-500/40 w-1/6 h-[40%] rounded-sm transition-all duration-500" id="bar-1"></div>
+                  <div class="bg-brand-500/60 w-1/6 h-[75%] rounded-sm transition-all duration-500" id="bar-2"></div>
+                  <div class="bg-brand-500 w-1/6 h-[30%] rounded-sm transition-all duration-500" id="bar-3"></div>
+                  <div class="bg-purple-500 w-1/6 h-[95%] rounded-sm transition-all duration-500" id="bar-4"></div>
+                  <div class="bg-brand-400 w-1/6 h-[60%] rounded-sm transition-all duration-500" id="bar-5"></div>
+                  <div class="bg-cyan-400 w-1/6 h-[80%] rounded-sm transition-all duration-500" id="bar-6"></div>
+                </div>
+
+                <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+                  <span>Reading Speed: <strong class="text-slate-200">240 wpm</strong></span>
+                  <span>Estimated Completion: <strong class="text-slate-200">18 mins</strong></span>
+                </div>
+              </div>
+
+              <!-- Bottom Stat Badge inside Preview Card -->
+              <div class="bg-brand-950/60 border border-brand-800/50 p-3 rounded-xl flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-7 h-7 rounded-lg bg-brand-600 flex items-center justify-center text-white font-bold text-xs">
+                    ✓
+                  </div>
+                  <div>
+                    <p class="text-xs font-semibold text-slate-100">Exam Note Sync Active</p>
+                    <p class="text-[10px] text-slate-400">Annotations & highlight overlays ready</p>
+                  </div>
+                </div>
+                <span class="text-xs font-extrabold text-brand-300 bg-brand-900/80 px-2 py-1 rounded border border-brand-700/50">98% Accuracy</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= DOMAIN SPECIALIZATIONS / TRACKS ================= -->
+  <section id="tracks" class="py-16 lg:py-24 bg-white border-t border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Section Header -->
+      <div class="text-center max-w-3xl mx-auto mb-12">
+        <span class="text-xs font-bold tracking-widest text-brand-600 uppercase">DOMAIN SPECIALIZATIONS</span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mt-2">
+          Structured Learning Tracks
+        </h2>
+        <p class="text-gray-600 mt-3 text-base sm:text-lg">
+          Choose a specialization domain to explore tailored digital textbooks, reference manuals, and university exam notes designed for conceptual clarity.
+        </p>
+      </div>
+
+      <!-- Filter Pills Bar -->
+      <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-12" id="filter-pills-container">
+        <button data-filter="all" class="filter-pill active-pill px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all shadow-sm">
+          All Specializations
+        </button>
+        <button data-filter="cs" class="filter-pill px-5 py-2.5 rounded-2xl text-sm font-semibold bg-gray-100/80 hover:bg-gray-200/80 text-gray-700 transition-all">
+          Computer Science
+        </button>
+        <button data-filter="chem" class="filter-pill px-5 py-2.5 rounded-2xl text-sm font-semibold bg-gray-100/80 hover:bg-gray-200/80 text-gray-700 transition-all">
+          Chemistry
+        </button>
+        <button data-filter="physics" class="filter-pill px-5 py-2.5 rounded-2xl text-sm font-semibold bg-gray-100/80 hover:bg-gray-200/80 text-gray-700 transition-all">
+          Physics & Electronics
+        </button>
+        <button data-filter="os" class="filter-pill px-5 py-2.5 rounded-2xl text-sm font-semibold bg-gray-100/80 hover:bg-gray-200/80 text-gray-700 transition-all">
+          Operating Systems
+        </button>
+        <button data-filter="ds" class="filter-pill px-5 py-2.5 rounded-2xl text-sm font-semibold bg-gray-100/80 hover:bg-gray-200/80 text-gray-700 transition-all">
+          Data Science
+        </button>
+      </div>
+
+      <!-- Tracks Card Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="tracks-grid">
+        
+        <!-- CARD 1: CS -->
+        <div class="track-card bg-white rounded-3xl border border-gray-200/90 p-8 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1" data-category="cs">
+          <div>
+            <!-- Icon -->
+            <div class="w-12 h-12 rounded-2xl bg-brand-100 text-brand-600 flex items-center justify-center mb-6 text-xl group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+              </svg>
+            </div>
+            <!-- Category Tag -->
+            <span class="inline-block px-3 py-1 rounded-full text-[11px] font-bold tracking-wider text-brand-700 bg-brand-50 uppercase mb-3">COMPUTER SCIENCE</span>
+            <!-- Title -->
+            <h3 class="text-xl font-bold text-gray-900 mb-3 group-hover:text-brand-600 transition-colors">CS & Data Structures</h3>
+            <!-- Description -->
+            <p class="text-gray-600 text-sm leading-relaxed mb-6">
+              Core reference textbooks on trees, graphs, dynamic programming, and algorithm performance analysis tailored for GATE and technical interviews.
+            </p>
+          </div>
+          <!-- Card Footer -->
+          <div class="pt-6 border-t border-gray-100 flex items-center justify-between text-sm">
+            <span class="text-gray-500 font-medium flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-brand-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path></svg>
+              32 Textbooks Available
+            </span>
+            <button onclick="openTrackReaderModal('CS & Data Structures', 'Computer Science')" class="text-brand-600 font-bold hover:text-brand-800 transition-colors inline-flex items-center gap-1">
+              Explore Track <span class="text-lg">›</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- CARD 2: CHEMISTRY -->
+        <div class="track-card bg-white rounded-3xl border border-gray-200/90 p-8 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1" data-category="chem">
+          <div>
+            <!-- Icon -->
+            <div class="w-12 h-12 rounded-2xl bg-teal-100 text-teal-600 flex items-center justify-center mb-6 text-xl group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+              </svg>
+            </div>
+            <!-- Category Tag -->
+            <span class="inline-block px-3 py-1 rounded-full text-[11px] font-bold tracking-wider text-teal-700 bg-teal-50 uppercase mb-3">CHEMISTRY</span>
+            <!-- Title -->
+            <h3 class="text-xl font-bold text-gray-900 mb-3 group-hover:text-teal-600 transition-colors">Organic Chemistry & Lewis Manuals</h3>
+            <!-- Description -->
+            <p class="text-gray-600 text-sm leading-relaxed mb-6">
+              Complete digital guides on molecular geometry, reaction mechanisms, chemical bonding theory, and step-by-step formula references.
+            </p>
+          </div>
+          <!-- Card Footer -->
+          <div class="pt-6 border-t border-gray-100 flex items-center justify-between text-sm">
+            <span class="text-gray-500 font-medium flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-teal-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path></svg>
+              24 Textbooks Available
+            </span>
+            <button onclick="openTrackReaderModal('Organic Chemistry & Lewis Manuals', 'Chemistry')" class="text-teal-600 font-bold hover:text-teal-800 transition-colors inline-flex items-center gap-1">
+              Explore Track <span class="text-lg">›</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- CARD 3: OPERATING SYSTEMS -->
+        <div class="track-card bg-white rounded-3xl border border-gray-200/90 p-8 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1" data-category="os">
+          <div>
+            <!-- Icon -->
+            <div class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center mb-6 text-xl group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+              </svg>
+            </div>
+            <!-- Category Tag -->
+            <span class="inline-block px-3 py-1 rounded-full text-[11px] font-bold tracking-wider text-purple-700 bg-purple-50 uppercase mb-3">OPERATING SYSTEMS</span>
+            <!-- Title -->
+            <h3 class="text-xl font-bold text-gray-900 mb-3 group-hover:text-purple-600 transition-colors">OS & Kernel Architecture</h3>
+            <!-- Description -->
+            <p class="text-gray-600 text-sm leading-relaxed mb-6">
+              In-depth literature covering CPU scheduling algorithms, deadlock recovery, virtual memory paging, multithreading, and Linux kernel source notes.
+            </p>
+          </div>
+          <!-- Card Footer -->
+          <div class="pt-6 border-t border-gray-100 flex items-center justify-between text-sm">
+            <span class="text-gray-500 font-medium flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path></svg>
+              20 Textbooks Available
+            </span>
+            <button onclick="openTrackReaderModal('OS & Kernel Architecture', 'Operating Systems')" class="text-purple-600 font-bold hover:text-purple-800 transition-colors inline-flex items-center gap-1">
+              Explore Track <span class="text-lg">›</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- CARD 4: PHYSICS -->
+        <div class="track-card bg-white rounded-3xl border border-gray-200/90 p-8 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1" data-category="physics">
+          <div>
+            <!-- Icon -->
+            <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mb-6 text-xl group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+            </div>
+            <!-- Category Tag -->
+            <span class="inline-block px-3 py-1 rounded-full text-[11px] font-bold tracking-wider text-amber-800 bg-amber-50 uppercase mb-3">PHYSICS & ELECTRONICS</span>
+            <!-- Title -->
+            <h3 class="text-xl font-bold text-gray-900 mb-3 group-hover:text-amber-600 transition-colors">Physics & Circuit Theory</h3>
+            <!-- Description -->
+            <p class="text-gray-600 text-sm leading-relaxed mb-6">
+              Comprehensive textbooks on logic gates, semiconductor physics, RL/RC circuit response curves, electromagnetism, and optics derivations.
+            </p>
+          </div>
+          <!-- Card Footer -->
+          <div class="pt-6 border-t border-gray-100 flex items-center justify-between text-sm">
+            <span class="text-gray-500 font-medium flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path></svg>
+              28 Textbooks Available
+            </span>
+            <a href="physics/index.html" target="_blank" rel="noopener noreferrer" class="text-amber-600 font-bold hover:text-amber-800 transition-colors inline-flex items-center gap-1">
+    Explore Track <span class="text-lg">›</span>
+</a>
+          </div>
+        </div>
+
+        <!-- CARD 5: DATA SCIENCE -->
+        <div class="track-card bg-white rounded-3xl border border-gray-200/90 p-8 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1" data-category="ds">
+          <div>
+            <!-- Icon -->
+            <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mb-6 text-xl group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
+              </svg>
+            </div>
+            <!-- Category Tag -->
+            <span class="inline-block px-3 py-1 rounded-full text-[11px] font-bold tracking-wider text-emerald-700 bg-emerald-50 uppercase mb-3">DATA SCIENCE</span>
+            <!-- Title -->
+            <h3 class="text-xl font-bold text-gray-900 mb-3 group-hover:text-emerald-600 transition-colors">Data Science & AI Reference</h3>
+            <!-- Description -->
+            <p class="text-gray-600 text-sm leading-relaxed mb-6">
+              Literature on regression modeling, neural network calculus, decision trees, linear algebra fundamentals, and practical machine learning notes.
+            </p>
+          </div>
+          <!-- Card Footer -->
+          <div class="pt-6 border-t border-gray-100 flex items-center justify-between text-sm">
+            <span class="text-gray-500 font-medium flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path></svg>
+              18 Textbooks Available
+            </span>
+            <button onclick="openTrackReaderModal('Data Science & AI Reference', 'Data Science')" class="text-emerald-600 font-bold hover:text-emerald-800 transition-colors inline-flex items-center gap-1">
+              Explore Track <span class="text-lg">›</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- CARD 6: CUSTOM REQUEST (Dashed Special Card from Screenshot) -->
+        <div class="bg-brand-50/40 rounded-3xl border-2 border-dashed border-brand-300 p-8 shadow-sm flex flex-col items-center justify-center text-center hover:border-brand-500 transition-all group">
+          <div class="w-14 h-14 rounded-2xl bg-brand-600 text-white flex items-center justify-center mb-5 shadow-lg shadow-brand-500/30 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900 mb-2">Need a Custom Resource?</h3>
+          <p class="text-gray-600 text-sm leading-relaxed mb-6 max-w-xs">
+            We source and digitize specialized reference material and syllabus notes for universities and technical institutions.
+          </p>
+          <button onclick="openRequestBookModal()" class="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm shadow-md shadow-brand-500/20 transition-all hover:shadow-lg">
+            Request Book / Paper
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= KEY BENEFITS SECTION ================= -->
+  <section id="benefits" class="py-16 lg:py-24 bg-gradient-to-b from-gray-50 to-white border-t border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="text-xs font-bold tracking-widest text-brand-600 uppercase">WHY CHOOSE EDUREAD</span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mt-2">
+          Designed for Deep Conceptual Understanding
+        </h2>
+        <p class="text-gray-600 mt-3 text-base">
+          Our e-library goes beyond simple PDFs, providing structured digital reading tools built specifically for academic success.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Benefit 1 -->
+        <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+          <div class="w-12 h-12 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-lg">
+            🔍
+          </div>
+          <h3 class="text-xl font-bold text-gray-900">Semantic Deep Search</h3>
+          <p class="text-gray-600 text-sm leading-relaxed">
+            Instantly query across millions of textbook pages, lecture slides, and equation indices with context-aware semantic indexing.
+          </p>
+        </div>
+
+        <!-- Benefit 2 -->
+        <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+          <div class="w-12 h-12 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-lg">
+            ⚡
+          </div>
+          <h3 class="text-xl font-bold text-gray-900">Exam-Focused Highlights</h3>
+          <p class="text-gray-600 text-sm leading-relaxed">
+            Toggle verified faculty annotations and priority exam tags to focus specifically on crucial university test topics.
+          </p>
+        </div>
+
+        <!-- Benefit 3 -->
+        <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+          <div class="w-12 h-12 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-lg">
+            📱
+          </div>
+          <h3 class="text-xl font-bold text-gray-900">Multi-Device Offline Sync</h3>
+          <p class="text-gray-600 text-sm leading-relaxed">
+            Download resources for offline reading on mobile, tablet, or desktop with instant bookmark and note synchronization.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FEATURED BOOKS CATALOG ================= -->
+  <section id="featured" class="py-16 lg:py-24 bg-white border-t border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+        <div>
+          <span class="text-xs font-bold tracking-widest text-brand-600 uppercase">CURATED REPOSITORY</span>
+          <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight mt-1">Popular Reference Books</h2>
+        </div>
+        <div class="w-full md:w-72">
+          <input 
+            type="text" 
+            id="book-search-input" 
+            placeholder="Search titles, topics, or authors..." 
+            class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition"
+          />
+        </div>
+      </div>
+
+      <!-- Book List Container -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="books-grid">
+        <!-- Injected Dynamically via JS -->
+      </div>
+    </div>
+  </section>
+
+  <section id="download-history" class="py-12 bg-gray-50 border-t border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-5">
+        <div>
+          <h2 class="text-xl font-extrabold text-gray-900">My Download History</h2>
+          <p class="mt-1 text-sm text-gray-600">Download a personal reading-notes template from any catalog card to add it here. Catalog book files are not currently available for download.</p>
+        </div>
+        <div class="rounded-xl border border-brand-100 bg-white px-5 py-3 text-center shadow-sm">
+          <span id="library-download-count" class="block text-2xl font-extrabold text-brand-600">0</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Files downloaded</span>
+        </div>
+      </div>
+      <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-gray-100 text-xs uppercase tracking-wider text-gray-500">
+            <tr><th class="px-5 py-3">File</th><th class="px-5 py-3">Category</th><th class="px-5 py-3">Downloaded</th></tr>
+          </thead>
+          <tbody id="library-download-history">
+            <tr><td colspan="3" class="px-5 py-6 text-center text-gray-500">Sign in to see your live download history.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= DARK FOOTER (Matching Screenshots) ================= -->
+  <footer id="footer" class="bg-slate-950 text-slate-300 pt-16 pb-12 border-t border-slate-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Top Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-slate-800">
+        
+        <!-- Brand & Email Subscription (4 Cols) -->
+        <div class="lg:col-span-4 space-y-6">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white shadow-lg shadow-brand-500/30">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+              </svg>
+            </div>
+            <div>
+              <span class="text-xl font-bold text-white tracking-tight block">EduRead E-Library</span>
+              <span class="text-[10px] font-bold text-brand-400 uppercase tracking-widest block">INTERACTIVE ACADEMIC EDUCATION</span>
+            </div>
+          </div>
+
+          <p class="text-sm text-slate-400 leading-relaxed pr-4">
+            Empowering students and universities with modern digital reference libraries for conceptual exam preparation and subject mastery.
+          </p>
+
+          <!-- Email Sub Box -->
+          <div class="space-y-2">
+            <span class="text-xs font-bold tracking-wider text-slate-300 uppercase block">STAY UPDATED ON NEW RELEASES</span>
+            <form onsubmit="handleSubscribe(event)" class="flex gap-2">
+              <input 
+                type="email" 
+                required 
+                placeholder="Enter your email address" 
+                class="bg-slate-900 border border-slate-800 text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500 w-full"
+              />
+              <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition shadow-md shadow-brand-500/20 whitespace-nowrap">
+                Subscribe
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Quick Links (2 Cols) -->
+        <div class="lg:col-span-2 space-y-4">
+          <h4 class="text-xs font-bold tracking-widest text-slate-200 uppercase">QUICK LINKS</h4>
+          <ul class="space-y-2.5 text-sm">
+            <li><a href="#hero" class="hover:text-white transition-colors">Home Page</a></li>
+            <li><a href="#tracks" class="hover:text-white transition-colors">Specialization Tracks</a></li>
+            <li><a href="#benefits" class="hover:text-white transition-colors">Key Benefits</a></li>
+            <li><a href="#featured" class="hover:text-white transition-colors">E-Book Catalog</a></li>
+            <li><a href="#footer" class="hover:text-white transition-colors">Contact Support</a></li>
+          </ul>
+        </div>
+
+        <!-- Specializations Links (3 Cols) -->
+        <div class="lg:col-span-3 space-y-4">
+          <h4 class="text-xs font-bold tracking-widest text-slate-200 uppercase">SPECIALIZATIONS</h4>
+          <ul class="space-y-2.5 text-sm">
+            <li><a href="#tracks" onclick="filterByDomain('cs')" class="hover:text-white transition-colors">Computer Science & Data Structures</a></li>
+            <li><a href="#tracks" onclick="filterByDomain('chem')" class="hover:text-white transition-colors">Chemistry & Lewis Structures</a></li>
+            <li><a href="#tracks" onclick="filterByDomain('os')" class="hover:text-white transition-colors">Operating Systems & Kernel</a></li>
+            <li><a href="#tracks" onclick="filterByDomain('physics')" class="hover:text-white transition-colors">Physics & Circuit Theory</a></li>
+            <li><a href="#tracks" onclick="filterByDomain('ds')" class="hover:text-white transition-colors">Data Science & AI Reference</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact Support Info (3 Cols) -->
+        <div class="lg:col-span-3 space-y-4">
+          <h4 class="text-xs font-bold tracking-widest text-slate-200 uppercase">CONTACT SUPPORT</h4>
+          <ul class="space-y-3 text-sm">
+            <li class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-brand-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <span>Tech Knowledge Park, Cyber Hub, Noida, UP, India</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-brand-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+              <span>support@eduread-elibrary.edu</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-brand-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+              </svg>
+              <span>+91 (800) 123-READ</span>
+            </li>
+          </ul>
+
+          <div class="pt-2 flex items-center gap-2">
+            <button onclick="openNotification('Emailing Support...')" class="w-9 h-9 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-brand-600 hover:text-white transition">✉</button>
+            <button onclick="openNotification('LinkedIn Page Linked')" class="w-9 h-9 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-brand-600 hover:text-white transition font-bold text-xs">in</button>
+            <button onclick="openNotification('GitHub Repo Opened')" class="w-9 h-9 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-brand-600 hover:text-white transition">🐙</button>
+            <button onclick="openRequestBookModal()" class="ml-auto px-3 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-xs font-bold transition flex items-center gap-1">
+              ✨ Request Book
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Copyright Bottom Bar -->
+      <div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+        <p>© 2026 EduRead E-Library Platforms Inc. All rights reserved.</p>
+        <div class="flex items-center space-x-6">
+          <a href="#" class="hover:text-slate-300 transition">Privacy Policy</a>
+          <a href="#" class="hover:text-slate-300 transition">Terms of Service</a>
+          <a href="#" class="hover:text-slate-300 transition">Accessibility</a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- ================= DIGITAL READER MODAL ================= -->
+  <div id="reader-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[85vh] border border-gray-100">
+      
+      <!-- Modal Header -->
+      <div class="bg-brand-900 text-white px-6 py-4 flex items-center justify-between border-b border-brand-800">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center font-bold text-sm">📖</div>
+          <div>
+            <h3 id="modal-track-title" class="font-bold text-base leading-tight">Interactive E-Book Viewer</h3>
+            <span id="modal-track-domain" class="text-[11px] text-brand-300 font-medium">Domain: Computer Science</span>
+          </div>
+        </div>
+        <button onclick="closeReaderModal()" class="text-brand-200 hover:text-white text-2xl font-bold leading-none">&times;</button>
+      </div>
+
+      <!-- Modal Body (Reader Interface) -->
+      <div class="flex-1 flex flex-col md:flex-row overflow-hidden bg-slate-50">
+        <!-- Sidebar Navigation inside Reader -->
+        <div class="w-full md:w-72 bg-white border-r border-gray-200 p-4 space-y-4 overflow-y-auto">
+          <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Chapters & Notes</h4>
+          <ul class="space-y-1 text-sm" id="modal-chapter-list">
+            <li><button class="w-full text-left px-3 py-2 rounded-lg bg-brand-50 text-brand-700 font-semibold text-xs">Chapter 1: Fundamental Concepts</button></li>
+            <li><button class="w-full text-left px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 text-xs">Chapter 2: Mathematical Foundations</button></li>
+            <li><button class="w-full text-left px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 text-xs">Chapter 3: Advanced Applications</button></li>
+            <li><button class="w-full text-left px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 text-xs">Chapter 4: Exam Practice Notes</button></li>
+          </ul>
+
+          <div class="pt-4 border-t border-gray-100 space-y-2">
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block">Reader Settings</span>
+            <div class="flex items-center justify-between text-xs text-gray-600">
+              <span>Font Size</span>
+              <div class="flex gap-1">
+                <button class="px-2 py-0.5 bg-gray-200 rounded text-xs font-bold">A-</button>
+                <button class="px-2 py-0.5 bg-brand-600 text-white rounded text-xs font-bold">A+</button>
+              </div>
+            </div>
+            <div class="flex items-center justify-between text-xs text-gray-600">
+              <span>Highlight Mode</span>
+              <span class="text-emerald-600 font-bold">Active</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Reading Area -->
+        <div class="flex-1 p-6 md:p-8 overflow-y-auto bg-white space-y-6">
+          <div class="flex justify-between items-center border-b border-gray-100 pb-4">
+            <span class="text-xs font-bold text-brand-600 uppercase tracking-widest">CHAPTER 1 • SYLLABUS REFERENCE</span>
+            <span class="text-xs text-gray-400">Page 1 of 42</span>
+          </div>
+
+          <h2 class="text-2xl font-bold text-gray-900" id="modal-chapter-heading">Introduction & Theoretical Scope</h2>
+
+          <div class="prose max-w-none text-gray-700 space-y-4 text-sm leading-relaxed" id="modal-reader-text">
+            <p class="bg-amber-50/80 p-3 rounded-lg border-l-4 border-amber-400 text-amber-900 text-xs font-medium">
+              💡 <strong>Exam Tip:</strong> This section frequently appears in mid-semester and university terminal examinations. Pay special attention to the proof outlined in Theorem 1.2.
+            </p>
+            <p>
+              Welcome to the digital edition. This text provides a comprehensive analytical breakdown tailored for academic excellence. Modern academic frameworks require both theoretical rigor and intuitive conceptual models.
+            </p>
+            <div class="p-4 bg-slate-900 text-slate-100 rounded-xl font-mono text-xs space-y-1">
+              <p class="text-slate-400">// Core Concept Reference Formula</p>
+              <p class="text-brand-300">T(n) = 2T(n/2) + O(n) &rArr; O(n log n)</p>
+            </div>
+            <p>
+              By leveraging semantic indexing, readers can seamlessly cross-reference footnotes, faculty annotations, and solved problem sets directly inline with the text.
+            </p>
+          </div>
+
+          <div class="pt-6 border-t border-gray-100 flex items-center justify-between">
+            <button class="px-4 py-2 border border-gray-300 rounded-xl text-xs font-semibold text-gray-600 hover:bg-gray-50">← Previous Page</button>
+            <button onclick="openNotification('Bookmarked Page 1 successfully!')" class="px-4 py-2 bg-brand-50 text-brand-700 rounded-xl text-xs font-semibold hover:bg-brand-100"> Bookmark Page</button>
+            <button class="px-4 py-2 bg-brand-600 text-white rounded-xl text-xs font-semibold hover:bg-brand-700">Next Page →</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= REQUEST BOOK MODAL ================= -->
+  <div id="request-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 class="text-lg font-bold text-gray-900">Request Custom Book / Resource</h3>
+        <button onclick="closeRequestModal()" class="text-gray-400 hover:text-gray-700 text-xl font-bold">&times;</button>
+      </div>
+
+      <form onsubmit="handleRequestSubmit(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Book / Paper Title</label>
+          <input type="text" required placeholder="e.g. Advanced Quantum Mechanics" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none"/>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Author or Subject Domain</label>
+          <input type="text" required placeholder="e.g. Dr. A. Sharma / Chemistry" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none"/>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Your Institutional Email</label>
+          <input type="email" required placeholder="student@university.edu" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none"/>
+        </div>
+        <button type="submit" class="w-full py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm rounded-xl shadow-md transition">
+          Submit Resource Request
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= NOTIFICATION TOAST ================= -->
+  <div id="notification-toast" class="fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl border border-slate-800 hidden items-center gap-3 transition-all transform translate-y-2">
+    <span class="w-2 h-2 rounded-full bg-brand-500 animate-ping"></span>
+    <span id="toast-message" class="text-sm font-medium">Notification message</span>
+  </div>
+
+  <!-- ================= JAVASCRIPT LOGIC ================= -->
+  <script>
+    // Sample Books Dataset
+    const booksData = [
+      {
+        id: "b1",
+        title: "Introduction to Algorithms (4th Ed)",
+        category: "Computer Science",
+        code: "cs",
+        author: "Cormen, Leiserson, Rivest",
+        pages: 1312,
+        rating: 4.9,
+        badge: "Core Textbook"
+      },
+      {
+        id: "b2",
+        title: "Organic Chemistry: Structure & Function",
+        category: "Chemistry",
+        code: "chem",
+        author: "Vollhardt & Schore",
+        pages: 980,
+        rating: 4.8,
+        badge: "Syllabus Standard"
+      },
+      {
+        id: "b3",
+        title: "Modern Operating Systems",
+        category: "Operating Systems",
+        code: "os",
+        author: "Andrew S. Tanenbaum",
+        pages: 1136,
+        rating: 4.9,
+        badge: "GATE Reference"
+      },
+      {
+        id: "b4",
+        title: "University Physics with Modern Physics",
+        category: "Physics",
+        code: "physics",
+        author: "Sears & Zemansky",
+        pages: 1600,
+        rating: 4.7,
+        badge: "Exam Essential"
+      },
+      {
+        id: "b5",
+        title: "Python for Data Analysis & AI",
+        category: "Data Science",
+        code: "ds",
+        author: "Wes McKinney",
+        pages: 550,
+        rating: 4.8,
+        badge: "Practical Guide"
+      },
+      {
+        id: "b6",
+        title: "Database System Concepts",
+        category: "Computer Science",
+        code: "cs",
+        author: "Silberschatz & Korth",
+        pages: 1376,
+        rating: 4.8,
+        badge: "Core Textbook"
+      },
+      {
+        id: "b7",
+        title: "Physical Chemistry: Thermodynamics",
+        category: "Chemistry",
+        code: "chem",
+        author: "P. W. Atkins",
+        pages: 1008,
+        rating: 4.6,
+        badge: "Reference Manual"
+      },
+      {
+        id: "b8",
+        title: "Deep Learning Fundamentals",
+        category: "Data Science",
+        code: "ds",
+        author: "Ian Goodfellow",
+        pages: 800,
+        rating: 4.9,
+        badge: "Advanced Track"
+      }
+    ];
+
+    // DOM References
+    const booksGrid = document.getElementById('books-grid');
+    const searchInput = document.getElementById('book-search-input');
+    const filterPills = document.querySelectorAll('.filter-pill');
+    const trackCards = document.querySelectorAll('.track-card');
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    // Mobile Menu Toggle
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+
+    // Render Book Cards
+    function renderBooks(list) {
+      booksGrid.innerHTML = '';
+
+      if (list.length === 0) {
+        booksGrid.innerHTML = `
+          <div class="col-span-full py-12 text-center text-gray-500 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+            <p class="text-base font-semibold">No books match your criteria.</p>
+            <p class="text-xs text-gray-400 mt-1">Try searching for different keywords or clearing filters.</p>
+          </div>`;
+        return;
+      }
+
+      list.forEach(book => {
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-2xl border border-gray-200/80 p-5 shadow-sm hover:shadow-lg transition-all flex flex-col justify-between group";
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-brand-50 text-brand-700">${book.badge}</span>
+              <span class="text-xs font-semibold text-amber-500 flex items-center gap-1">★ ${book.rating}</span>
+            </div>
+            <h4 class="font-bold text-gray-900 text-base mb-1 group-hover:text-brand-600 transition-colors line-clamp-2">${book.title}</h4>
+            <p class="text-xs text-gray-500 mb-4">By ${book.author}</p>
+          </div>
+          <div class="pt-4 border-t border-gray-100 flex items-center justify-between text-xs">
+            <span class="text-gray-400">${book.pages} pages</span>
+            <div class="flex items-center gap-2">
+              <button onclick="openTrackReaderModal('${book.title}', '${book.category}')" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-lg font-medium transition shadow-sm">
+                Read Book
+              </button>
+            </div>
+          </div>
+        `;
+        const downloadButton = document.createElement('button');
+        downloadButton.type = 'button';
+        downloadButton.className = 'px-2.5 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition';
+        downloadButton.textContent = 'Download notes';
+        downloadButton.addEventListener('click', () => {
+          window.dispatchEvent(new CustomEvent('library-download-request', { detail: { book } }));
+        });
+        card.querySelector('.pt-4.border-t > div').append(downloadButton);
+        booksGrid.appendChild(card);
+      });
+    }
+
+    // Filter Specializations Logic
+    function filterByDomain(domain) {
+      // Update Filter Pills active state
+      filterPills.forEach(pill => {
+        const filterVal = pill.getAttribute('data-filter');
+        if (filterVal === domain) {
+          pill.classList.add('bg-brand-600', 'text-white', 'shadow-sm');
+          pill.classList.remove('bg-gray-100/80', 'text-gray-700');
+        } else {
+          pill.classList.remove('bg-brand-600', 'text-white', 'shadow-sm');
+          pill.classList.add('bg-gray-100/80', 'text-gray-700');
+        }
+      });
+
+      // Filter Track Cards
+      trackCards.forEach(card => {
+        const category = card.getAttribute('data-category');
+        if (domain === 'all' || category === domain) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      // Also Filter Books catalog below
+      if (domain === 'all') {
+        renderBooks(booksData);
+      } else {
+        const filteredBooks = booksData.filter(b => b.code === domain);
+        renderBooks(filteredBooks);
+      }
+    }
+
+    // Attach Event Listeners to Filter Pills
+    filterPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        const domain = pill.getAttribute('data-filter');
+        filterByDomain(domain);
+      });
+    });
+
+    // Book Search Handler
+    searchInput.addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      const filtered = booksData.filter(b => 
+        b.title.toLowerCase().includes(q) || 
+        b.author.toLowerCase().includes(q) ||
+        b.category.toLowerCase().includes(q)
+      );
+      renderBooks(filtered);
+    });
+
+    // Hero Widget Chapter Randomizer
+    const topicsList = [
+      "Topic: QuickSort Partitioning Algorithm",
+      "Topic: Balanced AVL Tree Rotations",
+      "Topic: Multithreading & Semaphore Deadlocks",
+      "Topic: VSEPR Molecular Geometry Angles",
+      "Topic: Maxwell's Equations & Wave Motion"
+    ];
+
+    function shuffleChapterCode() {
+      const titleElem = document.getElementById('active-topic-title');
+      const randomTopic = topicsList[Math.floor(Math.random() * topicsList.length)];
+      titleElem.textContent = randomTopic;
+
+      // Animate random height bars
+      for (let i = 1; i <= 6; i++) {
+        const bar = document.getElementById(`bar-${i}`);
+        if (bar) {
+          const randomH = Math.floor(Math.random() * 70) + 25;
+          bar.style.height = `${randomH}%`;
+        }
+      }
+      openNotification("Loaded next reading chapter in preview widget!");
+    }
+
+    // Modal Handlers
+    function openTrackReaderModal(trackTitle, domain) {
+      document.getElementById('modal-track-title').textContent = trackTitle;
+      document.getElementById('modal-track-domain').textContent = `Domain: ${domain}`;
+      document.getElementById('modal-chapter-heading').textContent = `Overview & Syllabus Notes for ${trackTitle}`;
+      
+      document.getElementById('reader-modal').classList.remove('hidden');
+      document.getElementById('reader-modal').classList.add('flex');
+    }
+
+    function closeReaderModal() {
+      document.getElementById('reader-modal').classList.remove('flex');
+      document.getElementById('reader-modal').classList.add('hidden');
+    }
+
+    function openRequestBookModal() {
+      document.getElementById('request-modal').classList.remove('hidden');
+      document.getElementById('request-modal').classList.add('flex');
+    }
+
+    function closeRequestModal() {
+      document.getElementById('request-modal').classList.remove('flex');
+      document.getElementById('request-modal').classList.add('hidden');
+    }
+
+    function handleRequestSubmit(e) {
+      e.preventDefault();
+      closeRequestModal();
+      openNotification("Request submitted! Our library team will review it shortly.");
+    }
+
+    function handleSubscribe(e) {
+      e.preventDefault();
+      openNotification("Subscribed! You'll receive new textbook updates in your inbox.");
+    }
+
+    function openVideoTourModal() {
+      openNotification("Playing 2-Min Platform Walkthrough...");
+    }
+
+    // Notification Toast System
+    function openNotification(msg) {
+      const toast = document.getElementById('notification-toast');
+      const toastMsg = document.getElementById('toast-message');
+      
+      toastMsg.textContent = msg;
+      toast.classList.remove('hidden');
+      toast.classList.add('flex');
+      
+      setTimeout(() => {
+        toast.classList.remove('flex');
+        toast.classList.add('hidden');
+      }, 3500);
+    }
+
+    // Initial Load Render
+    renderBooks(booksData);
+  </script>
+  <script type="module">
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { auth, recordProgress, subscribeProgress } from "/home/progress-tracker.js";
+
+    const historyBody = document.getElementById('library-download-history');
+    const countLabel = document.getElementById('library-download-count');
+    let currentUser;
+    let stopWatching;
+    let authStateError;
+    let resolveAuthState;
+    const authStateReady = new Promise((resolve) => {
+      resolveAuthState = resolve;
+    });
+
+    function showHistoryMessage(message) {
+      historyBody.replaceChildren();
+      const row = document.createElement('tr');
+      const cell = document.createElement('td');
+      cell.colSpan = 3;
+      cell.className = 'px-5 py-6 text-center text-gray-500';
+      cell.textContent = message;
+      row.append(cell);
+      historyBody.append(row);
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      currentUser = user;
+      resolveAuthState();
+      if (stopWatching) stopWatching();
+      if (!user) {
+        countLabel.textContent = '0';
+        showHistoryMessage('Sign in to see your live download history.');
+        return;
+      }
+
+      stopWatching = subscribeProgress('e-library', user.uid, (entries) => {
+        const downloads = entries.filter((entry) => entry.eventType === 'resource_downloaded');
+        countLabel.textContent = String(downloads.length);
+        if (!downloads.length) {
+          showHistoryMessage('No files downloaded yet. Use “Download notes” on a catalog card to create a personal notes template.');
+          return;
+        }
+
+        historyBody.replaceChildren();
+        downloads.forEach((entry) => {
+          const row = document.createElement('tr');
+          row.className = 'border-t border-gray-100';
+          for (const value of [
+            entry.fileName || entry.title || 'Reading notes',
+            entry.resourceCategory || 'E-Library',
+            entry.createdAt?.toDate ? entry.createdAt.toDate().toLocaleString() : 'Saving...'
+          ]) {
+            const cell = document.createElement('td');
+            cell.className = 'px-5 py-3 text-gray-700';
+            cell.textContent = value;
+            row.append(cell);
+          }
+          historyBody.append(row);
+        });
+      }, (error) => {
+        console.error('E-Library download history could not be loaded:', error);
+        showHistoryMessage('Could not load your live history. Check the Firestore database and security rules setup.');
+      });
+    }, (error) => {
+      console.error('Firebase authentication state could not be loaded for E-Library history:', error);
+      authStateError = error;
+      resolveAuthState();
+      countLabel.textContent = '0';
+      showHistoryMessage('Could not verify your sign-in. Refresh the page and try again.');
+    });
+
+    window.addEventListener('library-download-request', async (event) => {
+      await authStateReady;
+      const book = event.detail.book;
+      if (!currentUser) {
+        if (authStateError) {
+          openNotification('Could not verify your sign-in. Refresh the page and try again.');
+          return;
+        }
+        const returnTo = encodeURIComponent(`${window.location.pathname}${window.location.search}#featured`);
+        window.location.assign(`/home/start_2.html?returnTo=${returnTo}`);
+        return;
+      }
+
+      const safeName = book.title.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase();
+      const fileName = `${safeName}-reading-notes.txt`;
+      const notes = [
+        'Virtual Learning Platform - Personal Reading Notes',
+        '',
+        `Resource: ${book.title}`,
+        `Category: ${book.category}`,
+        `Author listed in catalog: ${book.author}`,
+        `Created: ${new Date().toLocaleString()}`,
+        '',
+        'This is a blank, user-generated notes template. It does not contain the catalog book or its copyrighted text.',
+        '',
+        'Key ideas:',
+        '- ',
+        '',
+        'Questions to revisit:',
+        '- ',
+        '',
+        'My summary:',
+        ''
+      ].join('\n');
+
+      try {
+        const result = await recordProgress('e-library', currentUser, {
+          eventType: 'resource_downloaded',
+          title: `Downloaded reading notes for ${book.title}`,
+          fileName,
+          resourceCategory: book.category,
+          url: window.location.pathname
+        });
+        const fileUrl = URL.createObjectURL(new Blob([notes], { type: 'text/plain;charset=utf-8' }));
+        const link = document.createElement('a');
+        link.href = fileUrl;
+        link.download = fileName;
+        document.body.append(link);
+        link.click();
+        link.remove();
+        window.setTimeout(() => URL.revokeObjectURL(fileUrl), 1000);
+        openNotification(result.emailError
+          ? 'Notes downloaded and saved; email notification could not be sent.'
+          : 'Personal reading-notes template downloaded and saved to your history.');
+      } catch (error) {
+        console.error('E-Library download could not be recorded:', error);
+        window.alert('The download could not be saved to your history, so no file was downloaded. Check your connection and Firestore setup.');
+      }
+    });
+  </script>
+</body>
+</html>

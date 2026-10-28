@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPU Scheduling & Multi-Level Queue Virtual Lab</title>
+    <style>
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --accent-blue: #2563eb;
+            --accent-blue-hover: #1d4ed8;
+            --accent-green: #16a34a;
+            --accent-purple: #9333ea;
+            --accent-orange: #ea580c;
+            --border-color: #cbd5e1;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            line-height: 1.5;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 1250px;
+            margin: 0 auto;
+        }
+
+        header {
+            background-color: var(--bg-card);
+            padding: 1.25rem 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            color: var(--accent-blue);
+            margin-bottom: 0.25rem;
+        }
+
+        p.subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Dynamic Description Card */
+        .desc-card {
+            background-color: #eff6ff;
+            border-left: 5px solid var(--accent-blue);
+            border-radius: 6px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .desc-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .desc-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+
+        .desc-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .desc-text {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .desc-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 0.75rem;
+            font-size: 0.825rem;
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px dashed #bfdbfe;
+        }
+
+        /* Flexible Grid */
+        .lab-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 900px) {
+            .lab-grid {
+                grid-template-columns: 340px 1fr;
+            }
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--bg-body);
+        }
+
+        .form-group {
+            margin-bottom: 0.85rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.3rem;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 0.55rem 0.75rem;
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .btn {
+            padding: 0.6rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: background-color 0.2s;
+            width: 100%;
+        }
+
+        .btn-primary { background-color: var(--accent-blue); color: white; }
+        .btn-primary:hover { background-color: var(--accent-blue-hover); }
+        .btn-success { background-color: var(--accent-green); color: white; }
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            border-radius: 3px;
+            width: auto;
+        }
+
+        /* Responsive Tables */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.825rem;
+            text-align: left;
+            min-width: 500px;
+        }
+
+        th, td {
+            padding: 0.6rem 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        /* Gantt Chart */
+        .gantt-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            padding-bottom: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .gantt-chart {
+            display: flex;
+            min-width: max-content;
+        }
+
+        .gantt-block {
+            height: 48px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.825rem;
+            position: relative;
+            border-right: 1px solid white;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .gantt-block .time-start {
+            position: absolute;
+            bottom: -22px;
+            left: -6px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: normal;
+        }
+
+        .gantt-block .time-end {
+            position: absolute;
+            bottom: -22px;
+            right: -6px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: normal;
+        }
+
+        .gantt-block.idle {
+            background-color: #94a3b8 !important;
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .metric-card {
+            background-color: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 0.75rem;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--accent-blue);
+        }
+
+        .metric-label {
+            font-size: 0.725rem;
+            color: var(--text-secondary);
+        }
+
+        /* Palette */
+        .color-p1 { background-color: #2563eb; }
+        .color-p2 { background-color: #16a34a; }
+        .color-p3 { background-color: #9333ea; }
+        .color-p4 { background-color: #ea580c; }
+        .color-p5 { background-color: #db2777; }
+        .color-p6 { background-color: #0891b2; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>Process & CPU Scheduling Virtual Lab</h1>
+            <p class="subtitle">Complete implementation of Non-Preemptive, Preemptive, Multi-Level Queue, and Multi-Level Feedback Queue scheduling algorithms</p>
+        </header>
+
+        <!-- Dynamic Selected Algorithm Description -->
+        <div class="desc-card" id="descriptionBox"></div>
+
+        <!-- Main Interactive Lab Grid -->
+        <div class="lab-grid">
+            <!-- Left Controls -->
+            <div>
+                <div class="card">
+                    <div class="card-title">Algorithm Configuration</div>
+                    <div class="form-group">
+                        <label for="algorithm">Scheduling Category & Algorithm</label>
+                        <select id="algorithm" onchange="onAlgorithmChange()">
+                            <optgroup label="Non-Preemptive Scheduling">
+                                <option value="FCFS">First-Come, First-Served (FCFS)</option>
+                                <option value="SJF">Shortest Job First (SJF)</option>
+                                <option value="PRIORITY">Priority Scheduling (Non-Preemptive)</option>
+                            </optgroup>
+                            <optgroup label="Preemptive Scheduling">
+                                <option value="RR">Round Robin (RR)</option>
+                                <option value="SRTF">Shortest Remaining Time First (SRTF)</option>
+                            </optgroup>
+                            <optgroup label="Multi-Level Scheduling">
+                                <option value="MLQ">Multi-Level Queue (MLQ)</option>
+                                <option value="MLFQ">Multi-Level Feedback Queue (MLFQ)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <!-- Round Robin Settings -->
+                    <div class="form-group" id="quantumGroup" style="display: none;">
+                        <label for="quantum">Time Quantum (q)</label>
+                        <input type="number" id="quantum" value="2" min="1" onchange="runSimulation()">
+                    </div>
+
+                    <!-- MLFQ Settings -->
+                    <div id="mlfqGroup" style="display: none;">
+                        <div class="form-group">
+                            <label for="q1Quantum">Queue 1 Quantum (Q1 - RR)</label>
+                            <input type="number" id="q1Quantum" value="2" min="1" onchange="runSimulation()">
+                        </div>
+                        <div class="form-group">
+                            <label for="q2Quantum">Queue 2 Quantum (Q2 - RR)</label>
+                            <input type="number" id="q2Quantum" value="4" min="1" onchange="runSimulation()">
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="runSimulation()">Execute Simulation</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Add Process</div>
+                    <form id="processForm" onsubmit="addProcess(event)">
+                        <div class="form-group">
+                            <label for="procId">Process ID</label>
+                            <input type="text" id="procId" placeholder="e.g. P5" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="arrivalTime">Arrival Time (AT)</label>
+                            <input type="number" id="arrivalTime" value="0" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="burstTime">Burst Time (BT)</label>
+                            <input type="number" id="burstTime" value="4" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="priority">Priority (Lower = Higher)</label>
+                            <input type="number" id="priority" value="1" min="1" required>
+                        </div>
+                        <div class="form-group" id="queueTypeGroup">
+                            <label for="queueType">Queue Level (for MLQ)</label>
+                            <select id="queueType">
+                                <option value="FG">Foreground Queue (Interactive - RR)</option>
+                                <option value="BG">Background Queue (Batch - FCFS)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success">Add Process</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Output -->
+            <div>
+                <div class="card">
+                    <div class="card-title">Input Ready Queue</div>
+                    <div class="table-container">
+                        <table id="inputTable">
+                            <thead>
+                                <tr>
+                                    <th>Process</th>
+                                    <th>Arrival Time</th>
+                                    <th>Burst Time</th>
+                                    <th>Priority</th>
+                                    <th>MLQ Level</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Gantt Chart & Execution Deliverables</div>
+                    
+                    <label>Plotting Gantt Chart:</label>
+                    <div class="gantt-wrapper">
+                        <div class="gantt-chart" id="ganttChart"></div>
+                    </div>
+
+                    <label style="margin-top: 10px; display: block;">Execution Details:</label>
+                    <div class="table-container">
+                        <table id="resultsTable">
+                            <thead>
+                                <tr>
+                                    <th>Process</th>
+                                    <th>Arrival</th>
+                                    <th>Burst</th>
+                                    <th>Completion Time (CT)</th>
+                                    <th>Turnaround Time (TAT = CT-AT)</th>
+                                    <th>Waiting Time (WT = TAT-BT)</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-value" id="avgTAT">0.00</div>
+                            <div class="metric-label">Average Turnaround Time (TAT)</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="avgWT">0.00</div>
+                            <div class="metric-label">Average Waiting Time (AWT)</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="throughput">0.00</div>
+                            <div class="metric-label">Throughput (processes/unit time)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const descriptions = {
+            'FCFS': {
+                title: 'First-Come, First-Served (FCFS)',
+                type: 'Non-Preemptive',
+                logic: 'Processes are executed strictly in order of their arrival time in the ready queue.',
+                advantage: 'Simple, easy to implement with low overhead.',
+                disadvantage: 'Suffers from the Convoy Effect, where short processes wait for long ones.'
+            },
+            'SJF': {
+                title: 'Shortest Job First (SJF)',
+                type: 'Non-Preemptive',
+                logic: 'Selects the waiting process with the smallest execution (burst) time.',
+                advantage: 'Provides the minimal average waiting time for a given set of processes.',
+                disadvantage: 'Requires prior knowledge of burst duration and can cause starvation.'
+            },
+            'PRIORITY': {
+                title: 'Priority Scheduling',
+                type: 'Non-Preemptive',
+                logic: 'Allocates CPU to the process with the highest priority (lowest numerical rank).',
+                advantage: 'Allows critical system tasks to execute before lower priority jobs.',
+                disadvantage: 'Low-priority processes may suffer from indefinite starvation.'
+            },
+            'RR': {
+                title: 'Round Robin (RR)',
+                type: 'Preemptive',
+                logic: 'Assigns a fixed time slice (Time Quantum) to each process in cyclic turn order.',
+                advantage: 'Fair CPU allocation and excellent response time for interactive tasks.',
+                disadvantage: 'Overhead increases if time quantum is set too small due to context switches.'
+            },
+            'SRTF': {
+                title: 'Shortest Remaining Time First (SRTF)',
+                type: 'Preemptive',
+                logic: 'Preempts the running job if a new arrival has a shorter remaining burst time.',
+                advantage: 'Minimizes wait times dynamically as new jobs enter the system.',
+                disadvantage: 'Frequent preemptions increase context switching overhead.'
+            },
+            'MLQ': {
+                title: 'Multi-Level Queue Scheduling (MLQ)',
+                type: 'Preemptive / Priority-Based Multi-Queue',
+                logic: 'Partition processes into Foreground (Interactive - RR) and Background (Batch - FCFS) queues. Foreground queue takes absolute scheduling priority over Background queue.',
+                advantage: 'Separates workloads according to task characteristics.',
+                disadvantage: 'Background processes suffer starvation if Foreground queue is constantly busy.'
+            },
+            'MLFQ': {
+                title: 'Multi-Level Feedback Queue Scheduling (MLFQ)',
+                type: 'Preemptive Multi-Level Adaptive',
+                logic: 'Processes start in Queue 1 (RR, Q=2). If not finished, they demote to Queue 2 (RR, Q=4), and finally to Queue 3 (FCFS). Demonstrates dynamic process feedback.',
+                advantage: 'Prevents starvation, adapts to I/O-bound vs CPU-bound tasks dynamically.',
+                disadvantage: 'Complex implementation with multiple quantum and feedback thresholds.'
+            }
+        };
+
+        let processes = [
+            { id: 'P1', arrival: 0, burst: 6, priority: 2, queueType: 'FG' },
+            { id: 'P2', arrival: 1, burst: 4, priority: 1, queueType: 'FG' },
+            { id: 'P3', arrival: 2, burst: 8, priority: 3, queueType: 'BG' },
+            { id: 'P4', arrival: 3, burst: 3, priority: 4, queueType: 'BG' }
+        ];
+
+        const colors = ['color-p1', 'color-p2', 'color-p3', 'color-p4', 'color-p5', 'color-p6'];
+
+        function updateDescription() {
+            const algoKey = document.getElementById('algorithm').value;
+            const info = descriptions[algoKey];
+            const descBox = document.getElementById('descriptionBox');
+
+            descBox.innerHTML = `
+                <div class="desc-header">
+                    <span class="desc-title">${info.title}</span>
+                    <span class="desc-badge">${info.type}</span>
+                </div>
+                <div class="desc-text">${info.logic}</div>
+                <div class="desc-details">
+                    <div><strong>Key Advantage:</strong> ${info.advantage}</div>
+                    <div><strong>Main Limitation:</strong> ${info.disadvantage}</div>
+                </div>
+            `;
+        }
+
+        function onAlgorithmChange() {
+            const algo = document.getElementById('algorithm').value;
+            document.getElementById('quantumGroup').style.display = (algo === 'RR') ? 'block' : 'none';
+            document.getElementById('mlfqGroup').style.display = (algo === 'MLFQ') ? 'block' : 'none';
+            
+            updateDescription();
+            runSimulation();
+        }
+
+        function renderInputTable() {
+            const tbody = document.querySelector('#inputTable tbody');
+            tbody.innerHTML = '';
+            processes.forEach((p, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${p.id}</strong></td>
+                    <td>${p.arrival}</td>
+                    <td>${p.burst}</td>
+                    <td>${p.priority}</td>
+                    <td>${p.queueType === 'FG' ? 'Foreground (RR)' : 'Background (FCFS)'}</td>
+                    <td><button class="btn btn-danger" onclick="removeProcess(${index})">Remove</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function addProcess(e) {
+            e.preventDefault();
+            const id = document.getElementById('procId').value.trim();
+            const arrival = parseInt(document.getElementById('arrivalTime').value);
+            const burst = parseInt(document.getElementById('burstTime').value);
+            const priority = parseInt(document.getElementById('priority').value);
+            const queueType = document.getElementById('queueType').value;
+
+            if (processes.some(p => p.id === id)) {
+                alert('Process ID already exists.');
+                return;
+            }
+
+            processes.push({ id, arrival, burst, priority, queueType });
+            document.getElementById('procId').value = '';
+            renderInputTable();
+            runSimulation();
+        }
+
+        function removeProcess(index) {
+            processes.splice(index, 1);
+            renderInputTable();
+            runSimulation();
+        }
+
+        function runSimulation() {
+            if (processes.length === 0) {
+                document.getElementById('ganttChart').innerHTML = '';
+                document.querySelector('#resultsTable tbody').innerHTML = '';
+                document.getElementById('avgTAT').innerText = '0.00';
+                document.getElementById('avgWT').innerText = '0.00';
+                document.getElementById('throughput').innerText = '0.00';
+                return;
+            }
+
+            const algo = document.getElementById('algorithm').value;
+            let schedule = [];
+
+            if (algo === 'FCFS') schedule = solveFCFS();
+            else if (algo === 'SJF') schedule = solveSJF();
+            else if (algo === 'PRIORITY') schedule = solvePriority();
+            else if (algo === 'SRTF') schedule = solveSRTF();
+            else if (algo === 'RR') {
+                const q = parseInt(document.getElementById('quantum').value) || 2;
+                schedule = solveRR(q);
+            } else if (algo === 'MLQ') schedule = solveMLQ();
+            else if (algo === 'MLFQ') schedule = solveMLFQ();
+
+            renderResults(schedule);
+        }
+
+        // --- SCHEDULING ALGORITHMS ---
+
+        // 1. Non-Preemptive FCFS
+        function solveFCFS() {
+            let procs = [...processes].sort((a, b) => a.arrival - b.arrival);
+            let time = 0;
+            let schedule = [];
+
+            procs.forEach(p => {
+                if (time < p.arrival) {
+                    schedule.push({ id: 'IDLE', start: time, end: p.arrival });
+                    time = p.arrival;
+                }
+                schedule.push({ id: p.id, start: time, end: time + p.burst });
+                time += p.burst;
+            });
+
+            return schedule;
+        }
+
+        // 2. Non-Preemptive SJF
+        function solveSJF() {
+            let procs = processes.map(p => ({ ...p }));
+            let completed = 0;
+            let time = 0;
+            let schedule = [];
+            let n = procs.length;
+
+            while (completed < n) {
+                let available = procs.filter(p => p.arrival <= time && !p.isCompleted);
+                if (available.length === 0) {
+                    let nextArrival = Math.min(...procs.filter(p => !p.isCompleted).map(p => p.arrival));
+                    schedule.push({ id: 'IDLE', start: time, end: nextArrival });
+                    time = nextArrival;
+                    continue;
+                }
+
+                available.sort((a, b) => a.burst - b.burst || a.arrival - b.arrival);
+                let current = available[0];
+                schedule.push({ id: current.id, start: time, end: time + current.burst });
+                time += current.burst;
+                current.isCompleted = true;
+                completed++;
+            }
+
+            return schedule;
+        }
+
+        // 3. Non-Preemptive Priority
+        function solvePriority() {
+            let procs = processes.map(p => ({ ...p }));
+            let completed = 0;
+            let time = 0;
+            let schedule = [];
+            let n = procs.length;
+
+            while (completed < n) {
+                let available = procs.filter(p => p.arrival <= time && !p.isCompleted);
+                if (available.length === 0) {
+                    let nextArrival = Math.min(...procs.filter(p => !p.isCompleted).map(p => p.arrival));
+                    schedule.push({ id: 'IDLE', start: time, end: nextArrival });
+                    time = nextArrival;
+                    continue;
+                }
+
+                available.sort((a, b) => a.priority - b.priority || a.arrival - b.arrival);
+                let current = available[0];
+                schedule.push({ id: current.id, start: time, end: time + current.burst });
+                time += current.burst;
+                current.isCompleted = true;
+                completed++;
+            }
+
+            return schedule;
+        }
+
+        // 4. Preemptive SRTF
+        function solveSRTF() {
+            let procs = processes.map(p => ({ ...p, remaining: p.burst }));
+            let time = 0;
+            let completed = 0;
+            let n = procs.length;
+            let schedule = [];
+            let currentProc = null;
+            let startTime = 0;
+
+            while (completed < n) {
+                let available = procs.filter(p => p.arrival <= time && p.remaining > 0);
+
+                if (available.length === 0) {
+                    if (currentProc) {
+                        schedule.push({ id: currentProc.id, start: startTime, end: time });
+                        currentProc = null;
+                    }
+                    let nextArrival = Math.min(...procs.filter(p => p.remaining > 0).map(p => p.arrival));
+                    schedule.push({ id: 'IDLE', start: time, end: nextArrival });
+                    time = nextArrival;
+                    continue;
+                }
+
+                available.sort((a, b) => a.remaining - b.remaining || a.arrival - b.arrival);
+                let best = available[0];
+
+                if (!currentProc || currentProc.id !== best.id) {
+                    if (currentProc) {
+                        schedule.push({ id: currentProc.id, start: startTime, end: time });
+                    }
+                    currentProc = best;
+                    startTime = time;
+                }
+
+                best.remaining--;
+                time++;
+
+                if (best.remaining === 0) {
+                    completed++;
+                    schedule.push({ id: currentProc.id, start: startTime, end: time });
+                    currentProc = null;
+                }
+            }
+
+            return schedule;
+        }
+
+        // 5. Preemptive Round Robin
+        function solveRR(quantum) {
+            let procs = processes.map(p => ({ ...p, remaining: p.burst })).sort((a, b) => a.arrival - b.arrival);
+            let time = 0;
+            let queue = [];
+            let schedule = [];
+            let i = 0;
+            let n = procs.length;
+            let completed = 0;
+
+            while (completed < n) {
+                while (i < n && procs[i].arrival <= time) {
+                    queue.push(procs[i]);
+                    i++;
+                }
+
+                if (queue.length === 0) {
+                    schedule.push({ id: 'IDLE', start: time, end: procs[i].arrival });
+                    time = procs[i].arrival;
+                    while (i < n && procs[i].arrival <= time) {
+                        queue.push(procs[i]);
+                        i++;
+                    }
+                }
+
+                let current = queue.shift();
+                let execTime = Math.min(current.remaining, quantum);
+                schedule.push({ id: current.id, start: time, end: time + execTime });
+                time += execTime;
+                current.remaining -= execTime;
+
+                while (i < n && procs[i].arrival <= time) {
+                    queue.push(procs[i]);
+                    i++;
+                }
+
+                if (current.remaining > 0) {
+                    queue.push(current);
+                } else {
+                    completed++;
+                }
+            }
+
+            return schedule;
+        }
+
+        // 6. Multi-Level Queue (MLQ: Foreground = RR q=2, Background = FCFS)
+        function solveMLQ() {
+            let procs = processes.map(p => ({ ...p, remaining: p.burst })).sort((a, b) => a.arrival - b.arrival);
+            let time = 0;
+            let fgQueue = [];
+            let bgQueue = [];
+            let schedule = [];
+            let completed = 0;
+            let n = procs.length;
+            let i = 0;
+
+            while (completed < n) {
+                while (i < n && procs[i].arrival <= time) {
+                    if (procs[i].queueType === 'FG') fgQueue.push(procs[i]);
+                    else bgQueue.push(procs[i]);
+                    i++;
+                }
+
+                if (fgQueue.length === 0 && bgQueue.length === 0) {
+                    let nextArrival = procs[i].arrival;
+                    schedule.push({ id: 'IDLE', start: time, end: nextArrival });
+                    time = nextArrival;
+                    continue;
+                }
+
+                // Foreground Queue gets absolute priority (RR q=2)
+                if (fgQueue.length > 0) {
+                    let current = fgQueue.shift();
+                    let execTime = Math.min(current.remaining, 2);
+                    schedule.push({ id: current.id, start: time, end: time + execTime });
+                    time += execTime;
+                    current.remaining -= execTime;
+
+                    while (i < n && procs[i].arrival <= time) {
+                        if (procs[i].queueType === 'FG') fgQueue.push(procs[i]);
+                        else bgQueue.push(procs[i]);
+                        i++;
+                    }
+
+                    if (current.remaining > 0) fgQueue.push(current);
+                    else completed++;
+                } else if (bgQueue.length > 0) {
+                    // Background Queue (FCFS - preemptible if FG arrives)
+                    let current = bgQueue.shift();
+                    
+                    // Execute 1 unit at a time to check for FG preemption
+                    let execStart = time;
+                    while (current.remaining > 0) {
+                        current.remaining--;
+                        time++;
+                        
+                        while (i < n && procs[i].arrival <= time) {
+                            if (procs[i].queueType === 'FG') fgQueue.push(procs[i]);
+                            else bgQueue.push(procs[i]);
+                            i++;
+                        }
+
+                        if (fgQueue.length > 0 || current.remaining === 0) break;
+                    }
+
+                    schedule.push({ id: current.id, start: execStart, end: time });
+
+                    if (current.remaining > 0) bgQueue.unshift(current);
+                    else completed++;
+                }
+            }
+
+            return schedule;
+        }
+
+        // 7. Multi-Level Feedback Queue (MLFQ: Q1=RR q1, Q2=RR q2, Q3=FCFS)
+        function solveMLFQ() {
+            const q1Q = parseInt(document.getElementById('q1Quantum').value) || 2;
+            const q2Q = parseInt(document.getElementById('q2Quantum').value) || 4;
+
+            let procs = processes.map(p => ({ ...p, remaining: p.burst, queueLevel: 1 })).sort((a, b) => a.arrival - b.arrival);
+            let time = 0;
+            let q1 = [], q2 = [], q3 = [];
+            let schedule = [];
+            let completed = 0;
+            let n = procs.length;
+            let i = 0;
+
+            while (completed < n) {
+                while (i < n && procs[i].arrival <= time) {
+                    q1.push(procs[i]);
+                    i++;
+                }
+
+                if (q1.length === 0 && q2.length === 0 && q3.length === 0) {
+                    let nextArrival = procs[i].arrival;
+                    schedule.push({ id: 'IDLE', start: time, end: nextArrival });
+                    time = nextArrival;
+                    continue;
+                }
+
+                // Check Q1 (Highest Priority)
+                if (q1.length > 0) {
+                    let current = q1.shift();
+                    let execTime = Math.min(current.remaining, q1Q);
+                    schedule.push({ id: current.id, start: time, end: time + execTime });
+                    time += execTime;
+                    current.remaining -= execTime;
+
+                    while (i < n && procs[i].arrival <= time) {
+                        q1.push(procs[i]);
+                        i++;
+                    }
+
+                    if (current.remaining > 0) {
+                        current.queueLevel = 2;
+                        q2.push(current);
+                    } else completed++;
+                } 
+                // Check Q2 (Medium Priority)
+                else if (q2.length > 0) {
+                    let current = q2.shift();
+                    let execTime = Math.min(current.remaining, q2Q);
+                    
+                    // Preemptible step by step if Q1 gets new arrivals
+                    let execStart = time;
+                    let executed = 0;
+                    while (executed < execTime && current.remaining > 0) {
+                        current.remaining--;
+                        executed++;
+                        time++;
+
+                        while (i < n && procs[i].arrival <= time) {
+                            q1.push(procs[i]);
+                            i++;
+                        }
+
+                        if (q1.length > 0) break;
+                    }
+
+                    schedule.push({ id: current.id, start: execStart, end: time });
+
+                    if (current.remaining > 0) {
+                        if (executed === execTime) {
+                            current.queueLevel = 3;
+                            q3.push(current);
+                        } else {
+                            q2.unshift(current); // put back if preempted early
+                        }
+                    } else completed++;
+                } 
+                // Check Q3 (Lowest Priority - FCFS)
+                else if (q3.length > 0) {
+                    let current = q3.shift();
+                    let execStart = time;
+                    
+                    while (current.remaining > 0) {
+                        current.remaining--;
+                        time++;
+
+                        while (i < n && procs[i].arrival <= time) {
+                            q1.push(procs[i]);
+                            i++;
+                        }
+
+                        if (q1.length > 0) break;
+                    }
+
+                    schedule.push({ id: current.id, start: execStart, end: time });
+
+                    if (current.remaining > 0) {
+                        q3.unshift(current);
+                    } else completed++;
+                }
+            }
+
+            return schedule;
+        }
+
+        // --- RENDER DELIVERABLES ---
+        function renderResults(schedule) {
+            let mergedSchedule = [];
+            schedule.forEach(block => {
+                if (block.start === block.end) return;
+                if (mergedSchedule.length > 0 && mergedSchedule[mergedSchedule.length - 1].id === block.id) {
+                    mergedSchedule[mergedSchedule.length - 1].end = block.end;
+                } else {
+                    mergedSchedule.push({ ...block });
+                }
+            });
+
+            // Gantt Chart Rendering
+            const ganttContainer = document.getElementById('ganttChart');
+            ganttContainer.innerHTML = '';
+            mergedSchedule.forEach((block, idx) => {
+                const width = Math.max((block.end - block.start) * 28, 48);
+                const blockDiv = document.createElement('div');
+                blockDiv.className = `gantt-block ${block.id === 'IDLE' ? 'idle' : getColorClass(block.id)}`;
+                blockDiv.style.width = `${width}px`;
+                blockDiv.innerHTML = `
+                    <span>${block.id}</span>
+                    <span class="time-start">${block.start}</span>
+                    ${idx === mergedSchedule.length - 1 ? `<span class="time-end">${block.end}</span>` : ''}
+                `;
+                ganttContainer.appendChild(blockDiv);
+            });
+
+            // Metrics Calculation
+            let completionTimes = {};
+            mergedSchedule.forEach(block => {
+                if (block.id !== 'IDLE') {
+                    completionTimes[block.id] = block.end;
+                }
+            });
+
+            let totalTAT = 0;
+            let totalWT = 0;
+            const tbody = document.querySelector('#resultsTable tbody');
+            tbody.innerHTML = '';
+
+            processes.forEach(p => {
+                let ct = completionTimes[p.id] || 0;
+                let tat = ct - p.arrival;
+                let wt = tat - p.burst;
+                totalTAT += tat;
+                totalWT += wt;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${p.id}</strong></td>
+                    <td>${p.arrival}</td>
+                    <td>${p.burst}</td>
+                    <td>${ct}</td>
+                    <td>${tat}</td>
+                    <td>${wt}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            let n = processes.length;
+            let maxTime = mergedSchedule.length > 0 ? mergedSchedule[mergedSchedule.length - 1].end : 0;
+            
+            document.getElementById('avgTAT').innerText = (totalTAT / n).toFixed(2);
+            document.getElementById('avgWT').innerText = (totalWT / n).toFixed(2);
+            document.getElementById('throughput').innerText = maxTime > 0 ? (n / maxTime).toFixed(2) : '0.00';
+        }
+
+        function getColorClass(id) {
+            let index = processes.findIndex(p => p.id === id);
+            return colors[index % colors.length] || 'color-p1';
+        }
+
+        // Initialize on Load
+        renderInputTable();
+        updateDescription();
+        runSimulation();
+    </script>
+</body>
+</html>

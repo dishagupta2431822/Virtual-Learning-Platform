@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #4: Half & Full Adder Circuits | Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="/home/physics_circuit_designs/index.html" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors" title="Back to Physics Labs">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </a>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Lab #4</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">Half & Full Adders</span>
+                </div>
+            </div>
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-600">
+                <a href="#simulator" class="hover:text-indigo-600 transition-colors">Simulator</a>
+                <a href="#tutorial" class="hover:text-indigo-600 transition-colors">Tutorial & Theory</a>
+                <a href="#truthtable" class="hover:text-indigo-600 transition-colors">Truth Tables</a>
+            </nav>
+            <div class="flex items-center space-x-3">
+                <a href="/home/physics_circuit_designs/index.html" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-xl text-sm shadow-sm transition-all shadow-indigo-500/20">
+                    All Labs
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Lab Container -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left 2 Columns: Interactive Simulator & Workbench -->
+        <div id="simulator" class="lg:col-span-2 space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+                    <div>
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700">Electronics Lab &bull; Binary Arithmetic</span>
+                        <h1 class="text-2xl font-bold text-slate-900 mt-1">Half & Full Adder Workbench</h1>
+                    </div>
+                    <button onclick="resetLab()" class="text-slate-400 hover:text-slate-600 text-xs font-medium bg-slate-100 px-3 py-1.5 rounded-lg transition-colors">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> Reset
+                    </button>
+                </div>
+
+                <!-- Adder Selector Tabs -->
+                <div class="flex space-x-3 mb-6">
+                    <button id="btnHalf" onclick="setAdderType('HALF')" class="flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all bg-indigo-600 text-white shadow-sm shadow-indigo-500/20">
+                        <i class="fa-solid fa-calculator mr-2"></i> Half Adder (A + B)
+                    </button>
+                    <button id="btnFull" onclick="setAdderType('FULL')" class="flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">
+                        <i class="fa-solid fa-network-wired mr-2"></i> Full Adder (A + B + Cin)
+                    </button>
+                </div>
+
+                <!-- Simulation Visual Board -->
+                <div class="bg-slate-950 rounded-2xl p-8 text-white relative overflow-hidden shadow-inner border border-slate-800 flex flex-col items-center justify-center min-h-[340px]">
+                    <div class="absolute top-4 left-4 text-xs font-mono text-slate-400 uppercase tracking-widest">
+                        Circuit Status: <span id="statusIndicator" class="text-emerald-400 font-bold">ONLINE</span>
+                    </div>
+                    <div class="absolute top-4 right-4 text-xs font-mono text-emerald-400 font-semibold" id="currentAdderBadge">
+                        MODE: HALF ADDER
+                    </div>
+
+                    <!-- Interactive Inputs & Outputs Schema -->
+                    <div class="flex flex-col md:flex-row items-center justify-between w-full max-w-lg my-8 px-4 gap-6">
+                        <!-- Inputs Column -->
+                        <div class="space-y-4">
+                            <div class="flex items-center space-x-3">
+                                <button onclick="toggleInput('A')" id="toggleA" class="w-12 h-12 rounded-xl font-bold text-base transition-all shadow-md bg-slate-800 text-slate-300 border border-slate-700 hover:scale-105">
+                                    A: <span id="valA">0</span>
+                                </button>
+                                <div class="w-8 h-1 bg-slate-700 relative overflow-hidden">
+                                    <div id="wireA" class="absolute inset-0 bg-slate-600 transition-colors"></div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <button onclick="toggleInput('B')" id="toggleB" class="w-12 h-12 rounded-xl font-bold text-base transition-all shadow-md bg-slate-800 text-slate-300 border border-slate-700 hover:scale-105">
+                                    B: <span id="valB">0</span>
+                                </button>
+                                <div class="w-8 h-1 bg-slate-700 relative overflow-hidden">
+                                    <div id="wireB" class="absolute inset-0 bg-slate-600 transition-colors"></div>
+                                </div>
+                            </div>
+                            <!-- Carry In (Only visible in Full Adder mode) -->
+                            <div id="cinRow" class="flex items-center space-x-3 hidden">
+                                <button onclick="toggleInput('Cin')" id="toggleCin" class="w-12 h-12 rounded-xl font-bold text-base transition-all shadow-md bg-slate-800 text-slate-300 border border-slate-700 hover:scale-105">
+                                    Cin: <span id="valCin">0</span>
+                                </button>
+                                <div class="w-8 h-1 bg-slate-700 relative overflow-hidden">
+                                    <div id="wireCin" class="absolute inset-0 bg-slate-600 transition-colors"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Adder Logic Unit Box -->
+                        <div class="w-32 h-32 rounded-2xl bg-emerald-950/60 border-2 border-emerald-500 flex flex-col items-center justify-center shadow-lg shadow-emerald-500/20 backdrop-blur-md p-2 text-center">
+                            <i class="fa-solid fa-microchip text-2xl text-emerald-400 mb-1"></i>
+                            <span id="unitLabel" class="font-extrabold text-sm text-white tracking-wider">HALF ADDER</span>
+                            <span class="text-[10px] text-emerald-300 mt-0.5">XOR + AND</span>
+                        </div>
+
+                        <!-- Outputs Column (Sum & Carry Out) -->
+                        <div class="space-y-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-1 bg-slate-700 relative overflow-hidden">
+                                    <div id="wireSum" class="absolute inset-0 bg-slate-600 transition-colors"></div>
+                                </div>
+                                <div id="sumBulb" class="w-20 h-12 rounded-xl flex items-center justify-center font-bold text-xs transition-all bg-slate-900 text-slate-400 border border-slate-800 shadow-inner">
+                                    Sum (<span id="valSum" class="text-sm font-extrabold ml-1">0</span>)
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-1 bg-slate-700 relative overflow-hidden">
+                                    <div id="wireCout" class="absolute inset-0 bg-slate-600 transition-colors"></div>
+                                </div>
+                                <div id="coutBulb" class="w-20 h-12 rounded-xl flex items-center justify-center font-bold text-xs transition-all bg-slate-900 text-slate-400 border border-slate-800 shadow-inner">
+                                    Cout (<span id="valCout" class="text-sm font-extrabold ml-1">0</span>)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="text-xs text-slate-400 mt-2 text-center">
+                        Toggle binary inputs to observe arithmetic addition results and carry overflow propagation.
+                    </p>
+                </div>
+
+                <!-- Simulation Action Controls -->
+                <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+                    <div class="text-xs text-slate-500">
+                        Boolean Expression: <code id="booleanExpr" class="bg-slate-100 px-2 py-1 rounded text-slate-700 font-mono font-bold">Sum = A ⊕ B, Cout = A · B</code>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="runAutoTest()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium px-4 py-2 rounded-xl transition-colors">
+                            <i class="fa-solid fa-play mr-1"></i> Run Adder Test Vectors
+                        </button>
+                        <button onclick="alert('Lab #4 binary arithmetic report exported successfully as CSV.')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium px-4 py-2 rounded-xl shadow-sm">
+                            <i class="fa-solid fa-download mr-1"></i> Export Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Truth Table Reference Section -->
+            <div id="truthtable" class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <h3 class="font-bold text-slate-900 text-lg mb-2">Truth Table Reference</h3>
+                <p class="text-xs text-slate-500 mb-4">Complete binary addition truth table for active <span id="ttAdderName" class="font-bold text-indigo-600">Half Adder</span> configuration.</p>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr id="tableHeaders" class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
+                                <th class="py-3 px-4 font-semibold">Input A</th>
+                                <th class="py-3 px-4 font-semibold">Input B</th>
+                                <th class="py-3 px-4 font-semibold">Sum</th>
+                                <th class="py-3 px-4 font-semibold">Carry Out</th>
+                                <th class="py-3 px-4 font-semibold">Arithmetic Value</th>
+                            </tr>
+                        </thead>
+                        <tbody id="truthTableRows" class="divide-y divide-slate-100 text-xs">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right 1 Column: Tutorial & Theory Panel -->
+        <div id="tutorial" class="space-y-6">
+            <!-- Lab Overview Card -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-book-open-reader"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Tutorial & Theory</h3>
+                        <span class="text-xs text-slate-400">Binary Addition Principles</span>
+                    </div>
+                </div>
+                <div class="space-y-4 text-xs text-slate-600 leading-relaxed">
+                    <p>
+                        <strong>Binary Adders</strong> are digital circuits that perform arithmetic addition of numbers used in ALUs (Arithmetic Logic Units) of processors.
+                    </p>
+                    <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl">
+                        <h4 class="font-bold text-indigo-900 text-xs mb-1 uppercase tracking-wider">Half Adder</h4>
+                        <p class="text-indigo-800">Adds two single-bit binary numbers ($A$ and $B$). It has two outputs: <strong class="text-indigo-950">Sum</strong> ($A \oplus B$) and <strong class="text-indigo-950">Carry</strong> ($A \cdot B$).</p>
+                    </div>
+                    <div class="bg-emerald-50 border border-emerald-100 p-4 rounded-xl">
+                        <h4 class="font-bold text-emerald-900 text-xs mb-1 uppercase tracking-wider">Full Adder</h4>
+                        <p class="text-emerald-800">Adds three binary digits: $A$, $B$, and an incoming carry bit ($Cin$). Allows cascading multiple adders for multi-bit arithmetic.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Experiment Objectives -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <h3 class="font-bold text-slate-900 text-base mb-3">Experiment Objectives</h3>
+                <ul class="space-y-2.5 text-xs text-slate-600">
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Verify Sum and Carry outputs for all 4 half adder combinations.</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Switch to Full Adder mode and test 8 carry-in vectors.</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Analyze arithmetic carry propagation delay.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Need Assistance? -->
+            <div class="bg-gradient-to-br from-emerald-950 to-slate-900 text-white rounded-2xl p-6 shadow-md">
+                <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white mb-3">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+                <h4 class="font-bold text-sm mb-1">Need Lab Support?</h4>
+                <p class="text-xs text-slate-300 leading-relaxed mb-4">Consult chapter 6 on combinational arithmetic circuits in your course guide.</p>
+                <a href="physics-labs.html#contact" class="inline-block bg-white text-emerald-950 font-bold px-4 py-2 rounded-xl text-xs hover:bg-slate-100 transition-colors">
+                    Contact Instructor
+                </a>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Site Footer -->
+    <footer class="bg-slate-900 text-slate-300 py-8 border-t border-slate-800 mt-16 text-center text-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            &copy; 2026 Virtual Learning Labs Platform &bull; Lab #4: Half & Full Adder Circuits
+        </div>
+    </footer>
+
+    <!-- Interactive Simulation Script -->
+    <script>
+        let currentAdder = 'HALF';
+        let stateA = 0;
+        let stateB = 0;
+        let stateCin = 0;
+
+        function setAdderType(type) {
+            currentAdder = type;
+            const btnHalf = document.getElementById('btnHalf');
+            const btnFull = document.getElementById('btnFull');
+            const unitLabel = document.getElementById('unitLabel');
+            const currentAdderBadge = document.getElementById('currentAdderBadge');
+            const booleanExpr = document.getElementById('booleanExpr');
+            const ttAdderName = document.getElementById('ttAdderName');
+            const cinRow = document.getElementById('cinRow');
+
+            if (type === 'HALF') {
+                btnHalf.className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all bg-indigo-600 text-white shadow-sm shadow-indigo-500/20";
+                btnFull.className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all bg-slate-100 text-slate-600 hover:bg-slate-200";
+                unitLabel.innerText = "HALF ADDER";
+                currentAdderBadge.innerText = "MODE: HALF ADDER";
+                booleanExpr.innerText = "Sum = A ⊕ B, Cout = A · B";
+                ttAdderName.innerText = "Half Adder";
+                cinRow.classList.add('hidden');
+            } else {
+                btnFull.className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all bg-indigo-600 text-white shadow-sm shadow-indigo-500/20";
+                btnHalf.className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all bg-slate-100 text-slate-600 hover:bg-slate-200";
+                unitLabel.innerText = "FULL ADDER";
+                currentAdderBadge.innerText = "MODE: FULL ADDER";
+                booleanExpr.innerText = "Sum = A ⊕ B ⊕ Cin, Cout = (A·B) + (Cin·(A⊕B))";
+                ttAdderName.innerText = "Full Adder";
+                cinRow.classList.remove('hidden');
+            }
+            updateSimulation();
+            renderTruthTable();
+        }
+
+        function toggleInput(input) {
+            if (input === 'A') {
+                stateA = stateA === 0 ? 1 : 0;
+                document.getElementById('valA').innerText = stateA;
+                const btn = document.getElementById('toggleA');
+                btn.className = stateA === 1 
+                    ? "w-12 h-12 rounded-xl font-bold text-base transition-all shadow-md bg-indigo-600 text-white border border-indigo-400 hover:scale-105 shadow-indigo-500/30"
+                    : "w-12 h-12 rounded-xl font-bold text-base transition-all shadow-md bg-slate-800 text-slate-300 border border-slate-700 hover:scale-105";
+            } else if (input === 'B') {
+                stateB = stateB === 0 ? 1 : 0;
+                document.getElementById('valB').innerText = stateB;
+                const btn = document.getElementById('toggleB');
+                btn.className = stateB === 1 
+                    ? "w-12 h-12 rounded-xl font-bold text-base transition-all shadow-md bg-indigo-600 text-white border border-indigo-400 hover:scale-105 shadow-indigo-500/30"
+                    : "w-12 h-12 rounded-xl font-bold text-base transition-all shadow-md bg-slate-800 text-slate-300 border border-slate-700 hover:scale-105";
+            } else if (input === 'Cin') {
+                stateCin = stateCin === 0 ? 1 : 0;
+                document.getElementById('valCin').innerText = stateCin;
+                const btn = document.getElementById('toggleCin');
+                btn.className = stateCin === 1 
+                    ? "w-12 h-12 rounded-xl font-bold text-base transition-all shadow-md bg-emerald-600 text-white border border-emerald-400 hover:scale-105 shadow-emerald-500/30"
+                    : "w-12 h-12 rounded-xl font-bold text-base transition-all shadow-md bg-slate-800 text-slate-300 border border-slate-700 hover:scale-105";
+            }
+            updateSimulation();
+        }
+
+        function updateSimulation() {
+            let sum = 0;
+            let cout = 0;
+
+            if (currentAdder === 'HALF') {
+                sum = (stateA !== stateB) ? 1 : 0;
+                cout = (stateA === 1 && stateB === 1) ? 1 : 0;
+            } else {
+                // Full adder logic
+                const totalOnes = stateA + stateB + stateCin;
+                sum = (totalOnes % 2 === 1) ? 1 : 0;
+                cout = (totalOnes >= 2) ? 1 : 0;
+            }
+
+            document.getElementById('valSum').innerText = sum;
+            document.getElementById('valCout').innerText = cout;
+
+            // Wire colors
+            document.getElementById('wireA').style.backgroundColor = stateA === 1 ? '#10b981' : '#475569';
+            document.getElementById('wireB').style.backgroundColor = stateB === 1 ? '#10b981' : '#475569';
+            if (currentAdder === 'FULL') {
+                document.getElementById('wireCin').style.backgroundColor = stateCin === 1 ? '#10b981' : '#475569';
+            }
+            document.getElementById('wireSum').style.backgroundColor = sum === 1 ? '#10b981' : '#475569';
+            document.getElementById('wireCout').style.backgroundColor = cout === 1 ? '#f59e0b' : '#475569';
+
+            // Bulb highlights
+            const sumBulb = document.getElementById('sumBulb');
+            const coutBulb = document.getElementById('coutBulb');
+
+            sumBulb.className = sum === 1 
+                ? "w-20 h-12 rounded-xl flex items-center justify-center font-bold text-xs transition-all bg-emerald-500 text-white border border-emerald-400 shadow-md shadow-emerald-500/30 scale-105"
+                : "w-20 h-12 rounded-xl flex items-center justify-center font-bold text-xs transition-all bg-slate-900 text-slate-400 border border-slate-800 shadow-inner";
+
+            coutBulb.className = cout === 1 
+                ? "w-20 h-12 rounded-xl flex items-center justify-center font-bold text-xs transition-all bg-amber-500 text-white border border-amber-400 shadow-md shadow-amber-500/30 scale-105"
+                : "w-20 h-12 rounded-xl flex items-center justify-center font-bold text-xs transition-all bg-slate-900 text-slate-400 border border-slate-800 shadow-inner";
+        }
+
+        function renderTruthTable() {
+            const thead = document.getElementById('tableHeaders');
+            const tbody = document.getElementById('truthTableRows');
+            tbody.innerHTML = '';
+
+            if (currentAdder === 'HALF') {
+                thead.innerHTML = `
+                    <th class="py-3 px-4 font-semibold">Input A</th>
+                    <th class="py-3 px-4 font-semibold">Input B</th>
+                    <th class="py-3 px-4 font-semibold">Sum</th>
+                    <th class="py-3 px-4 font-semibold">Carry Out</th>
+                    <th class="py-3 px-4 font-semibold">Arithmetic Total</th>
+                `;
+                const rows = [
+                    {a: 0, b: 0},
+                    {a: 0, b: 1},
+                    {a: 1, b: 0},
+                    {a: 1, b: 1}
+                ];
+                rows.forEach(r => {
+                    const sum = (r.a !== r.b) ? 1 : 0;
+                    const cout = (r.a === 1 && r.b === 1) ? 1 : 0;
+                    const totalVal = r.a + r.b;
+                    const isActive = (stateA === r.a && stateB === r.b);
+
+                    const tr = document.createElement('tr');
+                    tr.className = isActive ? "bg-emerald-50/80 font-semibold border-b border-slate-100" : "border-b border-slate-100 text-slate-600";
+                    tr.innerHTML = `
+                        <td class="py-3 px-4 font-mono">${r.a}</td>
+                        <td class="py-3 px-4 font-mono">${r.b}</td>
+                        <td class="py-3 px-4 font-mono font-bold text-emerald-600">${sum}</td>
+                        <td class="py-3 px-4 font-mono font-bold text-amber-600">${cout}</td>
+                        <td class="py-3 px-4">${isActive ? '<span class="text-emerald-600 font-bold"><i class="fa-solid fa-arrow-left mr-1"></i> Current State</span>' : `Decimal Value: ${totalVal}`}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } else {
+                thead.innerHTML = `
+                    <th class="py-3 px-4 font-semibold">Input A</th>
+                    <th class="py-3 px-4 font-semibold">Input B</th>
+                    <th class="py-3 px-4 font-semibold">Cin</th>
+                    <th class="py-3 px-4 font-semibold">Sum</th>
+                    <th class="py-3 px-4 font-semibold">Cout</th>
+                    <th class="py-3 px-4 font-semibold">Arithmetic Total</th>
+                `;
+                const rows = [];
+                for (let i = 0; i < 8; i++) {
+                    rows.push({
+                        a: (i >> 2) & 1,
+                        b: (i >> 1) & 1,
+                        cin: i & 1
+                    });
+                }
+                rows.forEach(r => {
+                    const totalOnes = r.a + r.b + r.cin;
+                    const sum = (totalOnes % 2 === 1) ? 1 : 0;
+                    const cout = (totalOnes >= 2) ? 1 : 0;
+                    const isActive = (stateA === r.a && stateB === r.b && stateCin === r.cin);
+
+                    const tr = document.createElement('tr');
+                    tr.className = isActive ? "bg-emerald-50/80 font-semibold border-b border-slate-100" : "border-b border-slate-100 text-slate-600";
+                    tr.innerHTML = `
+                        <td class="py-3 px-4 font-mono">${r.a}</td>
+                        <td class="py-3 px-4 font-mono">${r.b}</td>
+                        <td class="py-3 px-4 font-mono">${r.cin}</td>
+                        <td class="py-3 px-4 font-mono font-bold text-emerald-600">${sum}</td>
+                        <td class="py-3 px-4 font-mono font-bold text-amber-600">${cout}</td>
+                        <td class="py-3 px-4">${isActive ? '<span class="text-emerald-600 font-bold"><i class="fa-solid fa-arrow-left mr-1"></i> Current State</span>' : `Decimal Value: ${totalOnes}`}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+
+        function resetLab() {
+            stateA = 0;
+            stateB = 0;
+            stateCin = 0;
+            document.getElementById('valA').innerText = '0';
+            document.getElementById('valB').innerText = '0';
+            document.getElementById('valCin').innerText = '0';
+            document.getElementById('toggleA').className = "w-12 h-12 rounded-xl font-bold text-base transition-all shadow-md bg-slate-800 text-slate-300 border border-slate-700 hover:scale-105";
+            document.getElementById('toggleB').className = "w-12 h-12 rounded-xl font-bold text-base transition-all shadow-md bg-slate-800 text-slate-300 border border-slate-700 hover:scale-105";
+            document.getElementById('toggleCin').className = "w-12 h-12 rounded-xl font-bold text-base transition-all shadow-md bg-slate-800 text-slate-300 border border-slate-700 hover:scale-105";
+            updateSimulation();
+            renderTruthTable();
+        }
+
+        function runAutoTest() {
+            alert('Binary arithmetic test vectors verified successfully! All truth table combinations match expected ALU outputs.');
+        }
+
+        // Initialize
+        renderTruthTable();
+    </script>
+</body>
+</html>

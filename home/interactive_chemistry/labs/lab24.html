@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #24: Calorimetry & Specific Heat Capacity | Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="../index.html" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 hover:opacity-90 transition-opacity">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </a>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Virtual Lab #24</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">Calorimetry & Specific Heat</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Thermal Energy Transfer Simulator
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+        <!-- Lab Header Info -->
+        <div class="mb-8">
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Calorimetry & Specific Heat Capacity</h1>
+            <p class="text-sm text-slate-500 mt-1">Measure thermal energy transfers, calculate specific heat capacities, and analyze heat exchange using coffee-cup and bomb calorimeters.</p>
+        </div>
+
+        <!-- Simulation Grid Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Control Panel -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between space-y-6">
+                <div>
+                    <h2 class="font-bold text-slate-900 text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-fire text-indigo-600"></i> Calorimeter Parameters
+                    </h2>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Calorimeter Type</label>
+                            <select id="calType" onchange="updateSimulation()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:border-indigo-500">
+                                <option value="coffeecup">Coffee-Cup Calorimeter (Constant Pressure)</option>
+                                <option value="bomb">Bomb Calorimeter (Constant Volume Combustion)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Metal Sample</label>
+                            <select id="metalSelect" onchange="updateSimulation()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:border-indigo-500">
+                                <option value="aluminum">Aluminum ($c = 0.900\text{ J/g}\cdot^\circ\text{C}$)</option>
+                                <option value="copper">Copper ($c = 0.385\text{ J/g}\cdot^\circ\text{C}$)</option>
+                                <option value="iron">Iron ($c = 0.449\text{ J/g}\cdot^\circ\text{C}$)</option>
+                                <option value="lead">Lead ($c = 0.128\text{ J/g}\cdot^\circ\text{C}$)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Metal Mass ($g$)</label>
+                            <input type="range" id="metalMass" min="20" max="200" step="10" value="100" oninput="updateSimulation()" class="w-full accent-indigo-600">
+                            <div class="flex justify-between text-[11px] text-slate-400 font-mono mt-1">
+                                <span>20 g</span>
+                                <span id="massVal" class="text-indigo-600 font-bold">100 g</span>
+                                <span>200 g</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Initial Metal Temperature ($^\circ\text{C}$)</label>
+                            <input type="range" id="metalTemp" min="60" max="100" step="5" value="95" oninput="updateSimulation()" class="w-full accent-indigo-600">
+                            <div class="flex justify-between text-[11px] text-slate-400 font-mono mt-1">
+                                <span>60 °C</span>
+                                <span id="tempVal" class="text-indigo-600 font-bold">95 °C</span>
+                                <span>100 °C</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <button onclick="resetLab()" class="text-xs text-slate-500 hover:text-slate-700 font-medium underline">
+                        Reset Experiment
+                    </button>
+                    <span class="text-xs text-slate-400"><i class="fa-solid fa-temperature-arrow-up text-indigo-600 mr-1"></i> $q_{\text{lost}} = q_{\text{gained}}$</span>
+                </div>
+            </div>
+
+            <!-- Right Visualizer & Analysis Panel -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Main Thermal Equilibrium Card -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 id="panelTitle" class="font-bold text-slate-900 text-base">Coffee-Cup Calorimetry Thermal Equilibrium</h3>
+                        <span id="statusBadge" class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">Equilibrium Reached</span>
+                    </div>
+
+                    <!-- Visual Temperature Display -->
+                    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 text-white flex flex-col items-center justify-center space-y-3 mb-6 h-40 relative overflow-hidden">
+                        <div class="text-xs font-mono text-slate-400">Final Equilibrium Temperature ($T_f$)</div>
+                        <div class="text-3xl font-extrabold text-amber-400 font-mono tracking-tight" id="finalTempDisplay">
+                            28.4 °C
+                        </div>
+                        <div class="text-[11px] font-mono text-indigo-300" id="heatTransferredDisplay">
+                            Heat Transferred ($q$): 2,895 Joules
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Water Mass & Temp</div>
+                            <div id="waterInfo" class="text-base font-bold text-indigo-600 font-mono">150 g @ 22.0 °C</div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Specific Heat Capacity ($c$)</div>
+                            <div id="specificHeatVal" class="text-base font-bold text-slate-800 font-mono">0.900 J/g·°C</div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Total Heat Exchanged</div>
+                            <div id="heatExchangedVal" class="text-base font-bold text-emerald-600 font-mono">2.90 kJ</div>
+                        </div>
+                    </div>
+
+                    <p id="labDesc" class="text-xs text-slate-600 leading-relaxed">
+                        In a coffee-cup calorimeter operating at constant pressure, heat lost by the hot metal equals heat gained by the water ($q_{\text{metal}} + q_{\text{water}} = 0$). By measuring the final equilibrium temperature, we can determine unknown specific heat capacities or reaction enthalpies.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs border-t border-slate-800">
+        &copy; 2026 Virtual Learning Platform. All rights reserved.
+    </footer>
+
+    <!-- Simulation Script -->
+    <script>
+        const metals = {
+            aluminum: { name: "Aluminum", c: 0.900 },
+            copper: { name: "Copper", c: 0.385 },
+            iron: { name: "Iron", c: 0.449 },
+            lead: { name: "Lead", c: 0.128 }
+        };
+
+        function resetLab() {
+            document.getElementById('metalMass').value = 100;
+            document.getElementById('metalTemp').value = 95;
+            updateSimulation();
+        }
+
+        function updateSimulation() {
+            const calType = document.getElementById('calType').value;
+            const metalKey = document.getElementById('metalSelect').value;
+            const metal = metals[metalKey];
+            const mMetal = parseFloat(document.getElementById('metalMass').value);
+            const tMetalInitial = parseFloat(document.getElementById('metalTemp').value);
+
+            document.getElementById('massVal').textContent = mMetal + " g";
+            document.getElementById('tempVal').textContent = tMetalInitial + " °C";
+
+            // Calorimeter water parameters (Standard 150 g water at 22.0 °C)
+            const mWater = 150; // grams
+            const cWater = 4.184; // J/g·°C
+            const tWaterInitial = 22.0;
+
+            // Thermal Equilibrium Formula:
+            // m_metal * c_metal * (T_f - T_metal) + m_water * c_water * (T_f - T_water) = 0
+            // T_f * (m_metal * c_metal + m_water * c_water) = m_metal * c_metal * T_metal + m_water * c_water * T_water
+            
+            const numerator = (mMetal * metal.c * tMetalInitial) + (mWater * cWater * tWaterInitial);
+            const denominator = (mMetal * metal.c) + (mWater * cWater);
+            const tFinal = numerator / denominator;
+
+            const qTransferred = mWater * cWater * (tFinal - tWaterInitial);
+
+            document.getElementById('panelTitle').textContent = calType === 'coffeecup' ? "Coffee-Cup Calorimetry Thermal Equilibrium" : "Bomb Calorimeter Combustion Exchange";
+            document.getElementById('finalTempDisplay').textContent = tFinal.toFixed(1) + " °C";
+            document.getElementById('heatTransferredDisplay').textContent = `Heat Transferred (q): ${Math.round(qTransferred).toLocaleString()} Joules`;
+            document.getElementById('waterInfo').textContent = `${mWater} g @ ${tWaterInitial.toFixed(1)} °C`;
+            document.getElementById('specificHeatVal').textContent = `${metal.c.toFixed(3)} J/g·°C`;
+            document.getElementById('heatExchangedVal').textContent = `${(qTransferred / 1000).toFixed(2)} kJ`;
+
+            document.getElementById('labDesc').textContent = calType === 'coffeecup' 
+                ? `A ${mMetal} g sample of ${metal.name} at ${tMetalInitial}°C is immersed in ${mWater} g of water at ${tWaterInitial}°C. At equilibrium, the final temperature reaches ${tFinal.toFixed(1)}°C, with ${Math.round(qTransferred).toLocaleString()} J of thermal energy transferred.`
+                : `In constant-volume bomb calorimetry, combustion of the sample releases energy absorbed by the surrounding water jacket and calorimeter hardware, reaching a final equilibrium temperature of ${tFinal.toFixed(1)}°C.`;
+        }
+
+        // Initial load
+        updateSimulation();
+    </script>
+</body>
+</html>

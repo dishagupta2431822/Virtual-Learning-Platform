@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #7: Thermochemistry & Enthalpy of Reaction</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.02); }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col selection:bg-blue-100 selection:text-blue-700">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-600 text-white p-2.5 rounded-xl shadow-md flex items-center justify-center">
+                    <i class="fa-solid fa-fire text-xl"></i>
+                </div>
+                <div>
+                    <span class="text-xs font-semibold tracking-wider text-blue-600 uppercase bg-blue-50 px-2 py-0.5 rounded-full">Virtual Chemistry Lab #7</span>
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">Thermochemistry & Enthalpy</h1>
+                </div>
+            </div>
+            
+            <nav class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 overflow-x-auto max-w-full">
+                <button onclick="switchTab('calorimetry')" id="tab-btn-calorimetry" class="px-4 py-2 text-sm font-semibold rounded-lg bg-white text-blue-600 shadow-sm transition-all flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-flask"></i>
+                    <span>Calorimetry Simulator</span>
+                </button>
+                <button onclick="switchTab('periodic')" id="tab-btn-periodic" class="px-4 py-2 text-sm font-medium rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 transition-all flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-table-cells"></i>
+                    <span>Elements (118) & Data</span>
+                </button>
+                <button onclick="switchTab('coordinate')" id="tab-btn-coordinate" class="px-4 py-2 text-sm font-medium rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 transition-all flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Energy Profiles</span>
+                </button>
+                <button onclick="switchTab('bonds')" id="tab-btn-bonds" class="px-4 py-2 text-sm font-medium rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 transition-all flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-atom"></i>
+                    <span>Bond Energies</span>
+                </button>
+                <button onclick="switchTab('quiz')" id="tab-btn-quiz" class="px-4 py-2 text-sm font-medium rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 transition-all flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-clipboard-question"></i>
+                    <span>Post-Lab Quiz</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6">
+
+        <!-- ================= TAB 1: CALORIMETRY SIMULATOR ================= -->
+        <section id="tab-calorimetry" class="space-y-6">
+            <!-- Intro Card -->
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-2xl p-6 shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold">Coffee-Cup Calorimetry Lab</h2>
+                    <p class="text-blue-100 text-sm mt-1 max-w-2xl">
+                        Measure heat changes ($q = mc\Delta T$) in real-time. Select a reaction, configure masses and initial temperatures, start the stirrer, and analyze temperature-time curves to determine molar enthalpy ($\Delta H$).
+                    </p>
+                </div>
+                <div class="flex items-center space-x-3 bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-xl border border-white/20">
+                    <div class="text-right">
+                        <div class="text-xs text-blue-200">Formula</div>
+                        <div class="text-sm font-mono font-bold">$q = - (m_{\text{total}} \cdot c \cdot \Delta T)$</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workspace Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Controls & Setup (Col 5) -->
+                <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
+                    <h3 class="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center justify-between">
+                        <span><i class="fa-solid fa-sliders text-blue-600 mr-2"></i>Reaction Parameters</span>
+                        <span id="calorimetry-status" class="text-xs px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 font-medium">Ready</span>
+                    </h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Select Chemical Reaction</label>
+                            <select id="reaction-select" onchange="updateReactionParams()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium">
+                                <option value="neutralization">1. Strong Acid + Strong Base (HCl + NaOH)</option>
+                                <option value="dissolution_nh4cl">2. Endothermic Dissolution ($NH_4Cl$ in $H_2O$)</option>
+                                <option value="dissolution_naoh">3. Exothermic Dissolution ($NaOH$ solid in $H_2O$)</option>
+                                <option value="metal_acid">4. Single Displacement ($Mg$ ribbon + $HCl$)</option>
+                            </select>
+                            <p id="reaction-desc" class="text-xs text-slate-500 mt-1.5 italic"></p>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1" id="label-mass-1">Solution Vol / Mass (mL/g)</label>
+                                <input type="number" id="input-mass-1" value="100" min="10" max="1000" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-medium">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1" id="label-mass-2">Reactant Mass (g)</label>
+                                <input type="number" id="input-mass-2" value="4.0" min="0.1" max="100" step="0.1" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-medium">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Initial Temp ($T_1$) (°C)</label>
+                                <input type="number" id="input-temp-init" value="21.5" min="0" max="100" step="0.1" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-medium">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Calorimeter Heat Cap. ($C_{cal}$)</label>
+                                <input type="number" id="input-ccal" value="12.5" min="0" max="100" step="0.5" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-medium">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="pt-2 flex items-center space-x-3">
+                        <button onclick="startCalorimetry()" id="btn-start" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md transition-all flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-play"></i>
+                            <span>Start Reaction</span>
+                        </button>
+                        <button onclick="resetCalorimetry()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold py-3 px-4 rounded-xl transition-all flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-rotate-right"></i>
+                            <span>Reset</span>
+                        </button>
+                        <button onclick="logCalorimetryTrial()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md transition-all flex items-center justify-center" title="Log Trial Data">
+                            <i class="fa-solid fa-book-bookmark"></i>
+                        </button>
+                    </div>
+
+                    <!-- Quick Live Stats -->
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 grid grid-cols-3 gap-2 text-center">
+                        <div>
+                            <div class="text-[11px] font-semibold text-slate-500 uppercase">Current T</div>
+                            <div id="stat-current-t" class="text-lg font-bold text-slate-900 font-mono">21.5 °C</div>
+                        </div>
+                        <div>
+                            <div class="text-[11px] font-semibold text-slate-500 uppercase">Delta T ($\Delta T$)</div>
+                            <div id="stat-deltat" class="text-lg font-bold text-blue-600 font-mono">0.0 °C</div>
+                        </div>
+                        <div>
+                            <div class="text-[11px] font-semibold text-slate-500 uppercase">Heat ($q$)</div>
+                            <div id="stat-q" class="text-lg font-bold text-slate-900 font-mono">0.0 J</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visualization & Graph (Col 7) -->
+                <div class="lg:col-span-7 flex flex-col space-y-6">
+                    <!-- Calorimeter Graphic & Thermometer View -->
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 relative flex flex-col md:flex-row items-center justify-around gap-6">
+                        <!-- Styrofoam Cup SVG Simulation -->
+                        <div class="relative w-48 h-56 flex items-center justify-center">
+                            <!-- Outer Styrofoam Cup -->
+                            <div class="absolute w-40 h-48 bg-gradient-to-b from-slate-100 to-slate-200 border-2 border-slate-300 rounded-b-3xl shadow-inner flex flex-col justify-end items-center overflow-hidden">
+                                <!-- Liquid Solution Inside -->
+                                <div id="cup-liquid" class="w-full h-3/4 bg-blue-200/70 transition-all duration-300 relative flex items-center justify-center overflow-hidden">
+                                    <!-- Stirrer Bar / Bubble Animation -->
+                                    <div class="absolute inset-0 flex items-center justify-center opacity-30">
+                                        <div id="stirrer-icon" class="text-2xl text-blue-600"><i class="fa-solid fa-tornado"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Thermometer Inserted -->
+                            <div class="absolute -top-4 right-12 w-4 h-56 bg-slate-300 border border-slate-400 rounded-full flex flex-col justify-end p-0.5 shadow-md">
+                                <div id="thermometer-mercury" class="w-full bg-red-500 rounded-full transition-all duration-300" style="height: 35%;"></div>
+                            </div>
+                            <!-- Lid -->
+                            <div class="absolute top-0 w-44 h-3 bg-slate-300 border border-slate-400 rounded-full shadow"></div>
+                        </div>
+
+                        <!-- Real-time Thermodynamic Results Box -->
+                        <div class="flex-1 space-y-3 w-full">
+                            <h4 class="font-bold text-slate-900 flex items-center space-x-2">
+                                <i class="fa-solid fa-square-root-variable text-blue-600"></i>
+                                <span>Real-time Calculation Summary</span>
+                            </h4>
+                            <div class="space-y-2 text-sm bg-slate-50 p-4 rounded-xl border border-slate-200 font-mono">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-600 font-sans">Max Temp ($T_2$):</span>
+                                    <span id="res-t2" class="font-bold text-slate-900">21.50 °C</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-600 font-sans">Temperature Change ($\Delta T$):</span>
+                                    <span id="res-deltat" class="font-bold text-blue-600">0.00 °C</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-600 font-sans">Solution Heat ($q_{\text{soln}}$):</span>
+                                    <span id="res-qsoln" class="font-bold text-slate-900">0.0 J</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-600 font-sans">Calorimeter Heat ($q_{\text{cal}}$):</span>
+                                    <span id="res-qcal" class="font-bold text-slate-900">0.0 J</span>
+                                </div>
+                                <div class="border-t border-slate-200 pt-2 flex justify-between text-base">
+                                    <span class="text-slate-800 font-sans font-bold">Molar Enthalpy ($\Delta H_{\text{rxn}}$):</span>
+                                    <span id="res-enthalpy" class="font-bold text-emerald-600">0.00 kJ/mol</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Temperature vs Time Chart -->
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="font-bold text-slate-900 flex items-center space-x-2">
+                                <i class="fa-solid fa-chart-area text-blue-600"></i>
+                                <span>Temperature vs. Time Curve</span>
+                            </h4>
+                            <span class="text-xs text-slate-500 font-medium">Sampling Rate: 1s</span>
+                        </div>
+                        <div class="h-64 relative">
+                            <canvas id="calorimetryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Logged Data Table -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-slate-900 flex items-center space-x-2">
+                        <i class="fa-solid fa-table text-blue-600"></i>
+                        <span>Experimental Trial Data Log</span>
+                    </h3>
+                    <button onclick="clearTrials()" class="text-xs text-red-600 hover:text-red-800 font-semibold px-3 py-1.5 bg-red-50 hover:bg-red-100 rounded-lg transition-all">
+                        Clear Table
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                                <th class="p-3 font-semibold">Trial #</th>
+                                <th class="p-3 font-semibold">Reaction</th>
+                                <th class="p-3 font-semibold">Mass / Vol</th>
+                                <th class="p-3 font-semibold">$T_1$ (°C)</th>
+                                <th class="p-3 font-semibold">$T_2$ (°C)</th>
+                                <th class="p-3 font-semibold">$\Delta T$ (°C)</th>
+                                <th class="p-3 font-semibold">Heat $q$ (J)</th>
+                                <th class="p-3 font-semibold">$\Delta H$ (kJ/mol)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trial-table-body">
+                            <tr class="border-b border-slate-100 text-slate-400 italic">
+                                <td colspan="8" class="p-4 text-center">No trials logged yet. Run a reaction and click the bookmark button.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 2: ELEMENTS (118) & DATA ================= -->
+        <section id="tab-periodic" class="hidden space-y-6">
+            <!-- Header Card -->
+            <div class="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl p-6 shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold">All 118 Chemical Elements & Thermodynamic Data</h2>
+                    <p class="text-slate-300 text-sm mt-1 max-w-2xl">
+                        Comprehensive reference table for all 118 elements. Adjust the temperature state slider to instantly visualize state changes (Solid, Liquid, Gas) and melting/boiling points across the periodic grid.
+                    </p>
+                </div>
+                <!-- Temp Slider Control -->
+                <div class="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 w-full md:w-72 space-y-2">
+                    <div class="flex justify-between text-xs text-slate-200 font-semibold">
+                        <span>Simulation Temp:</span>
+                        <span id="slider-temp-val" class="font-mono text-cyan-400">25 °C (Room)</span>
+                    </div>
+                    <input type="range" id="element-temp-slider" min="-273" max="6000" value="25" oninput="updateElementTempSimulation(this.value)" class="w-full accent-blue-500 cursor-pointer">
+                    <div class="flex justify-between text-[10px] text-slate-400 font-mono">
+                        <span>-273°C (0 K)</span>
+                        <span>25°C</span>
+                        <span>6000°C</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search & Filters -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-wrap gap-4 items-center justify-between">
+                <div class="relative flex-1 min-w-[240px]">
+                    <i class="fa-solid fa-search absolute left-3.5 top-3 text-slate-400"></i>
+                    <input type="text" id="element-search" oninput="filterElements()" placeholder="Search by name, symbol, or atomic number (e.g. Gold, Au, 79)..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex items-center space-x-2 overflow-x-auto pb-1 md:pb-0">
+                    <button onclick="filterCategory('all')" id="cat-btn-all" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 text-white shadow-sm transition-all">All</button>
+                    <button onclick="filterCategory('alkali')" id="cat-btn-alkali" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition-all">Alkali Metals</button>
+                    <button onclick="filterCategory('alkaline')" id="cat-btn-alkaline" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-orange-100 text-orange-700 hover:bg-orange-200 transition-all">Alkaline Earth</button>
+                    <button onclick="filterCategory('transition')" id="cat-btn-transition" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 transition-all">Transition Metals</button>
+                    <button onclick="filterCategory('metalloid')" id="cat-btn-metalloid" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition-all">Metalloids</button>
+                    <button onclick="filterCategory('halogen')" id="cat-btn-halogen" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-purple-100 text-purple-700 hover:bg-purple-200 transition-all">Halogens</button>
+                    <button onclick="filterCategory('noble')" id="cat-btn-noble" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-sky-100 text-sky-700 hover:bg-sky-200 transition-all">Noble Gases</button>
+                </div>
+            </div>
+
+            <!-- Periodic Table Grid (Responsive scroll container) -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 overflow-x-auto custom-scrollbar">
+                <div id="periodic-grid" class="grid grid-cols-18 gap-1.5 min-w-[950px]">
+                    <!-- Populated dynamically via JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 3: ENERGY PROFILES ================= -->
+        <section id="tab-coordinate" class="hidden space-y-6">
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-2xl p-6 shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold">Reaction Coordinate & Potential Energy Profiles</h2>
+                    <p class="text-emerald-100 text-sm mt-1 max-w-2xl">
+                        Visualize exothermic versus endothermic profiles. Toggle catalysts to observe transition state lowering, activation energy ($E_a$), and enthalpy change ($\Delta H$).
+                    </p>
+                </div>
+                <div class="flex bg-white/10 backdrop-blur-md p-1 rounded-xl border border-white/20">
+                    <button onclick="setProfileType('exothermic')" id="prof-btn-exo" class="px-4 py-2 text-xs font-bold rounded-lg bg-white text-emerald-700 shadow-sm transition-all">Exothermic ($\Delta H &lt; 0$)</button>
+                    <button onclick="setProfileType('endothermic')" id="prof-btn-endo" class="px-4 py-2 text-xs font-medium rounded-lg text-emerald-100 hover:bg-white/10 transition-all">Endothermic ($\Delta H &gt; 0$)</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Canvas Plot (Col 8) -->
+                <div class="lg:col-span-8 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-slate-900 flex items-center space-x-2">
+                            <i class="fa-solid fa-chart-line text-emerald-600"></i>
+                            <span id="profile-title">Exothermic Reaction Coordinate Diagram</span>
+                        </h3>
+                        <div class="flex items-center space-x-4 text-xs font-medium">
+                            <span class="flex items-center space-x-1"><span class="w-3 h-3 bg-blue-600 rounded-full inline-block"></span><span>Uncatalyzed</span></span>
+                            <span class="flex items-center space-x-1"><span class="w-3 h-3 bg-emerald-500 rounded-full inline-block"></span><span>Catalyzed</span></span>
+                        </div>
+                    </div>
+                    <div class="h-80 relative bg-slate-50 rounded-xl border border-slate-100 p-2 flex items-center justify-center">
+                        <canvas id="energyProfileCanvas" class="w-full h-full"></canvas>
+                    </div>
+                </div>
+
+                <!-- Controls & Stats (Col 4) -->
+                <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
+                    <h3 class="font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center space-x-2">
+                        <i class="fa-solid fa-sliders text-emerald-600"></i>
+                        <span>Profile Parameters</span>
+                    </h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                                <span>Activation Energy ($E_a$):</span>
+                                <span id="val-ea" class="font-mono text-emerald-600 font-bold">75 kJ</span>
+                            </div>
+                            <input type="range" id="slider-ea" min="40" max="120" value="75" oninput="updateProfileParams()" class="w-full accent-emerald-600">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                                <span>Enthalpy Change ($\Delta H$):</span>
+                                <span id="val-dh" class="font-mono text-emerald-600 font-bold">-50 kJ/mol</span>
+                            </div>
+                            <input type="range" id="slider-dh" min="-100" max="100" value="-50" oninput="updateProfileParams()" class="w-full accent-emerald-600">
+                        </div>
+
+                        <div class="pt-2">
+                            <label class="flex items-center space-x-3 p-3 bg-slate-50 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-100/80 transition-all">
+                                <input type="checkbox" id="check-catalyst" onchange="updateProfileParams()" class="w-4 h-4 text-emerald-600 rounded accent-emerald-600">
+                                <div class="text-xs">
+                                    <span class="font-bold text-slate-800 block">Add Enzyme / Catalyst</span>
+                                    <span class="text-slate-500">Lowers $E_a$ by 30% via alternate pathway</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2 text-xs font-mono">
+                        <div class="flex justify-between"><span class="text-slate-600 font-sans">Reactant Energy ($H_R$):</span><span id="stat-hr" class="font-bold">20.0 kJ</span></div>
+                        <div class="flex justify-between"><span class="text-slate-600 font-sans">Transition State ($H^{\ddagger}$):</span><span id="stat-hts" class="font-bold">95.0 kJ</span></div>
+                        <div class="flex justify-between"><span class="text-slate-600 font-sans">Product Energy ($H_P$):</span><span id="stat-hp" class="font-bold">-30.0 kJ</span></div>
+                        <div class="flex justify-between border-t border-slate-200 pt-2 font-bold"><span class="text-slate-800 font-sans">Reverse $E_a$ ($E_{a,\text{rev}}$):</span><span id="stat-earev" class="text-emerald-600">125.0 kJ</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 4: BOND ENERGIES ================= -->
+        <section id="tab-bonds" class="hidden space-y-6">
+            <div class="bg-gradient-to-r from-purple-600 to-indigo-700 text-white rounded-2xl p-6 shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold">Bond Dissociation Energy & Reaction Enthalpy</h2>
+                    <p class="text-purple-100 text-sm mt-1 max-w-2xl">
+                        Calculate theoretical $\Delta H$ by summing bond energies of bonds broken (endothermic, $+$) and bonds formed (exothermic, $-$).
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Preset Reactions (Col 5) -->
+                <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+                    <h3 class="font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center space-x-2">
+                        <i class="fa-solid fa-atom text-purple-600"></i>
+                        <span>Select Reaction Preset</span>
+                    </h3>
+                    <div class="space-y-2">
+                        <button onclick="loadBondReaction('ch4_cl2')" class="w-full text-left p-3 rounded-xl border border-slate-200 hover:border-purple-500 hover:bg-purple-50/50 transition-all flex justify-between items-center group">
+                            <div>
+                                <div class="font-bold text-sm text-slate-800 group-hover:text-purple-700">$CH_4 + Cl_2 \rightarrow CH_3Cl + HCl$</div>
+                                <div class="text-xs text-slate-500">Methane chlorination</div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-slate-400 group-hover:text-purple-600"></i>
+                        </button>
+
+                        <button onclick="loadBondReaction('h2_cl2')" class="w-full text-left p-3 rounded-xl border border-slate-200 hover:border-purple-500 hover:bg-purple-50/50 transition-all flex justify-between items-center group">
+                            <div>
+                                <div class="font-bold text-sm text-slate-800 group-hover:text-purple-700">$H_2 + Cl_2 \rightarrow 2HCl$</div>
+                                <div class="text-xs text-slate-500">Hydrogen chloride synthesis</div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-slate-400 group-hover:text-purple-600"></i>
+                        </button>
+
+                        <button onclick="loadBondReaction('c2h4_h2')" class="w-full text-left p-3 rounded-xl border border-slate-200 hover:border-purple-500 hover:bg-purple-50/50 transition-all flex justify-between items-center group">
+                            <div>
+                                <div class="font-bold text-sm text-slate-800 group-hover:text-purple-700">$C_2H_4 + H_2 \rightarrow C_2H_6$</div>
+                                <div class="text-xs text-slate-500">Ethylene hydrogenation</div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-slate-400 group-hover:text-purple-600"></i>
+                        </button>
+
+                        <button onclick="loadBondReaction('combustion_ch4')" class="w-full text-left p-3 rounded-xl border border-slate-200 hover:border-purple-500 hover:bg-purple-50/50 transition-all flex justify-between items-center group">
+                            <div>
+                                <div class="font-bold text-sm text-slate-800 group-hover:text-purple-700">$CH_4 + 2O_2 \rightarrow CO_2 + 2H_2O$</div>
+                                <div class="text-xs text-slate-500">Methane combustion</div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-slate-400 group-hover:text-purple-600"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Calculation Breakdown (Col 7) -->
+                <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
+                    <h3 class="font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center justify-between">
+                        <span><i class="fa-solid fa-calculator text-purple-600 mr-2"></i>Enthalpy Calculation Breakdown</span>
+                        <span id="bond-reaction-equation" class="text-xs font-mono bg-purple-50 text-purple-700 px-3 py-1 rounded-full font-bold">Select a reaction</span>
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-red-50/70 p-4 rounded-xl border border-red-200 space-y-2">
+                            <div class="text-xs font-bold text-red-800 uppercase tracking-wider flex items-center justify-between">
+                                <span>Bonds Broken (Reactants)</span>
+                                <span>(+) Endothermic</span>
+                            </div>
+                            <div id="bonds-broken-list" class="space-y-1 text-xs font-mono text-slate-700 max-h-40 overflow-y-auto">
+                                <div class="text-slate-400 italic">No bonds selected.</div>
+                            </div>
+                            <div class="border-t border-red-200 pt-2 flex justify-between text-sm font-bold font-mono text-red-900">
+                                <span>Total Energy In:</span>
+                                <span id="total-energy-in">+0 kJ/mol</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-emerald-50/70 p-4 rounded-xl border border-emerald-200 space-y-2">
+                            <div class="text-xs font-bold text-emerald-800 uppercase tracking-wider flex items-center justify-between">
+                                <span>Bonds Formed (Products)</span>
+                                <span>(-) Exothermic</span>
+                            </div>
+                            <div id="bonds-formed-list" class="space-y-1 text-xs font-mono text-slate-700 max-h-40 overflow-y-auto">
+                                <div class="text-slate-400 italic">No bonds selected.</div>
+                            </div>
+                            <div class="border-t border-emerald-200 pt-2 flex justify-between text-sm font-bold font-mono text-emerald-900">
+                                <span>Total Energy Out:</span>
+                                <span id="total-energy-out">-0 kJ/mol</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 text-white p-4 rounded-xl flex items-center justify-between shadow-md">
+                        <div>
+                            <div class="text-xs text-slate-400 font-medium">Net Reaction Enthalpy ($\Delta H_{\text{rxn}}$)</div>
+                            <div class="text-xs text-slate-300 mt-0.5">$\sum \text{Bonds Broken} - \sum \text{Bonds Formed}$</div>
+                        </div>
+                        <div id="net-bond-enthalpy" class="text-2xl font-bold font-mono text-cyan-400">0 kJ/mol</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 5: POST-LAB QUIZ ================= -->
+        <section id="tab-quiz" class="hidden space-y-6">
+            <div class="bg-gradient-to-r from-amber-600 to-orange-700 text-white rounded-2xl p-6 shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold">Post-Lab Assessment & Knowledge Check</h2>
+                    <p class="text-amber-100 text-sm mt-1 max-w-2xl">
+                        Test your mastery of thermochemical principles, calorimetry error analysis, and enthalpy calculations.
+                    </p>
+                </div>
+                <div id="quiz-score-badge" class="bg-white/10 backdrop-blur-md px-5 py-2.5 rounded-xl border border-white/20 text-center hidden">
+                    <div class="text-xs text-amber-200">Final Score</div>
+                    <div id="quiz-score-val" class="text-lg font-bold font-mono">0 / 5</div>
+                </div>
+            </div>
+
+            <div id="quiz-container" class="space-y-6">
+                <!-- Dynamically populated quiz questions -->
+            </div>
+
+            <div class="flex justify-end">
+                <button onclick="submitQuiz()" id="btn-submit-quiz" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-xl shadow-md transition-all flex items-center space-x-2">
+                    <i class="fa-solid fa-check-double"></i>
+                    <span>Submit Quiz Answers</span>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Element Inspector Modal -->
+    <div id="element-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 transform transition-all">
+            <div id="modal-header" class="p-6 bg-slate-900 text-white flex justify-between items-start">
+                <div>
+                    <span id="modal-category" class="text-xs uppercase font-semibold tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full">Transition Metal</span>
+                    <h3 id="modal-name" class="text-2xl font-bold mt-1">Gold (Au)</h3>
+                </div>
+                <button onclick="closeElementModal()" class="text-slate-400 hover:text-white p-2 text-xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-6 space-y-5">
+                <div class="grid grid-cols-3 gap-3 text-center">
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <div class="text-xs text-slate-500 font-semibold">Atomic Number</div>
+                        <div id="modal-number" class="text-lg font-bold text-slate-900 font-mono">79</div>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <div class="text-xs text-slate-500 font-semibold">Atomic Mass</div>
+                        <div id="modal-mass" class="text-lg font-bold text-slate-900 font-mono">196.97</div>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <div class="text-xs text-slate-500 font-semibold">Electronegativity</div>
+                        <div id="modal-electronegativity" class="text-lg font-bold text-slate-900 font-mono">2.54</div>
+                    </div>
+                </div>
+
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between border-b border-slate-100 pb-2">
+                        <span class="text-slate-600 font-semibold">Electron Configuration:</span>
+                        <span id="modal-config" class="font-mono text-slate-800">[Xe] 4f¹⁴ 5d¹⁰ 6s¹</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-100 pb-2">
+                        <span class="text-slate-600 font-semibold">Melting Point:</span>
+                        <span id="modal-melting" class="font-mono text-slate-800">1064 °C</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-100 pb-2">
+                        <span class="text-slate-600 font-semibold">Boiling Point:</span>
+                        <span id="modal-boiling" class="font-mono text-slate-800">2856 °C</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-100 pb-2">
+                        <span class="text-slate-600 font-semibold">Specific Heat Capacity:</span>
+                        <span id="modal-heatcap" class="font-mono text-slate-800">0.129 J/g·°C</span>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-xs text-blue-900">
+                    <span class="font-bold block mb-1">Thermochemical Note:</span>
+                    <span id="modal-summary">High resistance to oxidation and corrosion; excellent thermal and electrical conductor.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <main class="w-full">
+        <footer class="bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-500">
+            <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-3">
+                <div>Lab #7: Thermochemistry & Enthalpy Simulator &bull; Chemistry Virtual Lab Suite</div>
+                <div class="flex space-x-4">
+                    <a href="#" class="hover:text-blue-600">Safety Protocol</a>
+                    <a href="#" class="hover:text-blue-600">Constants Table</a>
+                    <a href="#" class="hover:text-blue-600">Export Report</a>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // ================= TAB NAVIGATION =================
+        function switchTab(tabId) {
+            const tabs = ['calorimetry', 'periodic', 'coordinate', 'bonds', 'quiz'];
+            tabs.forEach(t => {
+                document.getElementById('tab-' + t).classList.add('hidden');
+                const btn = document.getElementById('tab-btn-' + t);
+                btn.className = "px-4 py-2 text-sm font-medium rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 transition-all flex items-center space-x-2 whitespace-nowrap";
+            });
+
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            const activeBtn = document.getElementById('tab-btn-' + tabId);
+            activeBtn.className = "px-4 py-2 text-sm font-semibold rounded-lg bg-white text-blue-600 shadow-sm transition-all flex items-center space-x-2 whitespace-nowrap";
+
+            if (tabId === 'periodic' && periodicElements.length === 0) {
+                initPeriodicTable();
+            } else if (tabId === 'coordinate') {
+                drawEnergyProfile();
+            } else if (tabId === 'bonds' && currentBondReaction === null) {
+                loadBondReaction('ch4_cl2');
+            } else if (tabId === 'quiz' && quizLoaded === false) {
+                initQuiz();
+            }
+        }
+
+        // ================= CALORIMETRY SIMULATOR LOGIC =================
+        let calorimetryChartInstance = null;
+        let isRunningCalorimetry = false;
+        let calorimetryTimer = null;
+        let currentTrialData = null;
+        let trialLog = [];
+
+        const reactionsData = {
+            neutralization: {
+                name: "HCl + NaOH Neutralization",
+                desc: "Strong acid and strong base neutralization reaction. Exothermic.",
+                defaultMass1: 100, // mL solution
+                defaultMass2: 4.0, // NaOH g
+                c: 4.184, // J/g°C
+                deltaH: -57.3, // kJ/mol
+                maxTInc: 13.5
+            },
+            dissolution_nh4cl: {
+                name: "NH4Cl Dissolution in Water",
+                desc: "Ammonium chloride dissolving in water. Endothermic (absorbs heat).",
+                defaultMass1: 100,
+                defaultMass2: 5.0,
+                c: 4.184,
+                deltaH: +14.8,
+                maxTInc: -4.2
+            },
+            dissolution_naoh: {
+                name: "NaOH Solid Dissolution",
+                desc: "Sodium hydroxide pellets dissolving in water. Highly exothermic.",
+                defaultMass1: 100,
+                defaultMass2: 4.0,
+                c: 4.184,
+                deltaH: -44.5,
+                maxTInc: 18.2
+            },
+            metal_acid: {
+                name: "Magnesium Ribbon + HCl",
+                desc: "Single displacement reaction releasing hydrogen gas and heat.",
+                defaultMass1: 50,
+                defaultMass2: 0.5, // Mg g
+                c: 4.184,
+                deltaH: -462.0,
+                maxTInc: 22.0
+            }
+        };
+
+        function updateReactionParams() {
+            const key = document.getElementById('reaction-select').value;
+            const rxn = reactionsData[key];
+            document.getElementById('reaction-desc').innerText = rxn.desc;
+            document.getElementById('input-mass-1').value = rxn.defaultMass1;
+            document.getElementById('input-mass-2').value = rxn.defaultMass2;
+            resetCalorimetry();
+        }
+
+        function initCalorimetryChart() {
+            const ctx = document.getElementById('calorimetryChart').getContext('2d');
+            if (calorimetryChartInstance) calorimetryChartInstance.destroy();
+
+            calorimetryChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                    datasets: [{
+                        label: 'Temperature (°C)',
+                        data: [21.5, 21.5, 21.5, 21.5, 21.5, 21.5, 21.5, 21.5, 21.5, 21.5, 21.5],
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            grid: { color: '#f1f5f9' },
+                            ticks: { font: { family: 'monospace' } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            title: { display: true, text: 'Time (seconds)', font: { size: 12 } }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function startCalorimetry() {
+            if (isRunningCalorimetry) return;
+            isRunningCalorimetry = true;
+            document.getElementById('calorimetry-status').innerText = "Running Reaction...";
+            document.getElementById('calorimetry-status').className = "text-xs px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 font-medium animate-pulse";
+            document.getElementById('btn-start').disabled = true;
+
+            const rxnKey = document.getElementById('reaction-select').value;
+            const rxn = reactionsData[rxnKey];
+            const T1 = parseFloat(document.getElementById('input-temp-init').value);
+            const m1 = parseFloat(document.getElementById('input-mass-1').value);
+            const m2 = parseFloat(document.getElementById('input-mass-2').value);
+            const Ccal = parseFloat(document.getElementById('input-ccal').value);
+
+            let timeStep = 0;
+            const maxSteps = 20;
+            let temps = [];
+            let labels = [];
+
+            for (let i = 0; i <= maxSteps; i++) {
+                labels.push(i);
+                if (i <= 3) {
+                    temps.push(T1);
+                } else {
+                    // Sigmoidal temperature curve
+                    let progress = (i - 3) / (maxSteps - 3);
+                    let smoothProg = 1 - Math.exp(-3 * progress);
+                    let currentT = T1 + rxn.maxTInc * smoothProg;
+                    temps.push(parseFloat(currentT.toFixed(2)));
+                }
+            }
+
+            let currentIdx = 0;
+            calorimetryTimer = setInterval(() => {
+                if (currentIdx <= maxSteps) {
+                    let t = temps[currentIdx];
+                    calorimetryChartInstance.data.labels = labels.slice(0, currentIdx + 1);
+                    calorimetryChartInstance.data.datasets[0].data = temps.slice(0, currentIdx + 1);
+                    calorimetryChartInstance.update();
+
+                    document.getElementById('stat-current-t').innerText = t.toFixed(1) + " °C";
+                    let deltaT = t - T1;
+                    document.getElementById('stat-deltat').innerText = deltaT.toFixed(2) + " °C";
+
+                    let totalMass = m1 + m2;
+                    let qSoln = totalMass * rxn.c * deltaT;
+                    let qCal = Ccal * deltaT;
+                    let qTotal = -(qSoln + qCal);
+                    document.getElementById('stat-q').innerText = qTotal.toFixed(0) + " J";
+
+                    // Update visual thermometer and liquid color
+                    let mercuryHeight = Math.min(90, Math.max(10, ((t - 10) / 40) * 100));
+                    document.getElementById('thermometer-mercury').style.height = mercuryHeight + '%';
+                    
+                    if (rxn.maxTInc > 0) {
+                        document.getElementById('cup-liquid').className = "w-full h-3/4 bg-red-200/80 transition-all duration-300 relative flex items-center justify-center overflow-hidden";
+                    } else {
+                        document.getElementById('cup-liquid').className = "w-full h-3/4 bg-cyan-200/80 transition-all duration-300 relative flex items-center justify-center overflow-hidden";
+                    }
+
+                    currentIdx++;
+                } else {
+                    clearInterval(calorimetryTimer);
+                    isRunningCalorimetry = false;
+                    document.getElementById('calorimetry-status').innerText = "Complete";
+                    document.getElementById('calorimetry-status').className = "text-xs px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 font-medium";
+                    document.getElementById('btn-start').disabled = false;
+
+                    // Final calculation storage
+                    let T2 = temps[maxSteps];
+                    let deltaT = T2 - T1;
+                    let totalMass = m1 + m2;
+                    let qSoln = totalMass * rxn.c * deltaT;
+                    let qCal = Ccal * deltaT;
+                    let qTotal = -(qSoln + qCal);
+                    
+                    document.getElementById('res-t2').innerText = T2.toFixed(2) + " °C";
+                    document.getElementById('res-deltat').innerText = deltaT.toFixed(2) + " °C";
+                    document.getElementById('res-qsoln').innerText = qSoln.toFixed(1) + " J";
+                    document.getElementById('res-qcal').innerText = qCal.toFixed(1) + " J";
+                    document.getElementById('res-enthalpy').innerText = rxn.deltaH.toFixed(1) + " kJ/mol";
+
+                    currentTrialData = {
+                        reaction: rxn.name,
+                        massVol: totalMass + " g/mL",
+                        t1: T1,
+                        t2: T2,
+                        deltaT: deltaT.toFixed(2),
+                        q: qTotal.toFixed(1),
+                        deltaH: rxn.deltaH.toFixed(1)
+                    };
+                }
+            }, 300);
+        }
+
+        function resetCalorimetry() {
+            if (calorimetryTimer) clearInterval(calorimetryTimer);
+            isRunningCalorimetry = false;
+            document.getElementById('calorimetry-status').innerText = "Ready";
+            document.getElementById('calorimetry-status').className = "text-xs px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 font-medium";
+            document.getElementById('btn-start').disabled = false;
+            document.getElementById('stat-current-t').innerText = document.getElementById('input-temp-init').value + " °C";
+            document.getElementById('stat-deltat').innerText = "0.0 °C";
+            document.getElementById('stat-q').innerText = "0.0 J";
+            document.getElementById('thermometer-mercury').style.height = "35%";
+            document.getElementById('cup-liquid').className = "w-full h-3/4 bg-blue-200/70 transition-all duration-300 relative flex items-center justify-center overflow-hidden";
+            initCalorimetryChart();
+        }
+
+        function logCalorimetryTrial() {
+            if (!currentTrialData) {
+                alert("Please run a completed reaction trial before logging.");
+                return;
+            }
+            trialLog.push(currentTrialData);
+            const tbody = document.getElementById('trial-table-body');
+            tbody.innerHTML = '';
+            trialLog.forEach((trial, index) => {
+                tbody.innerHTML += `
+                    <tr class="border-b border-slate-100 hover:bg-slate-50">
+                        <td class="p-3 font-bold text-slate-800">Trial #${index + 1}</td>
+                        <td class="p-3 text-slate-700">${trial.reaction}</td>
+                        <td class="p-3 font-mono">${trial.massVol}</td>
+                        <td class="p-3 font-mono">${trial.t1}</td>
+                        <td class="p-3 font-mono">${trial.t2}</td>
+                        <td class="p-3 font-mono text-blue-600 font-bold">${trial.deltaT}</td>
+                        <td class="p-3 font-mono">${trial.q}</td>
+                        <td class="p-3 font-mono text-emerald-600 font-bold">${trial.deltaH}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function clearTrials() {
+            trialLog = [];
+            document.getElementById('trial-table-body').innerHTML = `
+                <tr class="border-b border-slate-100 text-slate-400 italic">
+                    <td colspan="8" class="p-4 text-center">No trials logged yet. Run a reaction and click the bookmark button.</td>
+                </tr>
+            `;
+        }
+
+        // ================= PERIODIC TABLE (118 ELEMENTS) =================
+        let periodicElements = [];
+
+        // Complete 118 Elements dataset generator with accurate periodic table coordinates (period, group)
+        const rawElementsData = [
+            {n:1, s:"H", name:"Hydrogen", cat:"nonmetal", period:1, group:1, mass:1.008, melt:-259.2, boil:-252.9, hc:14.3, electroneg:2.20, config:"1s¹"},
+            {n:2, s:"He", name:"Helium", cat:"noble", period:1, group:18, mass:4.003, melt:-272.2, boil:-268.9, hc:5.19, electroneg:null, config:"1s²"},
+            {n:3, s:"Li", name:"Lithium", cat:"alkali", period:2, group:1, mass:6.94, melt:180.5, boil:1342, hc:3.58, electroneg:0.98, config:"[He] 2s¹"},
+            {n:4, s:"Be", name:"Beryllium", cat:"alkaline", period:2, group:2, mass:9.012, melt:1287, boil:2469, hc:1.825, electroneg:1.57, config:"[He] 2s²"},
+            {n:5, s:"B", name:"Boron", cat:"metalloid", period:2, group:13, mass:10.81, melt:2076, boil:3927, hc:1.026, electroneg:2.04, config:"[He] 2s² 2p¹"},
+            {n:6, s:"C", name:"Carbon", cat:"nonmetal", period:2, group:14, mass:12.011, melt:3500, boil:4827, hc:0.709, electroneg:2.55, config:"[He] 2s² 2p²"},
+            {n:7, s:"N", name:"Nitrogen", cat:"nonmetal", period:2, group:15, mass:14.007, melt:-210.1, boil:-195.8, hc:1.04, electroneg:3.04, config:"[He] 2s² 2p³"},
+            {n:8, s:"O", name:"Oxygen", cat:"nonmetal", period:2, group:16, mass:15.999, melt:-218.8, boil:-183.0, hc:0.918, electroneg:3.44, config:"[He] 2s² 2p⁴"},
+            {n:9, s:"F", name:"Fluorine", cat:"halogen", period:2, group:17, mass:18.998, melt:-219.6, boil:-188.1, hc:0.824, electroneg:3.98, config:"[He] 2s² 2p⁵"},
+            {n:10, s:"Ne", name:"Neon", cat:"noble", period:2, group:18, mass:20.180, melt:-248.6, boil:-246.1, hc:1.03, electroneg:null, config:"[He] 2s² 2p⁶"},
+            {n:11, s:"Na", name:"Sodium", cat:"alkali", period:3, group:1, mass:22.990, melt:97.7, boil:883, hc:1.23, electroneg:0.93, config:"[Ne] 3s¹"},
+            {n:12, s:"Mg", name:"Magnesium", cat:"alkaline", period:3, group:2, mass:24.305, melt:650, boil:1090, hc:1.023, electroneg:1.31, config:"[Ne] 3s²"},
+            {n:13, s:"Al", name:"Aluminum", cat:"post-transition", period:3, group:13, mass:26.982, melt:660.3, boil:2519, hc:0.897, electroneg:1.61, config:"[Ne] 3s² 3p¹"},
+            {n:14, s:"Si", name:"Silicon", cat:"metalloid", period:3, group:14, mass:28.085, melt:1414, boil:3265, hc:0.705, electroneg:1.90, config:"[Ne] 3s² 3p²"},
+            {n:15, s:"P", name:"Phosphorus", cat:"nonmetal", period:3, group:15, mass:30.974, melt:44.1, boil:280.5, hc:0.769, electroneg:2.19, config:"[Ne] 3s² 3p³"},
+            {n:16, s:"S", name:"Sulfur", cat:"nonmetal", period:3, group:16, mass:32.06, melt:115.2, boil:444.6, hc:0.71, electroneg:2.58, config:"[Ne] 3s² 3p⁴"},
+            {n:17, s:"Cl", name:"Chlorine", cat:"halogen", period:3, group:17, mass:35.45, melt:-101.5, boil:-34.0, hc:0.479, electroneg:3.16, config:"[Ne] 3s² 3p⁵"},
+            {n:18, s:"Ar", name:"Argon", cat:"noble", period:3, group:18, mass:39.948, melt:-189.4, boil:-185.8, hc:0.52, electroneg:null, config:"[Ne] 3s² 3p⁶"},
+            {n:19, s:"K", name:"Potassium", cat:"alkali", period:4, group:1, mass:39.098, melt:63.5, boil:759, hc:0.757, electroneg:0.82, config:"[Ar] 4s¹"},
+            {n:20, s:"Ca", name:"Calcium", cat:"alkaline", period:4, group:2, mass:40.078, melt:842, boil:1484, hc:0.647, electroneg:1.00, config:"[Ar] 4s²"},
+            {n:21, s:"Sc", name:"Scandium", cat:"transition", period:4, group:3, mass:44.956, melt:1541, boil:2836, hc:0.568, electroneg:1.36, config:"[Ar] 3d¹ 4s²"},
+            {n:22, s:"Ti", name:"Titanium", cat:"transition", period:4, group:4, mass:47.867, melt:1668, boil:3287, hc:0.523, electroneg:1.54, config:"[Ar] 3d² 4s²"},
+            {n:23, s:"V", name:"Vanadium", cat:"transition", period:4, group:5, mass:50.942, melt:1910, boil:3407, hc:0.489, electroneg:1.63, config:"[Ar] 3d³ 4s²"},
+            {n:24, s:"Cr", name:"Chromium", cat:"transition", period:4, group:6, mass:51.996, melt:1907, boil:2671, hc:0.449, electroneg:1.66, config:"[Ar] 3d⁵ 4s¹"},
+            {n:25, s:"Mn", name:"Manganese", cat:"transition", period:4, group:7, mass:54.938, melt:1246, boil:2061, hc:0.479, electroneg:1.55, config:"[Ar] 3d⁵ 4s²"},
+            {n:26, s:"Fe", name:"Iron", cat:"transition", period:4, group:8, mass:55.845, melt:1538, boil:2862, hc:0.449, electroneg:1.83, config:"[Ar] 3d⁶ 4s²"},
+            {n:27, s:"Co", name:"Cobalt", cat:"transition", period:4, group:9, mass:58.933, melt:1495, boil:2927, hc:0.421, electroneg:1.88, config:"[Ar] 3d⁷ 4s²"},
+            {n:28, s:"Ni", name:"Nickel", cat:"transition", period:4, group:10, mass:58.693, melt:1455, boil:2730, hc:0.444, electroneg:1.91, config:"[Ar] 3d⁸ 4s²"},
+            {n:29, s:"Cu", name:"Copper", cat:"transition", period:4, group:11, mass:63.546, melt:1084.6, boil:2562, hc:0.385, electroneg:1.90, config:"[Ar] 3d¹⁰ 4s¹"},
+            {n:30, s:"Zn", name:"Zinc", cat:"transition", period:4, group:12, mass:65.38, melt:419.5, boil:907, hc:0.388, electroneg:1.65, config:"[Ar] 3d¹⁰ 4s²"},
+            {n:31, s:"Ga", name:"Gallium", cat:"post-transition", period:4, group:13, mass:69.723, melt:29.8, boil:2204, hc:0.371, electroneg:1.81, config:"[Ar] 3d¹⁰ 4s² 4p¹"},
+            {n:32, s:"Ge", name:"Germanium", cat:"metalloid", period:4, group:14, mass:72.630, melt:938.25, boil:2833, hc:0.32, electroneg:2.01, config:"[Ar] 3d¹⁰ 4s² 4p²"},
+            {n:33, s:"As", name:"Arsenic", cat:"metalloid", period:4, group:15, mass:74.922, melt:817, boil:614, hc:0.329, electroneg:2.18, config:"[Ar] 3d¹⁰ 4s² 4p³"},
+            {n:34, s:"Se", name:"Selenium", cat:"nonmetal", period:4, group:16, mass:78.971, melt:221, boil:685, hc:0.321, electroneg:2.55, config:"[Ar] 3d¹⁰ 4s² 4p⁴"},
+            {n:35, s:"Br", name:"Bromine", cat:"halogen", period:4, group:17, mass:79.904, melt:-7.2, boil:58.8, hc:0.474, electroneg:2.96, config:"[Ar] 3d¹⁰ 4s² 4p⁵"},
+            {n:36, s:"Kr", name:"Krypton", cat:"noble", period:4, group:18, mass:83.798, melt:-157.4, boil:-153.2, hc:0.248, electroneg:3.00, config:"[Ar] 3d¹⁰ 4s² 4p⁶"},
+            {n:37, s:"Rb", name:"Rubidium", cat:"alkali", period:5, group:1, mass:85.468, melt:39.3, boil:688, hc:0.363, electroneg:0.82, config:"[Kr] 5s¹"},
+            {n:38, s:"Sr", name:"Strontium", cat:"alkaline", period:5, group:2, mass:87.62, melt:777, boil:1382, hc:0.301, electroneg:0.95, config:"[Kr] 5s²"},
+            {n:39, s:"Y", name:"Yttrium", cat:"transition", period:5, group:3, mass:88.906, melt:1526, boil:2930, hc:0.298, electroneg:1.22, config:"[Kr] 4d¹ 5s²"},
+            {n:40, s:"Zr", name:"Zirconium", cat:"transition", period:5, group:4, mass:91.224, melt:1855, boil:4409, hc:0.278, electroneg:1.33, config:"[Kr] 4d² 5s²"},
+            {n:41, s:"Nb", name:"Niobium", cat:"transition", period:5, group:5, mass:92.906, melt:2477, boil:4744, hc:0.265, electroneg:1.6, config:"[Kr] 4d⁴ 5s¹"},
+            {n:42, s:"Mo", name:"Molybdenum", cat:"transition", period:5, group:6, mass:95.95, melt:2623, boil:4639, hc:0.251, electroneg:2.16, config:"[Kr] 4d⁵ 5s¹"},
+            {n:43, s:"Tc", name:"Technetium", cat:"transition", period:5, group:7, mass:98, melt:2157, boil:4265, hc:0.21, electroneg:1.9, config:"[Kr] 4d⁵ 5s²"},
+            {n:44, s:"Ru", name:"Ruthenium", cat:"transition", period:5, group:8, mass:101.07, melt:2334, boil:4150, hc:0.238, electroneg:2.2, config:"[Kr] 4d⁷ 5s¹"},
+            {n:45, s:"Rh", name:"Rhodium", cat:"transition", period:5, group:9, mass:102.91, melt:1964, boil:3695, hc:0.243, electroneg:2.28, config:"[Kr] 4d⁸ 5s¹"},
+            {n:46, s:"Pd", name:"Palladium", cat:"transition", period:5, group:10, mass:106.42, melt:1554.9, boil:2963, hc:0.244, electroneg:2.20, config:"[Kr] 4d¹⁰"},
+            {n:47, s:"Ag", name:"Silver", cat:"transition", period:5, group:11, mass:107.87, melt:961.8, boil:2162, hc:0.235, electroneg:1.93, config:"[Kr] 4d¹⁰ 5s¹"},
+            {n:48, s:"Cd", name:"Cadmium", cat:"transition", period:5, group:12, mass:112.41, melt:321.1, boil:767, hc:0.232, electroneg:1.69, config:"[Kr] 4d¹⁰ 5s²"},
+            {n:49, s:"In", name:"Indium", cat:"post-transition", period:5, group:13, mass:114.82, melt:156.6, boil:2072, hc:0.233, electroneg:1.78, config:"[Kr] 4d¹⁰ 5s² 5p¹"},
+            {n:50, s:"Sn", name:"Tin", cat:"post-transition", period:5, group:14, mass:118.71, melt:231.9, boil:2602, hc:0.228, electroneg:1.96, config:"[Kr] 4d¹⁰ 5s² 5p²"},
+            {n:51, s:"Sb", name:"Antimony", cat:"metalloid", period:5, group:15, mass:121.76, melt:630.6, boil:1587, hc:0.207, electroneg:2.05, config:"[Kr] 4d¹⁰ 5s² 5p³"},
+            {n:52, s:"Te", name:"Tellurium", cat:"metalloid", period:5, group:16, mass:127.60, melt:449.5, boil:988, hc:0.202, electroneg:2.1, config:"[Kr] 4d¹⁰ 5s² 5p⁴"},
+            {n:53, s:"I", name:"Iodine", cat:"halogen", period:5, group:17, mass:126.90, melt:113.7, boil:184.3, hc:0.214, electroneg:2.66, config:"[Kr] 4d¹⁰ 5s² 5p⁵"},
+            {n:54, s:"Xe", name:"Xenon", cat:"noble", period:5, group:18, mass:131.29, melt:-111.7, boil:-108.1, hc:0.158, electroneg:2.6, config:"[Kr] 4d¹⁰ 5s² 5p⁶"},
+            {n:55, s:"Cs", name:"Cesium", cat:"alkali", period:6, group:1, mass:132.91, melt:28.5, boil:671, hc:0.242, electroneg:0.79, config:"[Xe] 6s¹"},
+            {n:56, s:"Ba", name:"Barium", cat:"alkaline", period:6, group:2, mass:137.33, melt:727, boil:1897, hc:0.204, electroneg:0.89, config:"[Xe] 6s²"},
+            // Lanthanides (Placeholder row in grid as group 3, period 8 / lanthanide series)
+            {n:57, s:"La", name:"Lanthanum", cat:"lanthanide", period:8, group:3, mass:138.91, melt:920, boil:3464, hc:0.195, electroneg:1.1, config:"[Xe] 5d¹ 6s²"},
+            {n:58, s:"Ce", name:"Cerium", cat:"lanthanide", period:8, group:4, mass:140.12, melt:798, boil:3443, hc:0.192, electroneg:1.12, config:"[Xe] 4f¹ 5d¹ 6s²"},
+            {n:59, s:"Pr", name:"Praseodymium", cat:"lanthanide", period:8, group:5, mass:140.91, melt:931, boil:3520, hc:0.193, electroneg:1.13, config:"[Xe] 4f³ 6s²"},
+            {n:60, s:"Nd", name:"Neodymium", cat:"lanthanide", period:8, group:6, mass:144.24, melt:1021, boil:3074, hc:0.19, electroneg:1.14, config:"[Xe] 4f⁴ 6s²"},
+            {n:61, s:"Pm", name:"Promethium", cat:"lanthanide", period:8, group:7, mass:145, melt:1042, boil:3000, hc:0.18, electroneg:1.13, config:"[Xe] 4f⁵ 6s²"},
+            {n:62, s:"Sm", name:"Samarium", cat:"lanthanide", period:8, group:8, mass:150.36, melt:1072, boil:1794, hc:0.197, electroneg:1.17, config:"[Xe] 4f⁶ 6s²"},
+            {n:63, s:"Eu", name:"Europium", cat:"lanthanide", period:8, group:9, mass:151.96, melt:822, boil:1597, hc:0.182, electroneg:1.2, config:"[Xe] 4f⁷ 6s²"},
+            {n:64, s:"Gd", name:"Gadolinium", cat:"lanthanide", period:8, group:10, mass:157.25, melt:1313, boil:3273, hc:0.236, electroneg:1.2, config:"[Xe] 4f⁷ 5d¹ 6s²"},
+            {n:65, s:"Tb", name:"Terbium", cat:"lanthanide", period:8, group:11, mass:158.93, melt:1356, boil:3230, hc:0.182, electroneg:1.2, config:"[Xe] 4f⁹ 6s²"},
+            {n:66, s:"Dy", name:"Dysprosium", cat:"lanthanide", period:8, group:12, mass:162.50, melt:1412, boil:2567, hc:0.17, electroneg:1.22, config:"[Xe] 4f¹⁰ 6s²"},
+            {n:67, s:"Ho", name:"Holmium", cat:"lanthanide", period:8, group:13, mass:164.93, melt:1470, boil:2600, hc:0.165, electroneg:1.23, config:"[Xe] 4f¹¹ 6s²"},
+            {n:68, s:"Er", name:"Erbium", cat:"lanthanide", period:8, group:14, mass:167.26, melt:1529, boil:2868, hc:0.168, electroneg:1.24, config:"[Xe] 4f¹² 6s²"},
+            {n:69, s:"Tm", name:"Thulium", cat:"lanthanide", period:8, group:15, mass:168.93, melt:1545, boil:1950, hc:0.16, electroneg:1.25, config:"[Xe] 4f¹³ 6s²"},
+            {n:70, s:"Yb", name:"Ytterbium", cat:"lanthanide", period:8, group:16, mass:173.05, melt:824, boil:1196, hc:0.155, electroneg:1.1, config:"[Xe] 4f¹⁴ 6s²"},
+            {n:71, s:"Lu", name:"Lutetium", cat:"transition", period:6, group:3, mass:174.97, melt:1663, boil:3402, hc:0.154, electroneg:1.27, config:"[Xe] 4f¹⁴ 5d¹ 6s²"},
+            {n:72, s:"Hf", name:"Hafnium", cat:"transition", period:6, group:4, mass:178.49, melt:2233, boil:4603, hc:0.144, electroneg:1.3, config:"[Xe] 4f¹⁴ 5d² 6s²"},
+            {n:73, s:"Ta", name:"Tantalum", cat:"transition", period:6, group:5, mass:180.95, melt:3020, boil:5458, hc:0.14, electroneg:1.5, config:"[Xe] 4f¹⁴ 5d³ 6s²"},
+            {n:74, s:"W", name:"Tungsten", cat:"transition", period:6, group:6, mass:183.84, melt:3422, boil:5555, hc:0.132, electroneg:2.36, config:"[Xe] 4f¹⁴ 5d⁴ 6s²"},
+            {n:75, s:"Re", name:"Rhenium", cat:"transition", period:6, group:7, mass:186.21, melt:3186, boil:5596, hc:0.137, electroneg:1.9, config:"[Xe] 4f¹⁴ 5d⁵ 6s²"},
+            {n:76, s:"Os", name:"Osmium", cat:"transition", period:6, group:8, mass:190.23, melt:3033, boil:5012, hc:0.13, electroneg:2.2, config:"[Xe] 4f¹⁴ 5d⁶ 6s²"},
+            {n:77, s:"Ir", name:"Iridium", cat:"transition", period:6, group:9, mass:192.22, melt:2446, boil:4428, hc:0.131, electroneg:2.2, config:"[Xe] 4f¹⁴ 5d⁷ 6s²"},
+            {n:78, s:"Pt", name:"Platinum", cat:"transition", period:6, group:10, mass:195.08, melt:1768.3, boil:3825, hc:0.133, electroneg:2.28, config:"[Xe] 4f¹⁴ 5d⁹ 6s¹"},
+            {n:79, s:"Au", name:"Gold", cat:"transition", period:6, group:11, mass:196.97, melt:1064.18, boil:2856, hc:0.129, electroneg:2.54, config:"[Xe] 4f¹⁴ 5d¹⁰ 6s¹"},
+            {n:80, s:"Hg", name:"Mercury", cat:"transition", period:6, group:12, mass:200.59, melt:-38.83, boil:356.7, hc:0.14, electroneg:2.00, config:"[Xe] 4f¹⁴ 5d¹⁰ 6s²"},
+            {n:81, s:"Tl", name:"Thallium", cat:"post-transition", period:6, group:13, mass:204.38, melt:304, boil:1473, hc:0.129, electroneg:1.62, config:"[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p¹"},
+            {n:82, s:"Pb", name:"Lead", cat:"post-transition", period:6, group:14, mass:207.2, melt:327.5, boil:1749, hc:0.129, electroneg:1.87, config:"[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p²"},
+            {n:83, s:"Bi", name:"Bismuth", cat:"post-transition", period:6, group:15, mass:208.98, melt:271.5, boil:1564, hc:0.122, electroneg:2.02, config:"[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p³"},
+            {n:84, s:"Po", name:"Metalloid", cat:"metalloid", period:6, group:16, mass:209, melt:254, boil:962, hc:null, electroneg:2.0, config:"[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁴"},
+            {n:85, s:"At", name:"Astatine", cat:"halogen", period:6, group:17, mass:210, melt:302, boil:337, hc:null, electroneg:2.2, config:"[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁵"},
+            {n:86, s:"Rn", name:"Radon", cat:"noble", period:6, group:18, mass:222, melt:-71, boil:-61.7, hc:0.094, electroneg:2.2, config:"[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁶"},
+            {n:87, s:"Fr", name:"Francium", cat:"alkali", period:7, group:1, mass:223, melt:27, boil:677, hc:null, electroneg:0.7, config:"[Rn] 7s¹"},
+            {n:88, s:"Ra", name:"Radium", cat:"alkaline", period:7, group:2, mass:226, melt:700, boil:1737, hc:0.094, electroneg:0.9, config:"[Rn] 7s²"},
+            // Actinides
+            {n:89, s:"Ac", name:"Actinium", cat:"actinide", period:9, group:3, mass:227, melt:1050, boil:3200, hc:0.12, electroneg:1.1, config:"[Rn] 6d¹ 7s²"},
+            {n:90, s:"Th", name:"Thorium", cat:"actinide", period:9, group:4, mass:232.04, melt:1750, boil:4788, hc:0.113, electroneg:1.3, config:"[Rn] 6d² 7s²"},
+            {n:91, s:"Pa", name:"Protactinium", cat:"actinide", period:9, group:5, mass:231.04, melt:1568, boil:4027, hc:null, electroneg:1.5, config:"[Rn] 5f² 6d¹ 7s²"},
+            {n:92, s:"U", name:"Uranium", cat:"actinide", period:9, group:6, mass:238.03, melt:1132, boil:4131, hc:0.116, electroneg:1.38, config:"[Rn] 5f³ 6d¹ 7s²"},
+            {n:93, s:"Np", name:"Neptunium", cat:"actinide", period:9, group:7, mass:237, melt:644, boil:3902, hc:null, electroneg:1.36, config:"[Rn] 5f⁴ 6d¹ 7s²"},
+            {n:94, s:"Pu", name:"Plutonium", cat:"actinide", period:9, group:8, mass:244, melt:639.4, boil:3228, hc:null, electroneg:1.28, config:"[Rn] 5f⁶ 7s²"},
+            {n:95, s:"Am", name:"Americium", cat:"actinide", period:9, group:9, mass:243, melt:1176, boil:2607, hc:null, electroneg:1.3, config:"[Rn] 5f⁷ 7s²"},
+            {n:96, s:"Cm", name:"Curium", cat:"actinide", period:9, group:10, mass:247, melt:1340, boil:3110, hc:null, electroneg:1.3, config:"[Rn] 5f⁷ 6d¹ 7s²"},
+            {n:97, s:"Bk", name:"Berkelium", cat:"actinide", period:9, group:11, mass:247, melt:986, boil:2627, hc:null, electroneg:1.3, config:"[Rn] 5f⁹ 7s²"},
+            {n:98, s:"Cf", name:"Californium", cat:"actinide", period:9, group:12, mass:251, melt:900, boil:1470, hc:null, electroneg:1.3, config:"[Rn] 5f¹⁰ 7s²"},
+            {n:99, s:"Es", name:"Einsteinium", cat:"actinide", period:9, group:13, mass:252, melt:860, boil:996, hc:null, electroneg:1.3, config:"[Rn] 5f¹¹ 7s²"},
+            {n:100, s:"Fm", name:"Fermium", cat:"actinide", period:9, group:14, mass:257, melt:1527, boil:null, hc:null, electroneg:1.3, config:"[Rn] 5f¹² 7s²"},
+            {n:101, s:"Md", name:"Mendelevium", cat:"actinide", period:9, group:15, mass:258, melt:827, boil:null, hc:null, electroneg:1.3, config:"[Rn] 5f¹³ 7s²"},
+            {n:102, s:"No", name:"Nobelium", cat:"actinide", period:9, group:16, mass:259, melt:827, boil:null, hc:null, electroneg:1.3, config:"[Rn] 5f¹⁴ 7s²"},
+            {n:103, s:"Lr", name:"Lawrencium", cat:"transition", period:7, group:3, mass:266, melt:1627, boil:null, hc:null, electroneg:1.3, config:"[Rn] 5f¹⁴ 7s² 7p¹"},
+            {n:104, s:"Rf", name:"Rutherfordium", cat:"transition", period:7, group:4, mass:267, melt:2100, boil:5500, hc:null, electroneg:null, config:"[Rn] 5f¹⁴ 6d² 7s²"},
+            {n:105, s:"Db", name:"Dubnium", cat:"transition", period:7, group:5, mass:268, melt:null, boil:null, hc:null, electroneg:null, config:"[Rn] 5f¹⁴ 6d³ 7s²"},
+            {n:106, s:"Sg", name:"Seaborgium", cat:"transition", period:7, group:6, mass:269, melt:null, boil:null, hc:null, electroneg:null, config:"[Rn] 5f¹⁴ 6d⁴ 7s²"},
+            {n:107, s:"Bh", name:"Bohrium", cat:"transition", period:7, group:7, mass:270, melt:null, boil:null, hc:null, electroneg:null, config:"[Rn] 5f¹⁴ 6d⁵ 7s²"},
+            {n:108, s:"Hs", name:"Hassium", cat:"transition", period:7, group:8, mass:277, melt:null, boil:null, hc:null, electroneg:null, config:"[Rn] 5f¹⁴ 6d⁶ 7s²"},
+            {n:109, s:"Mt", name:"Meitnerium", cat:"transition", period:7, group:9, mass:278, melt:null, boil:null, hc:null, electroneg:null, config:"[Rn] 5f¹⁴ 6d⁷ 7s²"},
+            {n:110, s:"Ds", name:"Darmstadtium", cat:"transition", period:7, group:10, mass:281, melt:null, boil:null, hc:null, electroneg:null, config:"[Rn] 5f¹⁴ 6d⁸ 7s²"},
+            {n:111, s:"Rg", name:"Roentgenium", cat:"transition", period:7, group:11, mass:282, melt:null, boil:null, hc:null, electroneg:null, config:"[Rn] 5f¹⁴ 6d⁹ 7s²"},
+            {n:112, s:"Cn", name:"Copernicium", cat:"transition", period:7, group:12, mass:285, melt:null, boil:357, hc:null, electroneg:null, config:"[Rn] 5f¹⁴ 6d¹⁰ 7s²"},
+            {n:113, s:"Nh", name:"Nihonium", cat:"post-transition", period:7, group:13, mass:286, melt:430, boil:1100, hc:null, electroneg:null, config:"[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p¹"},
+            {n:114, s:"Fl", name:"Flerovium", cat:"post-transition", period:7, group:14, mass:289, melt:67, boil:150, hc:null, electroneg:null, config:"[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p²"},
+            {n:115, s:"Mc", name:"Moscovium", cat:"post-transition", period:7, group:15, mass:290, melt:400, boil:1100, hc:null, electroneg:null, config:"[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p³"},
+            {n:116, s:"Lv", name:"Livermorium", cat:"post-transition", period:7, group:16, mass:293, melt:400, boil:830, hc:null, electroneg:null, config:"[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁴"},
+            {n:117, s:"Ts", name:"Tennessine", cat:"halogen", period:7, group:17, mass:294, melt:400, boil:610, hc:null, electroneg:null, config:"[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁵"},
+            {n:118, s:"Og", name:"Oganesson", cat:"noble", period:7, group:18, mass:294, melt:50, boil:170, hc:null, electroneg:null, config:"[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁶"}
+        ];
+
+        function initPeriodicTable() {
+            periodicElements = rawElementsData;
+            renderPeriodicGrid(periodicElements, 25);
+        }
+
+        function renderPeriodicGrid(elements, currentTemp) {
+            const grid = document.getElementById('periodic-grid');
+            grid.innerHTML = '';
+
+            // Grid mapping for 1 to 7 periods plus lanthanides/actinides
+            // We create a map for easy lookup by grid position (period, group)
+            let cellMap = {};
+            elements.forEach(el => {
+                let p = el.period;
+                let g = el.group;
+                if (p === 8) p = 10; // Lanthanide row position in visual grid
+                if (p === 9) p = 11; // Actinide row position in visual grid
+                cellMap[`${p}-${g}`] = el;
+            });
+
+            // Render 11 rows (1-7 main periods, 2 blank separator, 8/10 lanthanides, 9/11 actinides)
+            for (let r = 1; r <= 11; r++) {
+                if (r === 8) {
+                    // Blank separator row
+                    for (let c = 1; c <= 18; c++) {
+                        grid.innerHTML += `<div class="h-6"></div>`;
+                    }
+                    continue;
+                }
+
+                let actualPeriod = r <= 7 ? r : (r === 10 ? 8 : 9);
+
+                for (let c = 1; c <= 18; c++) {
+                    let el = null;
+                    if (actualPeriod <= 7) {
+                        el = cellMap[`${actualPeriod}-${c}`];
+                    } else if (actualPeriod === 8) {
+                        // Lanthanides occupy groups 3 through 17 (La through Yb)
+                        if (c >= 3 && c <= 17) {
+                            el = cellMap[`10-${c}`];
+                        }
+                    } else if (actualPeriod === 9) {
+                        // Actinides occupy groups 3 through 17 (Ac through No)
+                        if (c >= 3 && c <= 17) {
+                            el = cellMap[`11-${c}`];
+                        }
+                    }
+
+                    if (!el) {
+                        grid.innerHTML += `<div class="w-12 h-12"></div>`;
+                    } else {
+                        // Determine physical state at currentTemp
+                        let state = "solid";
+                        let melt = el.melt !== null ? el.melt : -9999;
+                        let boil = el.boil !== null ? el.boil : 9999;
+
+                        if (currentTemp < melt) state = "solid";
+                        else if (currentTemp >= melt && currentTemp < boil) state = "liquid";
+                        else state = "gas";
+
+                        let catColor = getCategoryColor(el.cat);
+                        let stateBadge = state === 'solid' ? '▪' : (state === 'liquid' ? '💧' : '☁️');
+
+                        grid.innerHTML += `
+                            <div onclick="openElementModal(${el.n})" class="${catColor} border rounded-lg p-1 flex flex-col justify-between cursor-pointer hover:scale-110 hover:shadow-lg transition-all relative group w-12 h-12 text-center">
+                                <div class="flex justify-between items-center text-[9px] font-mono leading-none opacity-80">
+                                    <span>${el.n}</span>
+                                    <span>${stateBadge}</span>
+                                </div>
+                                <div class="font-bold text-sm leading-tight">${el.s}</div>
+                                <div class="text-[8px] truncate leading-none opacity-90">${el.name}</div>
+                            </div>
+                        `;
+                    }
+                }
+            }
+        }
+
+        function getCategoryColor(cat) {
+            switch(cat) {
+                case 'alkali': return 'bg-red-100 border-red-300 text-red-900';
+                case 'alkaline': return 'bg-orange-100 border-orange-300 text-orange-900';
+                case 'transition': return 'bg-amber-100 border-amber-300 text-amber-900';
+                case 'post-transition': return 'bg-yellow-100 border-yellow-300 text-yellow-900';
+                case 'metalloid': return 'bg-emerald-100 border-emerald-300 text-emerald-900';
+                case 'halogen': return 'bg-purple-100 border-purple-300 text-purple-900';
+                case 'noble': return 'bg-sky-100 border-sky-300 text-sky-900';
+                case 'lanthanide': return 'bg-pink-100 border-pink-300 text-pink-900';
+                case 'actinide': return 'bg-rose-100 border-rose-300 text-rose-900';
+                default: return 'bg-slate-100 border-slate-300 text-slate-900';
+            }
+        }
+
+        function updateElementTempSimulation(val) {
+            let temp = parseInt(val);
+            document.getElementById('slider-temp-val').innerText = temp + " °C" + (temp === 25 ? " (Room)" : (temp === -273 ? " (Absolute Zero)" : ""));
+            renderPeriodicGrid(periodicElements, temp);
+        }
+
+        function filterElements() {
+            let query = document.getElementById('element-search').value.toLowerCase();
+            let filtered = periodicElements.filter(el => 
+                el.name.toLowerCase().includes(query) || 
+                el.s.toLowerCase().includes(query) || 
+                el.n.toString() === query
+            );
+            renderPeriodicGrid(filtered, parseInt(document.getElementById('element-temp-slider').value));
+        }
+
+        function filterCategory(cat) {
+            // Reset button styles
+            ['all', 'alkali', 'alkaline', 'transition', 'metalloid', 'halogen', 'noble'].forEach(c => {
+                const btn = document.getElementById('cat-btn-' + c);
+                if (btn) btn.className = "px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all";
+            });
+            document.getElementById('cat-btn-' + cat).className = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 text-white shadow-sm transition-all";
+
+            if (cat === 'all') {
+                renderPeriodicGrid(periodicElements, parseInt(document.getElementById('element-temp-slider').value));
+            } else {
+                let filtered = periodicElements.filter(el => el.cat === cat);
+                renderPeriodicGrid(filtered, parseInt(document.getElementById('element-temp-slider').value));
+            }
+        }
+
+        function openElementModal(atomicNumber) {
+            let el = periodicElements.find(e => e.n === atomicNumber);
+            if (!el) return;
+
+            document.getElementById('modal-name').innerText = `${el.name} (${el.s})`;
+            document.getElementById('modal-category').innerText = el.cat.toUpperCase();
+            document.getElementById('modal-number').innerText = el.n;
+            document.getElementById('modal-mass').innerText = el.mass;
+            document.getElementById('modal-electronegativity').innerText = el.electroneg !== null ? el.electroneg : "N/A";
+            document.getElementById('modal-config').innerText = el.config;
+            document.getElementById('modal-melting').innerText = el.melt !== null ? el.melt + " °C" : "N/A";
+            document.getElementById('modal-boiling').innerText = el.boil !== null ? el.boil + " °C" : "N/A";
+            document.getElementById('modal-heatcap').innerText = el.hc !== null ? el.hc + " J/g·°C" : "N/A";
+            document.getElementById('modal-summary').innerText = `Element #${el.n} in Period ${el.period}, Group ${el.group}. Standard atomic weight: ${el.mass}.`;
+
+            document.getElementById('element-modal').classList.remove('hidden');
+        }
+
+        function closeElementModal() {
+            document.getElementById('element-modal').classList.add('hidden');
+        }
+
+        // ================= ENERGY PROFILES (COORDINATE DIAGRAM) =================
+        let currentProfileType = 'exothermic';
+
+        function setProfileType(type) {
+            currentProfileType = type;
+            if (type === 'exothermic') {
+                document.getElementById('prof-btn-exo').className = "px-4 py-2 text-xs font-bold rounded-lg bg-white text-emerald-700 shadow-sm transition-all";
+                document.getElementById('prof-btn-endo').className = "px-4 py-2 text-xs font-medium rounded-lg text-emerald-100 hover:bg-white/10 transition-all";
+                document.getElementById('profile-title').innerText = "Exothermic Reaction Coordinate Diagram";
+                document.getElementById('slider-dh').value = -50;
+            } else {
+                document.getElementById('prof-btn-endo').className = "px-4 py-2 text-xs font-bold rounded-lg bg-white text-emerald-700 shadow-sm transition-all";
+                document.getElementById('prof-btn-exo').className = "px-4 py-2 text-xs font-medium rounded-lg text-emerald-100 hover:bg-white/10 transition-all";
+                document.getElementById('profile-title').innerText = "Endothermic Reaction Coordinate Diagram";
+                document.getElementById('slider-dh').value = 50;
+            }
+            updateProfileParams();
+        }
+
+        function updateProfileParams() {
+            let Ea = parseFloat(document.getElementById('slider-ea').value);
+            let dH = parseFloat(document.getElementById('slider-dh').value);
+
+            document.getElementById('val-ea').innerText = Ea + " kJ";
+            document.getElementById('val-dh').innerText = dH + " kJ/mol";
+
+            let Hr = 20.0;
+            let Hts = Hr + Ea;
+            let Hp = Hr + dH;
+            let EaRev = Hts - Hp;
+
+            document.getElementById('stat-hr').innerText = Hr.toFixed(1) + " kJ";
+            document.getElementById('stat-hts').innerText = Hts.toFixed(1) + " kJ";
+            document.getElementById('stat-hp').innerText = Hp.toFixed(1) + " kJ";
+            document.getElementById('stat-earev').innerText = EaRev.toFixed(1) + " kJ";
+
+            drawEnergyProfile();
+        }
+
+        function drawEnergyProfile() {
+            const canvas = document.getElementById('energyProfileCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.clientWidth - 20;
+            canvas.height = 300;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            let Ea = parseFloat(document.getElementById('slider-ea').value);
+            let dH = parseFloat(document.getElementById('slider-dh').value);
+            let hasCatalyst = document.getElementById('check-catalyst').checked;
+
+            let hrY = 220; // baseline energy Y
+            let hpY = hrY - dH * 1.5;
+            let htsY = hrY - Ea * 1.5;
+            let htsCatY = hrY - (Ea * 0.7) * 1.5;
+
+            // Draw axes
+            ctx.beginPath();
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 2;
+            ctx.moveTo(50, 260);
+            ctx.lineTo(canvas.width - 30, 260);
+            ctx.moveTo(50, 260);
+            ctx.lineTo(50, 30);
+            ctx.stroke();
+
+            // Labels
+            ctx.fillStyle = '#64748b';
+            ctx.font = '11px sans-serif';
+            ctx.fillText('Potential Energy (kJ)', 55, 45);
+            ctx.fillText('Reaction Coordinate $\rightarrow$', canvas.width - 150, 280);
+
+            // Uncatalyzed Curve
+            ctx.beginPath();
+            ctx.strokeStyle = '#2563eb';
+            ctx.lineWidth = 3;
+            ctx.moveTo(50, hrY);
+            ctx.bezierCurveTo(120, hrY, 150, htsY, 250, htsY);
+            ctx.bezierCurveTo(320, htsY, 350, hpY, canvas.width - 50, hpY);
+            ctx.stroke();
+
+            // Catalyzed Curve
+            if (hasCatalyst) {
+                ctx.beginPath();
+                ctx.strokeStyle = '#10b981';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([5, 5]);
+                ctx.moveTo(50, hrY);
+                ctx.bezierCurveTo(120, hrY, 150, htsCatY, 250, htsCatY);
+                ctx.bezierCurveTo(320, htsCatY, 350, hpY, canvas.width - 50, hpY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // Text Labels on Curve
+            ctx.fillStyle = '#1e293b';
+            ctx.font = 'bold 12px sans-serif';
+            ctx.fillText('Reactants (H_R)', 50, hrY + 20);
+            ctx.fillText('Products (H_P)', canvas.width - 120, hpY + 20);
+        }
+
+        // ================= BOND ENERGIES =================
+        let currentBondReaction = null;
+
+        const bondEnergiesTable = {
+            "C-H": 413, "Cl-Cl": 242, "C-Cl": 328, "H-Cl": 431,
+            "H-H": 436, "C=C": 614, "C-C": 348, "O=O": 498,
+            "C=O": 799, "H-O": 467
+        };
+
+        const bondReactions = {
+            ch4_cl2: {
+                eq: "CH4 + Cl2 -> CH3Cl + HCl",
+                broken: [{b: "C-H", count: 4}, {b: "Cl-Cl", count: 1}],
+                formed: [{b: "C-H", count: 3}, {b: "C-Cl", count: 1}, {b: "H-Cl", count: 1}]
+            },
+            h2_cl2: {
+                eq: "H2 + Cl2 -> 2HCl",
+                broken: [{b: "H-H", count: 1}, {b: "Cl-Cl", count: 1}],
+                formed: [{b: "H-Cl", count: 2}]
+            },
+            c2h4_h2: {
+                eq: "C2H4 + H2 -> C2H6",
+                broken: [{b: "C=C", count: 1}, {b: "C-H", count: 4}, {b: "H-H", count: 1}],
+                formed: [{b: "C-C", count: 1}, {b: "C-H", count: 6}]
+            },
+            combustion_ch4: {
+                eq: "CH4 + 2O2 -> CO2 + 2H2O",
+                broken: [{b: "C-H", count: 4}, {b: "O=O", count: 2}],
+                formed: [{b: "C=O", count: 2}, {b: "H-O", count: 4}]
+            }
+        };
+
+        function loadBondReaction(key) {
+            currentBondReaction = bondReactions[key];
+            document.getElementById('bond-reaction-equation').innerText = currentBondReaction.eq;
+
+            let brokenHTML = '';
+            let totalIn = 0;
+            currentBondReaction.broken.forEach(item => {
+                let energy = bondEnergiesTable[item.b] * item.count;
+                totalIn += energy;
+                brokenHTML += `<div class="flex justify-between"><span>${item.count} × (${item.b} @ ${bondEnergiesTable[item.b]} kJ)</span><span class="font-bold">+${energy} kJ</span></div>`;
+            });
+            document.getElementById('bonds-broken-list').innerHTML = brokenHTML;
+            document.getElementById('total-energy-in').innerText = `+${totalIn} kJ/mol`;
+
+            let formedHTML = '';
+            let totalOut = 0;
+            currentBondReaction.formed.forEach(item => {
+                let energy = bondEnergiesTable[item.b] * item.count;
+                totalOut += energy;
+                formedHTML += `<div class="flex justify-between"><span>${item.count} × (${item.b} @ ${bondEnergiesTable[item.b]} kJ)</span><span class="font-bold">-${energy} kJ</span></div>`;
+            });
+            document.getElementById('bonds-formed-list').innerHTML = formedHTML;
+            document.getElementById('total-energy-out').innerText = `-${totalOut} kJ/mol`;
+
+            let net = totalIn - totalOut;
+            document.getElementById('net-bond-enthalpy').innerText = `${net > 0 ? '+' : ''}${net} kJ/mol`;
+        }
+
+        // ================= POST-LAB QUIZ =================
+        let quizLoaded = false;
+        const quizQuestions = [
+            {
+                q: "1. In a coffee-cup calorimeter experiment, if a neutralization reaction causes the temperature of the solution to rise, the reaction is classified as:",
+                options: ["Endothermic (absorbs heat)", "Exothermic (releases heat)", "Thermally neutral", "Adiabatic"],
+                answer: 1,
+                explanation: "An increase in solution temperature indicates that the reaction released thermal energy into the surroundings (exothermic)."
+            },
+            {
+                q: "2. When calculating $q_{\text{soln}} = m \cdot c \cdot \Delta T$, what value is typically used for the specific heat capacity ($c$) of aqueous dilute solutions?",
+                options: ["0.129 J/g·°C (Gold)", "2.01 J/g·°C (Ice)", "4.184 J/g·°C (Water)", "0.902 J/g·°C (Aluminum)"],
+                answer: 2,
+                explanation: "Dilute aqueous solutions consist primarily of water, so the specific heat capacity of pure water (4.184 J/g·°C) is used."
+            },
+            {
+                q: "3. According to bond dissociation energy rules, breaking chemical bonds is always:",
+                options: ["Endothermic (requires energy)", "Exothermic (releases energy)", "Energy neutral", "Spontaneous"],
+                answer: 0,
+                explanation: "Energy must be absorbed from the surroundings to overcome attractive forces and break chemical bonds (endothermic, +)."
+            },
+            {
+                q: "4. What is the primary role of a catalyst in a potential energy reaction profile?",
+                options: ["Increases enthalpy change ($\Delta H$)", "Lowers activation energy ($E_a$) via an alternate pathway", "Converts endothermic reactions to exothermic", "Consumes reactant molecules"],
+                answer: 1,
+                explanation: "Catalysts provide an alternate reaction mechanism with a lower activation energy barrier ($E_a$), speeding up the reaction."
+            },
+            {
+                q: "5. If heat is lost to the calorimeter walls and the surrounding air during an exothermic dissolution, how will the calculated $\Delta H$ be affected?",
+                options: ["Magnitude of $\Delta H$ will be underestimated (too low)", "Magnitude of $\Delta H$ will be overestimated (too high)", "$\Delta H$ will be unaffected", "Reaction becomes endothermic"],
+                answer: 0,
+                explanation: "Heat loss to the calorimeter means the recorded $\Delta T$ is smaller than actual, resulting in an underestimated heat of reaction."
+            }
+        ];
+
+        function initQuiz() {
+            quizLoaded = true;
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+
+            quizQuestions.forEach((q, idx) => {
+                let optsHTML = '';
+                q.options.forEach((opt, oIdx) => {
+                    optsHTML += `
+                        <label class="flex items-center space-x-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition-all">
+                            <input type="radio" name="q${idx}" value="${oIdx}" class="text-amber-600 accent-amber-600">
+                            <span class="text-sm text-slate-800">${opt}</span>
+                        </label>
+                    `;
+                });
+
+                container.innerHTML += `
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+                        <h4 class="font-bold text-slate-900 text-base">${q.q}</h4>
+                        <div class="space-y-2">${optsHTML}</div>
+                        <div id="quiz-feedback-${idx}" class="hidden text-xs p-3 rounded-xl"></div>
+                    </div>
+                `;
+            });
+        }
+
+        function submitQuiz() {
+            let score = 0;
+            quizQuestions.forEach((q, idx) => {
+                const selected = document.querySelector(`input[name="q${idx}"]:checked`);
+                const feedbackDiv = document.getElementById(`quiz-feedback-${idx}`);
+                feedbackDiv.classList.remove('hidden');
+
+                if (selected && parseInt(selected.value) === q.answer) {
+                    score++;
+                    feedbackDiv.className = "text-xs p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 font-medium";
+                    feedbackDiv.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1.5"></i> Correct! ${q.explanation}`;
+                } else {
+                    feedbackDiv.className = "text-xs p-3 rounded-xl bg-red-50 border border-red-200 text-red-900 font-medium";
+                    feedbackDiv.innerHTML = `<i class="fa-solid fa-circle-xmark text-red-600 mr-1.5"></i> Incorrect. Correct answer: <strong>${q.options[q.answer]}</strong>. ${q.explanation}`;
+                }
+            });
+
+            document.getElementById('quiz-score-badge').classList.remove('hidden');
+            document.getElementById('quiz-score-val').innerText = `${score} / 5`;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize default tab chart on load
+        window.addEventListener('DOMContentLoaded', () => {
+            initCalorimetryChart();
+            updateReactionParams();
+        });
+    </script>
+</body>
+</html>

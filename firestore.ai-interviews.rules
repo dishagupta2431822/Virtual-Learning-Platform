@@ -1,0 +1,28 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid}/history/{entryId} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasAll(['uid', 'email', 'eventType', 'title', 'createdAt', 'score', 'grade'])
+        && request.resource.data.keys().hasOnly(['uid', 'email', 'eventType', 'title', 'createdAt', 'score', 'grade', 'testCasesPassed', 'language', 'url'])
+        && request.resource.data.uid == uid
+        && request.resource.data.email == request.auth.token.get('email', '')
+        && request.resource.data.eventType == 'interview_evaluated'
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 180
+        && request.resource.data.score is number
+        && request.resource.data.score >= 0
+        && request.resource.data.score <= 100
+        && request.resource.data.grade is string
+        && request.resource.data.createdAt is timestamp;
+      allow update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

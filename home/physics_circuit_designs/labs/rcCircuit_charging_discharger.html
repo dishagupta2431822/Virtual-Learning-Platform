@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #5: RC Circuit Charging & Discharging | Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="/home/physics_circuit_designs/index.html" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors" title="Back to Physics Labs">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </a>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Lab #5</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">RC Transient Response</span>
+                </div>
+            </div>
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-600">
+                <a href="#simulator" class="hover:text-indigo-600 transition-colors">Simulator</a>
+                <a href="#tutorial" class="hover:text-indigo-600 transition-colors">Tutorial & Theory</a>
+                <a href="#oscilloscope" class="hover:text-indigo-600 transition-colors">Oscilloscope Data</a>
+            </nav>
+            <div class="flex items-center space-x-3">
+                <a href="/home/physics_circuit_designs/index.html" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-xl text-sm shadow-sm transition-all shadow-indigo-500/20">
+                    All Labs
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Lab Container -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left 2 Columns: Interactive Simulator & Workbench -->
+        <div id="simulator" class="lg:col-span-2 space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+                    <div>
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700">Circuit Lab &bull; Transient Analysis</span>
+                        <h1 class="text-2xl font-bold text-slate-900 mt-1">RC Circuit Charging & Discharging Lab</h1>
+                    </div>
+                    <button onclick="resetLab()" class="text-slate-400 hover:text-slate-600 text-xs font-medium bg-slate-100 px-3 py-1.5 rounded-lg transition-colors">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> Reset
+                    </button>
+                </div>
+
+                <!-- Mode Selector (Charge vs Discharge) -->
+                <div class="flex space-x-3 mb-6">
+                    <button id="btnCharge" onclick="setMode('CHARGE')" class="flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all bg-indigo-600 text-white shadow-sm shadow-indigo-500/20">
+                        <i class="fa-solid fa-battery-full mr-2"></i> Charging Mode
+                    </button>
+                    <button id="btnDischarge" onclick="setMode('DISCHARGE')" class="flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">
+                        <i class="fa-solid fa-battery-empty mr-2"></i> Discharging Mode
+                    </button>
+                </div>
+
+                <!-- Parameter Sliders -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Voltage Source (V₀): <span id="valV0" class="text-indigo-600 font-bold">10.0 V</span></label>
+                        <input type="range" id="sliderV0" min="1" max="24" step="0.5" value="10" oninput="updateParameters()" class="w-full accent-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Resistance (R): <span id="valR" class="text-indigo-600 font-bold">10 kΩ</span></label>
+                        <input type="range" id="sliderR" min="1" max="100" value="10" oninput="updateParameters()" class="w-full accent-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Capacitance (C): <span id="valC" class="text-indigo-600 font-bold">100 µF</span></label>
+                        <input type="range" id="sliderC" min="10" max="500" step="10" value="100" oninput="updateParameters()" class="w-full accent-indigo-600">
+                    </div>
+                </div>
+
+                <!-- Oscilloscope Canvas / Graph Board -->
+                <div class="bg-slate-950 rounded-2xl p-6 text-white relative overflow-hidden shadow-inner border border-slate-800">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-xs font-mono text-slate-400 uppercase tracking-widest">
+                            Oscilloscope Channel 1 &bull; <span id="modeBadge" class="text-amber-400 font-bold">CHARGING CURVE</span>
+                        </div>
+                        <div class="text-xs font-mono bg-slate-900 px-3 py-1 rounded-lg border border-slate-800 text-indigo-400">
+                            Time Constant (&tau; = RC): <span id="tauVal" class="font-bold text-white">1.00 s</span>
+                        </div>
+                    </div>
+
+                    <!-- Visual Graph Representation -->
+                    <div class="h-56 relative border-l border-b border-slate-700 flex items-end px-2 pt-2 pb-0">
+                        <!-- Grid lines background -->
+                        <div class="absolute inset-0 grid grid-cols-5 grid-rows-4 pointer-events-none opacity-20">
+                            <div class="border-r border-b border-slate-500"></div>
+                            <div class="border-r border-b border-slate-500"></div>
+                            <div class="border-r border-b border-slate-500"></div>
+                            <div class="border-r border-b border-slate-500"></div>
+                            <div class="border-b border-slate-500"></div>
+                            <div class="border-r border-b border-slate-500"></div>
+                            <div class="border-r border-b border-slate-500"></div>
+                            <div class="border-r border-b border-slate-500"></div>
+                            <div class="border-r border-b border-slate-500"></div>
+                            <div class="border-b border-slate-500"></div>
+                        </div>
+
+                        <!-- SVG Curve Overlay -->
+                        <svg class="absolute inset-0 w-full h-full overflow-visible p-2" preserveAspectRatio="none" viewBox="0 0 500 200">
+                            <path id="curvePath" d="M 0 200 Q 150 200 500 20" fill="none" stroke="#6366f1" stroke-width="3" stroke-linecap="round" />
+                        </svg>
+
+                        <!-- Live Probing Point -->
+                        <div id="probePoint" class="absolute w-3 h-3 bg-amber-400 rounded-full shadow-lg shadow-amber-400/50 -translate-x-1/2 translate-y-1/2 transition-all" style="left: 50%; bottom: 50%;"></div>
+                    </div>
+
+                    <!-- Live Telemetry Readout -->
+                    <div class="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-slate-800/80 text-center">
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Capacitor Voltage (Vc)</span>
+                            <span id="readoutVc" class="text-lg font-bold text-indigo-400 font-mono">6.32 V</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Circuit Current (Ic)</span>
+                            <span id="readoutIc" class="text-lg font-bold text-amber-400 font-mono">0.37 mA</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Elapsed Time (t)</span>
+                            <span id="readoutTime" class="text-lg font-bold text-emerald-400 font-mono">1.00 s (&tau;)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulation Action Controls -->
+                <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+                    <div class="text-xs text-slate-500">
+                        Formula: <code id="formulaText" class="bg-slate-100 px-2 py-1 rounded text-slate-700 font-mono font-bold">Vc(t) = V₀ (1 - e^(-t/RC))</code>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="toggleAnimation()" id="playBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium px-4 py-2 rounded-xl shadow-sm transition-all">
+                            <i class="fa-solid fa-play mr-1"></i> Animate Transient
+                        </button>
+                        <button onclick="alert('Lab #5 transient response report exported successfully as CSV.')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium px-4 py-2 rounded-xl transition-colors">
+                            <i class="fa-solid fa-download mr-1"></i> Export Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Oscilloscope Data Table -->
+            <div id="oscilloscope" class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <h3 class="font-bold text-slate-900 text-lg mb-2">Time Constant Checkpoints</h3>
+                <p class="text-xs text-slate-500 mb-4">Voltage percentage values at specific time constant multiples ($1\tau, 2\tau, 3\tau, 5\tau$).</p>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
+                                <th class="py-3 px-4 font-semibold">Multiple of &tau;</th>
+                                <th class="py-3 px-4 font-semibold">Time (t)</th>
+                                <th class="py-3 px-4 font-semibold">Theoretical Vc (%)</th>
+                                <th class="py-3 px-4 font-semibold">Voltage (Vc)</th>
+                                <th class="py-3 px-4 font-semibold">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="checkpointRows" class="divide-y divide-slate-100 text-xs">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right 1 Column: Tutorial & Theory Panel -->
+        <div id="tutorial" class="space-y-6">
+            <!-- Lab Overview Card -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Tutorial & Theory</h3>
+                        <span class="text-xs text-slate-400">Capacitive Transient Response</span>
+                    </div>
+                </div>
+                <div class="space-y-4 text-xs text-slate-600 leading-relaxed">
+                    <p>
+                        When a DC voltage is applied to a resistor-capacitor (RC) circuit, the capacitor does not charge instantaneously. The voltage builds up exponentially over time.
+                    </p>
+                    <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl">
+                        <h4 class="font-bold text-indigo-900 text-xs mb-1 uppercase tracking-wider">Time Constant (&tau; = RC)</h4>
+                        <p class="text-indigo-800">One time constant (&tau;) is the time required for the capacitor to charge to approximately <strong class="text-indigo-950">63.2%</strong> of its maximum voltage source.</p>
+                    </div>
+                    <div class="bg-amber-50 border border-amber-100 p-4 rounded-xl">
+                        <h4 class="font-bold text-amber-900 text-xs mb-1 uppercase tracking-wider">Steady State (5&tau;)</h4>
+                        <p class="text-amber-800">By 5 time constants ($t = 5\tau$), the capacitor is considered <strong class="text-amber-950">99.3%</strong> fully charged, and circuit current drops to zero.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Experiment Objectives -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <h3 class="font-bold text-slate-900 text-base mb-3">Experiment Objectives</h3>
+                <ul class="space-y-2.5 text-xs text-slate-600">
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Calculate time constant &tau; for varying resistor and capacitor values.</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Observe exponential charging and discharging curves on the oscilloscope.</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Verify voltage values at 1&tau;, 2&tau;, and 5&tau; checkpoints.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Need Assistance? -->
+            <div class="bg-gradient-to-br from-amber-950 to-slate-900 text-white rounded-2xl p-6 shadow-md">
+                <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white mb-3">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+                <h4 class="font-bold text-sm mb-1">Need Lab Support?</h4>
+                <p class="text-xs text-slate-300 leading-relaxed mb-4">Review exponential differential equations in your circuit analysis manual.</p>
+                <a href="physics-labs.html#contact" class="inline-block bg-white text-amber-950 font-bold px-4 py-2 rounded-xl text-xs hover:bg-slate-100 transition-colors">
+                    Contact Instructor
+                </a>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Site Footer -->
+    <footer class="bg-slate-900 text-slate-300 py-8 border-t border-slate-800 mt-16 text-center text-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            &copy; 2026 Virtual Learning Labs Platform &bull; Lab #5: RC Circuit Charging & Discharging
+        </div>
+    </footer>
+
+    <!-- Interactive Simulation Script -->
+    <script>
+        let currentMode = 'CHARGE';
+        let isAnimating = false;
+        let animProgress = 1.0; // 0.0 to 5.0 multiples of tau
+        let animInterval = null;
+
+        function setMode(mode) {
+            currentMode = mode;
+            const btnCharge = document.getElementById('btnCharge');
+            const btnDischarge = document.getElementById('btnDischarge');
+            const modeBadge = document.getElementById('modeBadge');
+            const formulaText = document.getElementById('formulaText');
+
+            if (mode === 'CHARGE') {
+                btnCharge.className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all bg-indigo-600 text-white shadow-sm shadow-indigo-500/20";
+                btnDischarge.className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all bg-slate-100 text-slate-600 hover:bg-slate-200";
+                modeBadge.innerText = "CHARGING CURVE";
+                formulaText.innerText = "Vc(t) = V₀ (1 - e^(-t/RC))";
+            } else {
+                btnDischarge.className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all bg-indigo-600 text-white shadow-sm shadow-indigo-500/20";
+                btnCharge.className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all bg-slate-100 text-slate-600 hover:bg-slate-200";
+                modeBadge.innerText = "DISCHARGING CURVE";
+                formulaText.innerText = "Vc(t) = V₀ (e^(-t/RC))";
+            }
+            updateParameters();
+        }
+
+        function updateParameters() {
+            const v0 = parseFloat(document.getElementById('sliderV0').value);
+            const rKohm = parseFloat(document.getElementById('sliderR').value); // kΩ
+            const cUf = parseFloat(document.getElementById('sliderC').value);   // µF
+
+            document.getElementById('valV0').innerText = v0.toFixed(1) + ' V';
+            document.getElementById('valR').innerText = rKohm + ' kΩ';
+            document.getElementById('valC').innerText = cUf + ' µF';
+
+            // Tau = R (ohms) * C (farads) = (rKohm * 1e3) * (cUf * 1e-6) = rKohm * cUf * 1e-3 seconds
+            const tau = (rKohm * cUf) / 1000; 
+            document.getElementById('tauVal').innerText = tau.toFixed(2) + ' s';
+
+            calculateTelemetry(v0, tau, animProgress);
+            renderCurveAndCheckpoints(v0, tau);
+        }
+
+        function calculateTelemetry(v0, tau, tMultiplier) {
+            const t = tMultiplier * tau;
+            let vc = 0;
+            let ic = 0;
+
+            const rOhms = parseFloat(document.getElementById('sliderR').value) * 1000;
+
+            if (currentMode === 'CHARGE') {
+                vc = v0 * (1 - Math.exp(-tMultiplier));
+                ic = (v0 / rOhms) * Math.exp(-tMultiplier) * 1000; // mA
+            } else {
+                vc = v0 * Math.exp(-tMultiplier);
+                ic = (v0 / rOhms) * Math.exp(-tMultiplier) * 1000; // mA
+            }
+
+            document.getElementById('readoutVc').innerText = vc.toFixed(2) + ' V';
+            document.getElementById('readoutIc').innerText = ic.toFixed(3) + ' mA';
+            document.getElementById('readoutTime').innerText = t.toFixed(2) + ' s (' + tMultiplier.toFixed(1) + '&tau;)';
+        }
+
+        function renderCurveAndCheckpoints(v0, tau) {
+            const path = document.getElementById('curvePath');
+            // SVG coordinate space: 0 to 500 width, 0 to 200 height (y=200 is 0V, y=20 is max V0)
+            let pathString = "";
+            
+            for (let x = 0; x <= 500; x += 10) {
+                const tMult = (x / 500) * 5; // 0 to 5 tau
+                let voltageRatio = 0;
+                if (currentMode === 'CHARGE') {
+                    voltageRatio = 1 - Math.exp(-tMult);
+                } else {
+                    voltageRatio = Math.exp(-tMult);
+                }
+                const y = 200 - (voltageRatio * 180);
+                if (x === 0) pathString += `M ${x} ${y} `;
+                else pathString += `L ${x} ${y} `;
+            }
+            path.setAttribute('d', pathString);
+
+            // Update probe point position based on animProgress
+            const probeX = (animProgress / 5) * 500;
+            let currentRatio = currentMode === 'CHARGE' ? (1 - Math.exp(-animProgress)) : Math.exp(-animProgress);
+            const probeY = 200 - (currentRatio * 180);
+            const probe = document.getElementById('probePoint');
+            probe.style.left = (probeX / 500 * 100) + '%';
+            probe.style.bottom = ((200 - probeY) / 200 * 100) + '%';
+
+            // Render checkpoints table
+            const tbody = document.getElementById('checkpointRows');
+            tbody.innerHTML = '';
+            const checkpoints = [
+                { mult: 1, pctCharge: 63.2, pctDischarge: 36.8 },
+                { mult: 2, pctCharge: 86.5, pctDischarge: 13.5 },
+                { mult: 3, pctCharge: 95.0, pctDischarge: 5.0 },
+                { mult: 5, pctCharge: 99.3, pctDischarge: 0.7 }
+            ];
+
+            checkpoints.forEach(cp => {
+                const pct = currentMode === 'CHARGE' ? cp.pctCharge : cp.pctDischarge;
+                const voltageAtCp = (v0 * (pct / 100));
+                const timeAtCp = cp.mult * tau;
+                const isCurrent = Math.abs(animProgress - cp.mult) < 0.3;
+
+                const tr = document.createElement('tr');
+                tr.className = isCurrent ? "bg-amber-50/80 font-semibold border-b border-slate-100" : "border-b border-slate-100 text-slate-600";
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-mono font-bold">${cp.mult}&tau;</td>
+                    <td class="py-3 px-4 font-mono">${timeAtCp.toFixed(2)} s</td>
+                    <td class="py-3 px-4 font-mono">${pct}%</td>
+                    <td class="py-3 px-4 font-mono font-bold text-indigo-600">${voltageAtCp.toFixed(2)} V</td>
+                    <td class="py-3 px-4">${isCurrent ? '<span class="text-amber-600 font-bold"><i class="fa-solid fa-arrow-left mr-1"></i> Probing</span>' : 'Verified'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function toggleAnimation() {
+            const btn = document.getElementById('playBtn');
+            if (isAnimating) {
+                clearInterval(animInterval);
+                isAnimating = false;
+                btn.innerHTML = `<i class="fa-solid fa-play mr-1"></i> Animate Transient`;
+                btn.className = "bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium px-4 py-2 rounded-xl shadow-sm transition-all";
+            } else {
+                isAnimating = true;
+                btn.innerHTML = `<i class="fa-solid fa-pause mr-1"></i> Pause Simulation`;
+                btn.className = "bg-amber-600 hover:bg-amber-700 text-white text-xs font-medium px-4 py-2 rounded-xl shadow-sm transition-all";
+                
+                animInterval = setInterval(() => {
+                    animProgress += 0.05;
+                    if (animProgress > 5.0) {
+                        animProgress = 0.0;
+                    }
+                    updateParameters();
+                }, 100);
+            }
+        }
+
+        function resetLab() {
+            if (isAnimating) toggleAnimation();
+            animProgress = 1.0;
+            document.getElementById('sliderV0').value = 10;
+            document.getElementById('sliderR').value = 10;
+            document.getElementById('sliderC').value = 100;
+            updateParameters();
+        }
+
+        // Initialize
+        updateParameters();
+    </script>
+</body>
+</html>

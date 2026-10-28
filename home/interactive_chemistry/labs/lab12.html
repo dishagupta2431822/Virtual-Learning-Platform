@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #12: Alkanes, Alkenes & Alkynes 3D Models | Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Three.js for 3D Molecular Diagram Rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="../index.html" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 hover:opacity-90 transition-opacity">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </a>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Virtual Lab #12</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">Organic Structure & 3D Models</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Live 3D WebGL Viewer
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+        <!-- Lab Header Info -->
+        <div class="mb-8">
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Alkanes, Alkenes & Alkynes 3D Models</h1>
+            <p class="text-sm text-slate-500 mt-1">Visualize single, double, and triple carbon-carbon bonds, hybridization geometry, and torsional strain.</p>
+        </div>
+
+        <!-- Simulation Grid Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Selection Panel -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between space-y-6">
+                <div>
+                    <h2 class="font-bold text-slate-900 text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-atom text-indigo-600"></i> Select Hydrocarbon Class
+                    </h2>
+
+                    <div class="space-y-2">
+                        <button onclick="loadHydrocarbon('ethane')" class="hc-btn w-full text-left px-4 py-3 rounded-xl border border-indigo-500 bg-indigo-50 text-indigo-700 font-medium text-xs flex items-center justify-between transition-all">
+                            <span>Ethane (Alkane - Single Bond)</span>
+                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </button>
+                        <button onclick="loadHydrocarbon('ethene')" class="hc-btn w-full text-left px-4 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs flex items-center justify-between transition-all">
+                            <span>Ethene / Ethylene (Alkene - Double)</span>
+                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </button>
+                        <button onclick="loadHydrocarbon('ethyne')" class="hc-btn w-full text-left px-4 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs flex items-center justify-between transition-all">
+                            <span>Ethyne / Acetylene (Alkyne - Triple)</span>
+                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </button>
+                        <button onclick="loadHydrocarbon('torsion')" class="hc-btn w-full text-left px-4 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs flex items-center justify-between transition-all">
+                            <span>Torsional Strain (Staggered vs Eclipsed)</span>
+                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 text-xs text-slate-400">
+                    <i class="fa-solid fa-info-circle mr-1 text-indigo-600"></i> Tip: Click and drag inside the 3D canvas to rotate the molecular model.
+                </div>
+            </div>
+
+            <!-- Right 3D Viewport & Properties Panel -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- 3D Canvas Viewport -->
+                <div class="bg-slate-900 rounded-2xl border border-slate-800 p-2 shadow-inner relative overflow-hidden h-[340px] flex items-center justify-center">
+                    <div id="canvasContainer" class="w-full h-full rounded-xl cursor-grab active:cursor-grabbing"></div>
+                    <div class="absolute top-4 left-4 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-700 text-[11px] font-mono text-slate-300">
+                        <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span> Interactive WebGL 3D Model
+                    </div>
+                </div>
+
+                <!-- Hydrocarbon Overview Card -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 id="hcName" class="font-bold text-slate-900 text-lg">Ethane (C2H6)</h3>
+                        <span id="hcHybrid" class="text-xs font-mono font-bold bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full">Hybridization: sp3</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">C-C Bond Length</div>
+                            <div id="hcLength" class="text-base font-bold text-slate-800 font-mono">1.54 Å</div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Bond Angle</div>
+                            <div id="hcAngle" class="text-base font-bold text-indigo-600 font-mono">109.5° (Tetrahedral)</div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Bonding Network</div>
+                            <div id="hcBonds" class="text-base font-bold text-emerald-600 font-mono">7 Sigma (&sigma;) Bonds</div>
+                        </div>
+                    </div>
+
+                    <p id="hcDesc" class="text-xs text-slate-600 leading-relaxed mb-4">
+                        Ethane is a saturated alkane where each carbon atom is sp3 hybridized with a tetrahedral geometry. Single sigma bonds permit free rotation around the carbon-carbon axis.
+                    </p>
+                </div>
+
+                <!-- Conformational Energy Simulator -->
+                <div id="strainCard" class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <h3 class="font-bold text-slate-900 text-base mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line text-indigo-600"></i> Conformational Energy & Strain Analysis
+                    </h3>
+                    <p class="text-xs text-slate-600 mb-4">Examine potential energy barriers associated with bond rotation and steric hindrance.</p>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-4">
+                        <div class="flex justify-between text-xs font-medium text-slate-600 mb-2">
+                            <span id="stateTitle">Current Conformation: Staggered (Lowest Energy)</span>
+                            <span id="energyVal" class="text-indigo-600 font-bold">0.0 kJ/mol Torsional Strain</span>
+                        </div>
+                        <div class="w-full bg-slate-200 h-3 rounded-full overflow-hidden p-0.5 border border-slate-300">
+                            <div id="energyBar" class="bg-indigo-600 h-full rounded-full transition-all duration-300" style="width: 5%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button onclick="setState('low')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-xl text-xs transition-all shadow-sm">
+                            Staggered Conformation (Stable)
+                        </button>
+                        <button onclick="setState('high')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 px-4 rounded-xl text-xs transition-all">
+                            Eclipsed Conformation (High Strain)
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs border-t border-slate-800">
+        &copy; 2026 Virtual Learning Platform. All rights reserved.
+    </footer>
+
+    <!-- Three.js 3D Molecular Rendering & Simulation Script -->
+    <script>
+        const hydrocarbons = {
+            ethane: {
+                name: "Ethane (C2H6)",
+                hybrid: "Hybridization: sp3",
+                length: "1.54 Å",
+                angle: "109.5° (Tetrahedral)",
+                bonds: "7 Sigma (σ) Bonds",
+                desc: "Ethane is a saturated alkane where each carbon atom is sp3 hybridized with a tetrahedral geometry. Single sigma bonds permit free rotation around the carbon-carbon axis.",
+                build: createEthaneModel
+            },
+            ethene: {
+                name: "Ethene / Ethylene (C2H4)",
+                hybrid: "Hybridization: sp2",
+                length: "1.34 Å",
+                angle: "120.0° (Trigonal Planar)",
+                bonds: "5 Sigma (σ), 1 Pi (π) Bond",
+                desc: "Ethene features a carbon-carbon double bond consisting of one strong sigma bond and one sideways-overlapping pi bond, locking the molecule in a rigid planar geometry.",
+                build: createEtheneModel
+            },
+            ethyne: {
+                name: "Ethyne / Acetylene (C2H2)",
+                hybrid: "Hybridization: sp",
+                length: "1.20 Å",
+                angle: "180.0° (Linear)",
+                bonds: "3 Sigma (σ), 2 Pi (π) Bonds",
+                desc: "Ethyne features a carbon-carbon triple bond comprised of one sigma bond and two orthogonal pi bonds, resulting in a perfectly linear geometry.",
+                build: createEthyneModel
+            },
+            torsion: {
+                name: "Butane Conformations (C4H10)",
+                hybrid: "Hybridization: sp3 (Rotational Isomers)",
+                length: "1.54 Å",
+                angle: "109.5° (Dihedral Angle)",
+                bonds: "13 Sigma (σ) Bonds",
+                desc: "Examining conformational energy barriers between anti and eclipsed forms caused by steric hindrance and torsional strain.",
+                build: createEthaneModel
+            }
+        };
+
+        // Three.js Setup
+        const container = document.getElementById('canvasContainer');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000);
+        camera.position.z = 5.5;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer.domElement);
+
+        scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+        const pointLight = new THREE.PointLight(0xffffff, 1);
+        pointLight.position.set(5, 5, 5);
+        scene.add(pointLight);
+
+        let molecularGroup = new THREE.Group();
+        scene.add(molecularGroup);
+
+        const carbonMat = new THREE.MeshPhongMaterial({ color: 0x334155, shininess: 80 });
+        const hydrogenMat = new THREE.MeshPhongMaterial({ color: 0xf8fafc, shininess: 50 });
+        const bondMat = new THREE.MeshPhongMaterial({ color: 0x6366f1, shininess: 60 });
+
+        function clearModel() {
+            while(molecularGroup.children.length > 0){ 
+                molecularGroup.remove(molecularGroup.children[0]); 
+            }
+        }
+
+        function addAtom(x, y, z, radius, material) {
+            const geom = new THREE.SphereGeometry(radius, 32, 32);
+            const mesh = new THREE.Mesh(geom, material);
+            mesh.position.set(x, y, z);
+            molecularGroup.add(mesh);
+        }
+
+        function addBond(x1, y1, z1, x2, y2, z2, radius = 0.08) {
+            const start = new THREE.Vector3(x1, y1, z1);
+            const end = new THREE.Vector3(x2, y2, z2);
+            const distance = start.distanceTo(end);
+            const geom = new THREE.CylinderGeometry(radius, radius, distance, 16);
+            const mesh = new THREE.Mesh(geom, bondMat);
+            mesh.position.copy(start).add(end).multiplyScalar(0.5);
+            mesh.lookAt(end);
+            mesh.rotateX(Math.PI / 2);
+            molecularGroup.add(mesh);
+        }
+
+        function createEthaneModel() {
+            addAtom(-0.7, 0, 0, 0.35, carbonMat);
+            addAtom(0.7, 0, 0, 0.35, carbonMat);
+            addBond(-0.7, 0, 0, 0.7, 0, 0, 0.1);
+
+            const hC1 = [[-1.2, 0.8, 0.6], [-1.2, -0.8, 0.6], [-1.2, 0, -1.0]];
+            hC1.forEach(p => {
+                addAtom(p[0], p[1], p[2], 0.22, hydrogenMat);
+                addBond(-0.7, 0, 0, p[0], p[1], p[2]);
+            });
+
+            const hC2 = [[1.2, 0.8, -0.6], [1.2, -0.8, -0.6], [1.2, 0, 1.0]];
+            hC2.forEach(p => {
+                addAtom(p[0], p[1], p[2], 0.22, hydrogenMat);
+                addBond(0.7, 0, 0, p[0], p[1], p[2]);
+            });
+        }
+
+        function createEtheneModel() {
+            addAtom(-0.6, 0, 0, 0.35, carbonMat);
+            addAtom(0.6, 0, 0, 0.35, carbonMat);
+            addBond(-0.6, 0.1, 0, 0.6, 0.1, 0, 0.07);
+            addBond(-0.6, -0.1, 0, 0.6, -0.1, 0, 0.07);
+
+            const h1 = [[-1.2, 0.9, 0], [-1.2, -0.9, 0]];
+            h1.forEach(p => {
+                addAtom(p[0], p[1], p[2], 0.22, hydrogenMat);
+                addBond(-0.6, 0, 0, p[0], p[1], p[2]);
+            });
+
+            const h2 = [[1.2, 0.9, 0], [1.2, -0.9, 0]];
+            h2.forEach(p => {
+                addAtom(p[0], p[1], p[2], 0.22, hydrogenMat);
+                addBond(0.6, 0, 0, p[0], p[1], p[2]);
+            });
+        }
+
+        function createEthyneModel() {
+            addAtom(-0.5, 0, 0, 0.35, carbonMat);
+            addAtom(0.5, 0, 0, 0.35, carbonMat);
+            addBond(-0.5, 0, 0, 0.5, 0, 0, 0.06);
+            addBond(-0.5, 0.08, 0, 0.5, 0.08, 0, 0.05);
+            addBond(-0.5, -0.08, 0, 0.5, -0.08, 0, 0.05);
+
+            addAtom(-1.5, 0, 0, 0.22, hydrogenMat);
+            addBond(-0.5, 0, 0, -1.5, 0, 0);
+
+            addAtom(1.5, 0, 0, 0.22, hydrogenMat);
+            addBond(0.5, 0, 0, 1.5, 0, 0);
+        }
+
+        function loadHydrocarbon(key) {
+            const data = hydrocarbons[key];
+
+            document.querySelectorAll('.hc-btn').forEach(btn => {
+                btn.className = "hc-btn w-full text-left px-4 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs flex items-center justify-between transition-all";
+            });
+            event.currentTarget.className = "hc-btn w-full text-left px-4 py-3 rounded-xl border border-indigo-500 bg-indigo-50 text-indigo-700 font-medium text-xs flex items-center justify-between transition-all";
+
+            document.getElementById('hcName').textContent = data.name;
+            document.getElementById('hcHybrid').textContent = data.hybrid;
+            document.getElementById('hcLength').textContent = data.length;
+            document.getElementById('hcAngle').textContent = data.angle;
+            document.getElementById('hcBonds').textContent = data.bonds;
+            document.getElementById('hcDesc').textContent = data.desc;
+
+            clearModel();
+            data.build();
+        }
+
+        function setState(type) {
+            if (type === 'low') {
+                document.getElementById('stateTitle').textContent = "Current Conformation: Staggered (Lowest Energy)";
+                document.getElementById('energyVal').textContent = "0.0 kJ/mol Torsional Strain";
+                document.getElementById('energyBar').style.width = "5%";
+            } else {
+                document.getElementById('stateTitle').textContent = "Current Conformation: Eclipsed (Maximum Strain)";
+                document.getElementById('energyVal').textContent = "12.5 kJ/mol Torsional & Steric Strain";
+                document.getElementById('energyBar').style.width = "85%";
+            }
+        }
+
+        // Mouse Drag Interaction for 3D Rotation
+        let isDragging = false;
+        let prevMouseX = 0, prevMouseY = 0;
+
+        container.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            prevMouseX = e.clientX;
+            prevMouseY = e.clientY;
+        });
+
+        window.addEventListener('mouseup', () => { isDragging = false; });
+
+        container.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const deltaX = e.clientX - prevMouseX;
+            const deltaY = e.clientY - prevMouseY;
+            molecularGroup.rotation.y += deltaX * 0.01;
+            molecularGroup.rotation.x += deltaY * 0.01;
+            prevMouseX = e.clientX;
+            prevMouseY = e.clientY;
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (!isDragging) {
+                molecularGroup.rotation.y += 0.005;
+            }
+            renderer.render(scene, camera);
+        }
+
+        createEthaneModel();
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+    </script>
+</body>
+</html>

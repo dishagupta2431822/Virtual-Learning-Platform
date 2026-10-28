@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #7: Trie (Prefix Tree) Search & Auto-Complete</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        code, .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .node-circle { transition: all 0.4s ease-in-out; }
+        .tree-line { transition: all 0.4s ease-in-out; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <div>
+        <!-- Navbar -->
+        <header class="bg-white border-b border-slate-100 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="#" class="bg-indigo-600 text-white p-2 rounded-xl shadow-md shadow-indigo-100">
+                        <i class="fa-solid fa-flask text-base"></i>
+                    </a>
+                    <div>
+                        <span class="font-bold text-slate-900 text-sm block leading-snug">Virtual Labs</span>
+                        <span class="text-[10px] text-indigo-600 font-bold uppercase tracking-wider block">CS & DATA STRUCTURES</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <span class="bg-indigo-50 text-indigo-700 text-xs font-semibold px-3 py-1 rounded-full border border-indigo-100">
+                        Lab #7 of 32
+                    </span>
+                    <button onclick="resetTrie()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Reset Trie
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Lab Title Banner -->
+        <div class="bg-white border-b border-slate-100 py-6 px-6">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center space-x-2 text-xs text-indigo-600 font-semibold mb-1">
+                        <span>Trees & BST</span>
+                        <i class="fa-solid fa-chevron-right text-[9px] text-slate-400"></i>
+                        <span class="text-slate-500">Character Branches & Auto-Complete</span>
+                    </div>
+                    <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">
+                        Lab #7: Trie (Prefix Tree) Search & Auto-Complete
+                    </h1>
+                    <p class="text-xs text-slate-500 mt-1">
+                        Trace string character branches, termination flags, and live dictionary prefix searches.
+                    </p>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-semibold text-slate-600 bg-indigo-50 text-indigo-700 border border-indigo-200/80 px-3 py-1 rounded-full">
+                        <i class="fa-solid fa-magnifying-glass-chart mr-1"></i> Prefix Search Engine
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Workbench Area -->
+        <main class="max-w-7xl mx-auto px-6 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+            <!-- Control & Status Panel -->
+            <div class="space-y-5 lg:col-span-1">
+                
+                <!-- Insert Word Form -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Insert Dictionary Word</h3>
+                    <form onsubmit="handleInsert(event)" class="space-y-3">
+                        <div class="flex items-center space-x-2">
+                            <input type="text" id="insertWordInput" placeholder="e.g. apple" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 outline-none focus:border-indigo-500 transition font-mono">
+                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition shadow-xs whitespace-nowrap">
+                                + Add
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Auto-Complete Prefix Search -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Prefix Auto-Complete</h3>
+                    <div>
+                        <input type="text" id="prefixInput" oninput="handlePrefixSearch()" placeholder="Type prefix (e.g. ap)..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 outline-none focus:border-indigo-500 transition font-mono">
+                    </div>
+                    <div class="bg-indigo-50/50 border border-indigo-100 p-3 rounded-xl">
+                        <span class="text-[11px] font-bold text-indigo-600 block mb-1">Matching Suggestions:</span>
+                        <div id="suggestionsBox" class="text-xs font-mono text-slate-700 flex flex-wrap gap-1">
+                            <span class="text-slate-400 italic">None</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Execution Log -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Trie Trace Log</h3>
+                    <div id="logContainer" class="bg-slate-900 text-slate-300 p-3 rounded-xl font-mono text-[11px] h-40 overflow-y-auto space-y-1">
+                        <div class="text-slate-500">// Trie initialized. Add words to begin.</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Visualization Canvas -->
+            <div class="lg:col-span-3 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between relative min-h-[500px] overflow-hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Interactive Trie Character Graph</span>
+                    <div class="flex items-center space-x-3 text-[11px] text-slate-500 font-medium">
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-indigo-600 rounded-full inline-block mr-1"></span> Character Node</span>
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-emerald-500 rounded-full inline-block mr-1"></span> End of Word</span>
+                    </div>
+                </div>
+
+                <!-- SVG Trie Render Container -->
+                <div class="relative w-full h-[450px] border border-slate-100 rounded-xl bg-slate-50/50 overflow-auto flex items-center justify-center" id="canvasBox">
+                    <svg id="treeSvg" class="w-full h-full min-w-[700px] min-h-[420px]"></svg>
+                    <div id="emptyState" class="absolute text-center text-slate-400 text-xs hidden">
+                        <i class="fa-solid fa-magnifying-glass-chart text-3xl mb-2 text-slate-300 block"></i>
+                        <span>Trie is empty. Add dictionary words above.</span>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-100 py-6 text-center text-xs text-slate-400">
+        <span>&copy; 2026 Virtual Labs • Trie Search & Auto-Complete Suite</span>
+    </footer>
+
+    <!-- Script implementing Trie structure and autocomplete -->
+    <script>
+        class TrieNode {
+            constructor(char = '') {
+                this.char = char;
+                this.children = {};
+                this.isEnd = false;
+                this.x = 0;
+                this.y = 0;
+            }
+        }
+
+        let root = new TrieNode('ROOT');
+
+        function insertWord(word) {
+            let node = root;
+            logTrace(`Inserting word: "${word}"`);
+            for (let char of word) {
+                if (!node.children[char]) {
+                    node.children[char] = new TrieNode(char);
+                }
+                node = node.children[char];
+            }
+            node.isEnd = true;
+            logTrace(`Marked node '${word[word.length - 1]}' as <strong class="text-emerald-400">isEnd</strong>`, 'highlight');
+        }
+
+        function handleInsert(e) {
+            e.preventDefault();
+            const input = document.getElementById('insertWordInput');
+            const word = input.value.trim().toLowerCase();
+            if (!word) return;
+
+            insertWord(word);
+            input.value = '';
+            render();
+            handlePrefixSearch();
+        }
+
+        function collectWords(node, currentStr, list) {
+            if (node.isEnd) {
+                list.push(currentStr);
+            }
+            for (let char in node.children) {
+                collectWords(node.children[char], currentStr + char, list);
+            }
+        }
+
+        function handlePrefixSearch() {
+            const prefix = document.getElementById('prefixInput').value.trim().toLowerCase();
+            const box = document.getElementById('suggestionsBox');
+            box.innerHTML = '';
+
+            if (!prefix) {
+                box.innerHTML = '<span class="text-slate-400 italic">Type prefix...</span>';
+                return;
+            }
+
+            let node = root;
+            for (let char of prefix) {
+                if (!node.children[char]) {
+                    box.innerHTML = '<span class="text-rose-500 font-medium">No matches found</span>';
+                    return;
+                }
+                node = node.children[char];
+            }
+
+            let results = [];
+            collectWords(node, prefix, results);
+
+            if (results.length === 0) {
+                box.innerHTML = '<span class="text-rose-500 font-medium">No matches found</span>';
+            } else {
+                results.forEach(w => {
+                    box.innerHTML += `<span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded font-bold">${w}</span>`;
+                });
+            }
+        }
+
+        function resetTrie() {
+            root = new TrieNode('ROOT');
+            document.getElementById('prefixInput').value = '';
+            document.getElementById('suggestionsBox').innerHTML = '<span class="text-slate-400 italic">None</span>';
+            document.getElementById('logContainer').innerHTML = '<div class="text-slate-500">// Trie initialized. Add words to begin.</div>';
+            render();
+        }
+
+        function logTrace(msg, type = 'info') {
+            const container = document.getElementById('logContainer');
+            let color = 'text-slate-300';
+            if (type === 'highlight') color = 'text-emerald-300 font-bold';
+
+            container.innerHTML += `<div class="${color}">&gt; ${msg}</div>`;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Layout calculation for Trie SVG rendering
+        function assignCoordinates(node, depth = 0, state = { x: 50 }) {
+            node.y = 50 + depth * 70;
+            let keys = Object.keys(node.children).sort();
+            
+            if (keys.length === 0) {
+                node.x = state.x;
+                state.x += 65;
+                return;
+            }
+
+            let firstX = state.x;
+            for (let char of keys) {
+                assignCoordinates(node.children[char], depth + 1, state);
+            }
+            let lastX = node.children[keys[keys.length - 1]].x;
+            node.x = (firstX + lastX) / 2;
+        }
+
+        function drawTrieSvg(node, svg) {
+            let keys = Object.keys(node.children).sort();
+            for (let char of keys) {
+                let child = node.children[char];
+                svg.innerHTML += `<line x1="${node.x}" y1="${node.y}" x2="${child.x}" y2="${child.y}" stroke="#cbd5e1" stroke-width="2" class="tree-line"/>`;
+                drawTrieSvg(child, svg);
+            }
+
+            if (node.char !== 'ROOT') {
+                const fill = node.isEnd ? '#10b981' : '#4f46e5';
+                svg.innerHTML += `
+                    <g class="node-circle">
+                        <circle cx="${node.x}" cy="${node.y}" r="18" fill="${fill}" />
+                        <text x="${node.x}" y="${node.y + 4}" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="JetBrains Mono">${node.char}</text>
+                    </g>
+                `;
+            } else {
+                svg.innerHTML += `
+                    <g class="node-circle">
+                        <circle cx="${node.x}" cy="${node.y}" r="16" fill="#64748b" />
+                        <text x="${node.x}" y="${node.y + 4}" text-anchor="middle" fill="white" font-size="9" font-weight="bold" font-family="Inter">ROOT</text>
+                    </g>
+                `;
+            }
+        }
+
+        function render() {
+            const svg = document.getElementById('treeSvg');
+            const emptyState = document.getElementById('emptyState');
+            svg.innerHTML = '';
+
+            let hasChildren = Object.keys(root.children).length > 0;
+            if (!hasChildren) {
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            let state = { x: 60 };
+            assignCoordinates(root, 0, state);
+            drawTrieSvg(root, svg);
+        }
+
+        window.addEventListener('resize', render);
+        document.addEventListener('DOMContentLoaded', () => {
+            ['apple', 'app', 'application', 'bat', 'batch', 'ball'].forEach(w => insertWord(w));
+            document.getElementById('prefixInput').value = 'app';
+            render();
+            handlePrefixSearch();
+        });
+    </script>
+</body>
+</html>

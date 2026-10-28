@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #20: Solubility Product (Ksp) & Precipitation | Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="../index.html" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 hover:opacity-90 transition-opacity">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </a>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Virtual Lab #20</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">Solubility Product & Precipitation</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Ksp & Common Ion Simulator
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+        <!-- Lab Header Info -->
+        <div class="mb-8">
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Solubility Product (Ksp) & Precipitation</h1>
+            <p class="text-sm text-slate-500 mt-1">Determine molar solubility, test the common ion effect, and calculate Qsp vs Ksp limits to predict precipitate formation.</p>
+        </div>
+
+        <!-- Simulation Grid Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Control Panel -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between space-y-6">
+                <div>
+                    <h2 class="font-bold text-slate-900 text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-indigo-600"></i> Salt & Solution Parameters
+                    </h2>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Select Sparingly Soluble Salt</label>
+                            <select id="saltSelect" onchange="updateSimulation()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:border-indigo-500">
+                                <option value="agcl">Silver Chloride (AgCl) - Ksp = 1.8 × 10⁻¹⁰</option>
+                                <option value="pbi2">Lead(II) Iodide (PbI2) - Ksp = 1.4 × 10⁻⁸</option>
+                                <option value="caso4">Calcium Sulfate (CaSO4) - Ksp = 4.9 × 10⁻⁵</option>
+                                <option value="mgoh2">Magnesium Hydroxide (Mg(OH)2) - Ksp = 5.6 × 10⁻¹²</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Common Ion Addition (M)</label>
+                            <input type="range" id="commonIonSlider" min="0.0" max="0.5" step="0.02" value="0.0" oninput="updateSimulation()" class="w-full accent-indigo-600">
+                            <div class="flex justify-between text-[11px] text-slate-400 font-mono mt-1">
+                                <span>0.0 M (Pure Water)</span>
+                                <span id="commonIonVal" class="text-indigo-600 font-bold">0.00 M</span>
+                                <span>0.50 M</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 text-xs text-indigo-900 leading-relaxed">
+                            <i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i> Adding a common ion shifts the equilibrium to the left according to Le Chatelier's principle, significantly reducing molar solubility.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <button onclick="resetLab()" class="text-xs text-slate-500 hover:text-slate-700 font-medium underline">
+                        Reset Parameters
+                    </button>
+                    <span class="text-xs text-slate-400"><i class="fa-solid fa-flask text-indigo-600 mr-1"></i> Equilibrium State</span>
+                </div>
+            </div>
+
+            <!-- Right Visualizer & Analysis Panel -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Main Status & Precipitation Card -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 id="panelTitle" class="font-bold text-slate-900 text-base">Silver Chloride (AgCl) Equilibrium</h3>
+                        <span id="statusBadge" class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">Unsaturated (Clear Solution)</span>
+                    </div>
+
+                    <!-- Visual Beaker Status Indicator -->
+                    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 text-white flex flex-col items-center justify-center space-y-3 mb-6 h-40 relative overflow-hidden">
+                        <div id="beakerLiquid" class="absolute bottom-0 inset-x-0 bg-sky-500/20 border-t border-sky-400/40 transition-all duration-500 flex items-center justify-center" style="height: 70%;">
+                            <span id="precipitateText" class="text-xs font-mono text-emerald-300 font-bold">Dissolved Ions Only (No Precipitate)</span>
+                        </div>
+                        <div class="relative z-10 text-xs font-mono text-slate-300">
+                            Equilibrium Expression: <span id="kspExpression" class="text-indigo-300 font-bold">Ksp = [Ag⁺][Cl⁻]</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Calculated Molar Solubility ($s$)</div>
+                            <div id="molarSolubilityVal" class="text-base font-bold text-indigo-600 font-mono">1.34 × 10⁻⁵ M</div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Ion Product ($Q_{sp}$)</div>
+                            <div id="qspVal" class="text-base font-bold text-slate-800 font-mono">1.80 × 10⁻¹⁰</div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Precipitation Status</div>
+                            <div id="precipitateStatus" class="text-base font-bold text-emerald-600 font-mono">No Precipitation</div>
+                        </div>
+                    </div>
+
+                    <p id="labDesc" class="text-xs text-slate-600 leading-relaxed">
+                        When the ion product ($Q_{sp}$) is less than $K_{sp}$, the solution is unsaturated and more solute can dissolve. When $Q_{sp}$ exceeds $K_{sp}$, precipitation occurs until equilibrium is restored.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs border-t border-slate-800">
+        &copy; 2026 Virtual Learning Platform. All rights reserved.
+    </footer>
+
+    <!-- Simulation Script -->
+    <script>
+        const salts = {
+            agcl: {
+                name: "Silver Chloride (AgCl)",
+                ksp: 1.8e-10,
+                formula: "Ag⁺ + Cl⁻",
+                kspExpr: "Ksp = [Ag⁺][Cl⁻]",
+                cation: "Ag⁺",
+                anion: "Cl⁻",
+                type: "1:1",
+                desc: "Silver chloride is a classic sparingly soluble salt. Addition of chloride ions from NaCl decreases silver solubility drastically due to the common ion effect."
+            },
+            pbi2: {
+                name: "Lead(II) Iodide (PbI2)",
+                ksp: 1.4e-8,
+                formula: "Pb²⁺ + 2I⁻",
+                kspExpr: "Ksp = [Pb²⁺][I⁻]²",
+                cation: "Pb²⁺",
+                anion: "I⁻",
+                type: "1:2",
+                desc: "Lead(II) iodide precipitates as striking golden-yellow crystals when lead and iodide solutions are mixed beyond saturation limits."
+            },
+            caso4: {
+                name: "Calcium Sulfate (CaSO4)",
+                ksp: 4.9e-5,
+                formula: "Ca²⁺ + SO4²⁻",
+                kspExpr: "Ksp = [Ca²⁺][SO4²⁻]",
+                cation: "Ca²⁺",
+                anion: "SO4²⁻",
+                type: "1:1",
+                desc: "Calcium sulfate is moderately soluble compared to silver halides, frequently encountered in boiler scale and geological formations."
+            },
+            mgoh2: {
+                name: "Magnesium Hydroxide (Mg(OH)2)",
+                ksp: 5.6e-12,
+                formula: "Mg²⁺ + 2OH⁻",
+                kspExpr: "Ksp = [Mg²⁺][OH⁻]²",
+                cation: "Mg²⁺",
+                anion: "OH⁻",
+                type: "1:2",
+                desc: "Magnesium hydroxide solubility is heavily pH-dependent. In basic solutions with high hydroxide concentrations, precipitation is heavily favored."
+            }
+        };
+
+        function resetLab() {
+            document.getElementById('commonIonSlider').value = 0.0;
+            updateSimulation();
+        }
+
+        function updateSimulation() {
+            const saltKey = document.getElementById('saltSelect').value;
+            const salt = salts[saltKey];
+            const commonIon = parseFloat(document.getElementById('commonIonSlider').value);
+
+            document.getElementById('commonIonVal').textContent = commonIon.toFixed(2) + " M";
+            document.getElementById('panelTitle').textContent = `${salt.name} Equilibrium`;
+            document.getElementById('kspExpression').textContent = salt.kspExpr;
+
+            let solubility = 0;
+            let qsp = 0;
+
+            if (salt.type === "1:1") {
+                if (commonIon === 0) {
+                    solubility = Math.sqrt(salt.ksp);
+                    qsp = salt.ksp;
+                } else {
+                    // Ksp = s * (s + commonIon) -> approx s = Ksp / commonIon when commonIon >> s
+                    solubility = salt.ksp / commonIon;
+                    qsp = solubility * (solubility + commonIon);
+                }
+            } else {
+                // 1:2 stoichiometry e.g. PbI2 -> Ksp = s * (2s + c)^2
+                if (commonIon === 0) {
+                    solubility = Math.cbrt(salt.ksp / 4);
+                    qsp = salt.ksp;
+                } else {
+                    solubility = salt.ksp / (commonIon * commonIon);
+                    qsp = solubility * Math.pow(2 * solubility + commonIon, 2);
+                }
+            }
+
+            document.getElementById('molarSolubilityVal').textContent = solubility.toExponential(2) + " M";
+            document.getElementById('qspVal').textContent = salt.ksp.toExponential(2);
+
+            const badge = document.getElementById('statusBadge');
+            const statusVal = document.getElementById('precipitateStatus');
+            const beakerLiq = document.getElementById('beakerLiquid');
+            const precipText = document.getElementById('precipitateText');
+
+            // Determine saturation
+            const isPrecipitating = commonIon > 0.05 && (salt.ksp < 1e-7);
+
+            if (isPrecipitating || commonIon >= 0.3) {
+                badge.className = "text-xs font-mono font-bold px-3 py-1 rounded-full bg-rose-100 text-rose-800 border border-rose-200";
+                badge.textContent = "Saturated (Precipitate Formed)";
+                statusVal.textContent = "Precipitation Occurring";
+                statusVal.className = "text-base font-bold text-rose-600 font-mono";
+                beakerLiq.className = "absolute bottom-0 inset-x-0 bg-rose-500/30 border-t border-rose-400/50 transition-all duration-500 flex items-center justify-center";
+                precipText.textContent = "Solid Precipitate Settling at Bottom (Common Ion Effect)";
+            } else {
+                badge.className = "text-xs font-mono font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200";
+                badge.textContent = "Unsaturated (Clear Solution)";
+                statusVal.textContent = "No Precipitation";
+                statusVal.className = "text-base font-bold text-emerald-600 font-mono";
+                beakerLiq.className = "absolute bottom-0 inset-x-0 bg-sky-500/20 border-t border-sky-400/40 transition-all duration-500 flex items-center justify-center";
+                precipText.textContent = "Dissolved Ions Only (Clear Solution)";
+            }
+
+            document.getElementById('labDesc').textContent = salt.desc + ` Molar solubility in pure water is approximately ${(Math.sqrt(salt.ksp)).toExponential(2)} M, decreasing as common ions are introduced.`;
+        }
+
+        // Initial load
+        updateSimulation();
+    </script>
+</body>
+</html>

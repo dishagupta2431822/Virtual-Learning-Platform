@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sorting Algorithm Virtual Lab</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f1f5f9;
+      color: #0f172a;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      gap: 16px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .header .subtitle {
+      font-size: 0.9rem;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    .control-panel {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      background: #ffffff;
+      padding: 16px 20px;
+      border-radius: 12px;
+      align-items: center;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    label {
+      font-size: 0.875rem;
+      color: #475569;
+      font-weight: 600;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    select, input[type="text"] {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      color: #0f172a;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    select {
+      cursor: pointer;
+      font-weight: 600;
+      color: #2563eb;
+    }
+
+    input[type="text"] {
+      width: 180px;
+    }
+
+    select:focus, input[type="text"]:focus {
+      border-color: #2563eb;
+    }
+
+    input[type="range"] {
+      cursor: pointer;
+      accent-color: #2563eb;
+    }
+
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 9px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: background 0.2s ease;
+    }
+
+    button:hover { 
+      background: #1d4ed8; 
+    }
+
+    /* Visualization Box */
+    .array-container {
+      flex: 1;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 6px;
+      padding: 24px;
+      background: #ffffff;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      width: 100%;
+    }
+
+    .bar {
+      flex: 1;
+      max-width: 80px;
+      min-width: 6px;
+      background: #64748b;
+      border-radius: 4px 4px 0 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      color: #ffffff;
+      font-weight: bold;
+      padding-bottom: 6px;
+      overflow: hidden;
+      white-space: nowrap;
+      transition: height 0.05s ease, background-color 0.05s ease;
+    }
+
+    /* Universal State Styling */
+    .bar.highlight { background: #d97706; }   /* Warm Amber (comparing / active) */
+    .bar.focus { background: #8b5cf6; }       /* Purple (pivot / min / key / root) */
+    .bar.action { background: #dc2626; }      /* Crimson Red (swapping / shifting / write) */
+    .bar.sorted { background: #059669; }      /* Emerald Green (sorted) */
+
+    .stats-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ffffff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      color: #475569;
+      font-size: 0.95rem;
+      font-weight: 500;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    }
+
+    .stats-card .info {
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+
+    .stats-card strong {
+      color: #2563eb;
+    }
+
+    .metrics {
+      display: flex;
+      gap: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <div>
+      <h2>Sorting Algorithm Virtual Lab</h2>
+      <div class="subtitle" id="algoDescription">Select an algorithm to visualize step-by-step.</div>
+    </div>
+  </div>
+  
+  <div class="control-panel">
+    <div class="group">
+      <label>
+        Algorithm:
+        <select id="algoSelect">
+          <option value="bubble">Bubble Sort</option>
+          <option value="selection">Selection Sort</option>
+          <option value="insertion">Insertion Sort</option>
+          <option value="merge">Merge Sort</option>
+          <option value="quick">Quick Sort</option>
+          <option value="heap">Heap Sort</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="group">
+      <label>
+        Custom Array:
+        <input type="text" id="customInput" placeholder="e.g. 80, 50, 30, 90">
+      </label>
+      <button id="loadCustomBtn">Load</button>
+    </div>
+
+    <div class="group">
+      <label>
+        Size: <span id="sizeVal">12</span>
+        <input type="range" id="sizeSlider" min="3" max="40" value="12">
+      </label>
+
+      <label>
+        Speed: <span id="speedVal">5</span>x
+        <input type="range" id="speedSlider" min="1" max="25" step="1" value="5">
+      </label>
+    </div>
+
+    <div class="group" style="margin-left: auto;">
+      <button id="randomBtn">Randomize</button>
+      <button id="stepBtn">Step</button>
+      <button id="playBtn">Play</button>
+    </div>
+  </div>
+  
+  <div class="array-container" id="arrayContainer"></div>
+
+  <div class="stats-card">
+    <div class="info" id="legendText">Legend: 🟧 Active | 🟣 Focus/Pivot | 🔴 Swap/Shift | 🟢 Sorted</div>
+    <div class="metrics">
+      <span>Comparisons: <strong id="compCount">0</strong></span>
+      <span>Operations (Swaps/Writes): <strong id="opCount">0</strong></span>
+    </div>
+  </div>
+</div>
+
+<script>
+  let arr = [];
+  let steps = [];
+  let currentStepIdx = 0;
+  let comparisons = 0, operations = 0;
+  let isRunning = false;
+  let timer = null;
+
+  const algoDescriptions = {
+    bubble: "Bubble Sort: Repeatedly compares adjacent elements and swaps them if they are in the wrong order.",
+    selection: "Selection Sort: Repeatedly finds the minimum element from the unsorted region and places it at the start.",
+    insertion: "Insertion Sort: Builds the sorted array one item at a time by shifting larger elements to insert key values.",
+    merge: "Merge Sort: A divide-and-conquer algorithm that recursively splits the array and merges ordered sub-arrays.",
+    quick: "Quick Sort: Selects a pivot element and partitions the array into sub-arrays of smaller and larger elements.",
+    heap: "Heap Sort: Converts the array into a Max Heap and repeatedly extracts the root to construct the sorted array."
+  };
+
+  const arrayContainer = document.getElementById('arrayContainer');
+  const sizeSlider = document.getElementById('sizeSlider');
+  const speedSlider = document.getElementById('speedSlider');
+  const customInput = document.getElementById('customInput');
+  const algoSelect = document.getElementById('algoSelect');
+
+  function getDelay() {
+    const speed = parseInt(speedSlider.value);
+    return Math.max(10, Math.floor(500 / speed));
+  }
+
+  function generateRandomArray() {
+    stopSorting();
+    const size = parseInt(sizeSlider.value);
+    arr = Array.from({length: size}, () => Math.floor(Math.random() * 90) + 10);
+    resetState();
+  }
+
+  function loadCustomArray() {
+    stopSorting();
+    const rawVal = customInput.value.trim();
+    if (!rawVal) return;
+    
+    const parsed = rawVal.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n) && n > 0);
+    if (parsed.length >= 2) {
+      arr = parsed;
+      sizeSlider.value = arr.length;
+      document.getElementById('sizeVal').textContent = arr.length;
+      resetState();
+    } else {
+      alert("Please enter at least 2 valid numbers separated by commas.");
+    }
+  }
+
+  function resetState() {
+    currentStepIdx = 0;
+    comparisons = 0;
+    operations = 0;
+    steps = [];
+
+    document.getElementById('algoDescription').textContent = algoDescriptions[algoSelect.value];
+
+    const tempArr = [...arr];
+    const algo = algoSelect.value;
+
+    if (algo === 'bubble') buildBubbleSortSteps(tempArr);
+    else if (algo === 'selection') buildSelectionSortSteps(tempArr);
+    else if (algo === 'insertion') buildInsertionSortSteps(tempArr);
+    else if (algo === 'merge') buildMergeSortSteps(tempArr, 0, tempArr.length - 1);
+    else if (algo === 'quick') buildQuickSortSteps(tempArr, 0, tempArr.length - 1, new Set());
+    else if (algo === 'heap') buildHeapSortSteps(tempArr);
+
+    // Append Final Complete State
+    steps.push({
+      array: [...tempArr],
+      highlight: [],
+      focus: [],
+      action: [],
+      sorted: Array.from({length: tempArr.length}, (_, i) => i),
+      isFinished: true,
+      compCount: comparisons,
+      opCount: operations
+    });
+
+    comparisons = 0;
+    operations = 0;
+    updateStats();
+    render(arr);
+  }
+
+  /* --- ALGORITHM STEP BUILDERS --- */
+
+  function buildBubbleSortSteps(a) {
+    let n = a.length;
+    let sortedIndices = [];
+    for (let i = 0; i < n - 1; i++) {
+      for (let j = 0; j < n - i - 1; j++) {
+        comparisons++;
+        steps.push({ array: [...a], highlight: [j, j + 1], focus: [], action: [], sorted: [...sortedIndices], compCount: comparisons, opCount: operations });
+        if (a[j] > a[j + 1]) {
+          [a[j], a[j + 1]] = [a[j + 1], a[j]];
+          operations++;
+          steps.push({ array: [...a], highlight: [], focus: [], action: [j, j + 1], sorted: [...sortedIndices], compCount: comparisons, opCount: operations });
+        }
+      }
+      sortedIndices.push(n - 1 - i);
+    }
+  }
+
+  function buildSelectionSortSteps(a) {
+    let n = a.length;
+    let sortedIndices = [];
+    for (let i = 0; i < n - 1; i++) {
+      let minIdx = i;
+      for (let j = i + 1; j < n; j++) {
+        comparisons++;
+        steps.push({ array: [...a], highlight: [j], focus: [minIdx], action: [], sorted: [...sortedIndices], compCount: comparisons, opCount: operations });
+        if (a[j] < a[minIdx]) minIdx = j;
+      }
+      if (minIdx !== i) {
+        [a[i], a[minIdx]] = [a[minIdx], a[i]];
+        operations++;
+        steps.push({ array: [...a], highlight: [], focus: [], action: [i, minIdx], sorted: [...sortedIndices], compCount: comparisons, opCount: operations });
+      }
+      sortedIndices.push(i);
+    }
+  }
+
+  function buildInsertionSortSteps(a) {
+    let n = a.length;
+    for (let i = 1; i < n; i++) {
+      let key = a[i];
+      let j = i - 1;
+      steps.push({ array: [...a], highlight: [], focus: [i], action: [], sorted: Array.from({length: i}, (_, k) => k), compCount: comparisons, opCount: operations });
+      while (j >= 0 && a[j] > key) {
+        comparisons++;
+        a[j + 1] = a[j];
+        operations++;
+        steps.push({ array: [...a], highlight: [j], focus: [], action: [j + 1], sorted: Array.from({length: i}, (_, k) => k), compCount: comparisons, opCount: operations });
+        j--;
+      }
+      if (j >= 0) comparisons++;
+      a[j + 1] = key;
+      steps.push({ array: [...a], highlight: [], focus: [], action: [j + 1], sorted: Array.from({length: i + 1}, (_, k) => k), compCount: comparisons, opCount: operations });
+    }
+  }
+
+  function buildMergeSortSteps(mainArray, start, end) {
+    if (start >= end) return;
+    const mid = Math.floor((start + end) / 2);
+    buildMergeSortSteps(mainArray, start, mid);
+    buildMergeSortSteps(mainArray, mid + 1, end);
+    
+    let left = mainArray.slice(start, mid + 1);
+    let right = mainArray.slice(mid + 1, end + 1);
+    let i = 0, j = 0, k = start;
+
+    while (i < left.length && j < right.length) {
+      comparisons++;
+      const range = [];
+      for (let idx = start; idx <= end; idx++) range.push(idx);
+
+      if (left[i] <= right[j]) { mainArray[k] = left[i]; i++; }
+      else { mainArray[k] = right[j]; j++; }
+      operations++;
+
+      steps.push({ array: [...mainArray], highlight: range, focus: [], action: [k], sorted: [], compCount: comparisons, opCount: operations });
+      k++;
+    }
+    while (i < left.length) {
+      mainArray[k] = left[i]; i++; k++; operations++;
+      steps.push({ array: [...mainArray], highlight: [], focus: [], action: [k - 1], sorted: [], compCount: comparisons, opCount: operations });
+    }
+    while (j < right.length) {
+      mainArray[k] = right[j]; j++; k++; operations++;
+      steps.push({ array: [...mainArray], highlight: [], focus: [], action: [k - 1], sorted: [], compCount: comparisons, opCount: operations });
+    }
+  }
+
+  function buildQuickSortSteps(mainArray, low, high, fixed) {
+    if (low <= high) {
+      if (low === high) {
+        fixed.add(low);
+        return;
+      }
+      const pIdx = partition(mainArray, low, high, fixed);
+      fixed.add(pIdx);
+      buildQuickSortSteps(mainArray, low, pIdx - 1, fixed);
+      buildQuickSortSteps(mainArray, pIdx + 1, high, fixed);
+    }
+  }
+
+  function partition(mainArray, low, high, fixed) {
+    const pivot = mainArray[high];
+    let i = low - 1;
+    for (let j = low; j < high; j++) {
+      comparisons++;
+      steps.push({ array: [...mainArray], highlight: [j], focus: [high], action: [], sorted: Array.from(fixed), compCount: comparisons, opCount: operations });
+      if (mainArray[j] < pivot) {
+        i++;
+        [mainArray[i], mainArray[j]] = [mainArray[j], mainArray[i]];
+        operations++;
+        steps.push({ array: [...mainArray], highlight: [], focus: [high], action: [i, j], sorted: Array.from(fixed), compCount: comparisons, opCount: operations });
+      }
+    }
+    [mainArray[i + 1], mainArray[high]] = [mainArray[high], mainArray[i + 1]];
+    operations++;
+    steps.push({ array: [...mainArray], highlight: [], focus: [], action: [i + 1, high], sorted: Array.from(fixed), compCount: comparisons, opCount: operations });
+    return i + 1;
+  }
+
+  function buildHeapSortSteps(mainArray) {
+    const n = mainArray.length;
+    for (let i = Math.floor(n / 2) - 1; i >= 0; i--) heapify(mainArray, n, i);
+    for (let i = n - 1; i > 0; i--) {
+      steps.push({ array: [...mainArray], highlight: [], focus: [0], action: [], sorted: Array.from({length: n - 1 - i}, (_, idx) => n - 1 - idx), compCount: comparisons, opCount: operations });
+      [mainArray[0], mainArray[i]] = [mainArray[i], mainArray[0]];
+      operations++;
+      steps.push({ array: [...mainArray], highlight: [], focus: [], action: [0, i], sorted: Array.from({length: n - i}, (_, idx) => n - 1 - idx), compCount: comparisons, opCount: operations });
+      heapify(mainArray, i, 0);
+    }
+  }
+
+  function heapify(mainArray, n, i) {
+    let largest = i;
+    const left = 2 * i + 1, right = 2 * i + 2;
+    if (left < n) { comparisons++; if (mainArray[left] > mainArray[largest]) largest = left; }
+    if (right < n) { comparisons++; if (mainArray[right] > mainArray[largest]) largest = right; }
+    if (largest !== i) {
+      [mainArray[i], mainArray[largest]] = [mainArray[largest], mainArray[i]];
+      operations++;
+      steps.push({ array: [...mainArray], highlight: [left, right].filter(x => x < n), focus: [], action: [i, largest], sorted: [], compCount: comparisons, opCount: operations });
+      heapify(mainArray, n, largest);
+    }
+  }
+
+  /* --- ENGINE LOGIC --- */
+
+  function stopSorting() {
+    if (isRunning) {
+      clearInterval(timer);
+      isRunning = false;
+      document.getElementById('playBtn').textContent = 'Play';
+    }
+  }
+
+  function render(currentArr, highlight = [], focus = [], action = [], sorted = []) {
+    const maxVal = Math.max(...currentArr, 1);
+    const bars = arrayContainer.children;
+
+    if (bars.length !== currentArr.length) {
+      arrayContainer.innerHTML = '';
+      arrayContainer.style.gap = currentArr.length > 25 ? '2px' : '6px';
+      let fontSize = currentArr.length > 30 ? '0.55rem' : (currentArr.length > 20 ? '0.7rem' : '0.85rem');
+
+      currentArr.forEach(() => {
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.style.fontSize = fontSize;
+        arrayContainer.appendChild(bar);
+      });
+    }
+
+    currentArr.forEach((val, idx) => {
+      const bar = bars[idx];
+      bar.className = 'bar';
+      
+      const heightPercentage = (val / maxVal) * 90; 
+      bar.style.height = `${Math.max(heightPercentage, 8)}%`;
+      bar.textContent = val;
+
+      if (sorted.includes(idx)) bar.classList.add('sorted');
+      else if (action.includes(idx)) bar.classList.add('action');
+      else if (focus.includes(idx)) bar.classList.add('focus');
+      else if (highlight.includes(idx)) bar.classList.add('highlight');
+    });
+  }
+
+  function step() {
+    if (currentStepIdx >= steps.length) {
+      stopSorting();
+      return;
+    }
+
+    const state = steps[currentStepIdx];
+    comparisons = state.compCount;
+    operations = state.opCount;
+    updateStats();
+
+    render(state.array, state.highlight, state.focus, state.action, state.sorted);
+
+    currentStepIdx++;
+    if (state.isFinished) stopSorting();
+  }
+
+  function updateStats() {
+    document.getElementById('compCount').textContent = comparisons;
+    document.getElementById('opCount').textContent = operations;
+  }
+
+  algoSelect.addEventListener('change', () => resetState());
+  sizeSlider.addEventListener('input', (e) => {
+    document.getElementById('sizeVal').textContent = e.target.value;
+    generateRandomArray();
+  });
+
+  speedSlider.addEventListener('input', (e) => {
+    document.getElementById('speedVal').textContent = e.target.value;
+    if (isRunning) {
+      clearInterval(timer);
+      timer = setInterval(step, getDelay());
+    }
+  });
+
+  document.getElementById('randomBtn').addEventListener('click', generateRandomArray);
+  document.getElementById('loadCustomBtn').addEventListener('click', loadCustomArray);
+  document.getElementById('stepBtn').addEventListener('click', () => {
+    stopSorting();
+    step();
+  });
+
+  document.getElementById('playBtn').addEventListener('click', () => {
+    if (isRunning) {
+      stopSorting();
+    } else {
+      if (currentStepIdx >= steps.length) resetState();
+      isRunning = true;
+      document.getElementById('playBtn').textContent = 'Pause';
+      timer = setInterval(step, getDelay());
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    if (steps.length > 0 && currentStepIdx > 0) {
+      const state = steps[Math.min(currentStepIdx - 1, steps.length - 1)];
+      render(state.array, state.highlight, state.focus, state.action, state.sorted);
+    } else {
+      render(arr);
+    }
+  });
+
+  generateRandomArray();
+</script>
+</body>
+</html>

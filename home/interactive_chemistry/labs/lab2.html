@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All 118 Elements Custom Compound Builder & VSEPR Engine | Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="index.html" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-atom text-sm"></i>
+                </a>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Virtual Labs Engine</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">118 Elements Palette & Compound Builder</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="hidden sm:inline-block text-xs font-medium px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">
+                    <i class="fa-solid fa-microchip text-indigo-500 mr-1.5"></i> Full Periodic Palette Active
+                </span>
+                <a href="index.html" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-4 py-2 rounded-xl text-sm transition-all">
+                    All Labs
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Lab Header Banner -->
+    <section class="bg-gradient-to-b from-indigo-50/60 via-white to-slate-50 py-8 border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="inline-flex items-center space-x-2 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full text-xs font-semibold text-indigo-700 mb-2">
+                        <i class="fa-solid fa-table-cells text-indigo-600"></i>
+                        <span>Complete Chemical Palette Suite</span>
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                        Universal 118 Elements Compound Builder
+                    </h1>
+                    <p class="text-sm text-slate-600 mt-1 max-w-2xl">
+                        Select any element from the complete 118-element periodic palette. Configure bond orders and positions to build custom molecules with live VSEPR geometry and formal charge analysis.
+                    </p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="clearCustomBuilder()" class="px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl shadow-sm transition flex items-center gap-2">
+                        <i class="fa-solid fa-trash-can text-slate-400"></i> Clear Canvas
+                    </button>
+                    <button onclick="buildAndValidateCompound()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl shadow-sm shadow-indigo-500/20 transition flex items-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Recalculate Geometry
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8">
+        
+        <!-- Top Section: Interactive 118 Element Palette & Quick Filter -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-100">
+                <div>
+                    <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-boxes-stacked text-indigo-600"></i> Full 118-Element Component Palette
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Click any element to add it directly to your custom compound assembly canvas.</p>
+                </div>
+                <!-- Search & Filters -->
+                <div class="flex flex-wrap items-center gap-2 text-xs">
+                    <div class="relative w-48 sm:w-64">
+                        <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-search text-xs"></i>
+                        </span>
+                        <input type="text" id="paletteSearch" placeholder="Search element or Z..." class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <button onclick="filterPalette('all')" class="pal-filter-btn px-2.5 py-1.5 rounded-lg bg-indigo-600 text-white font-medium transition">All (118)</button>
+                    <button onclick="filterPalette('nonmetal')" class="pal-filter-btn px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition">Nonmetals</button>
+                    <button onclick="filterPalette('metal')" class="pal-filter-btn px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition">Metals</button>
+                    <button onclick="filterPalette('noble')" class="pal-filter-btn px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition">Noble Gases</button>
+                </div>
+            </div>
+
+            <!-- Scrollable Elements Grid -->
+            <div id="elementsPaletteGrid" class="grid grid-cols-6 sm:grid-cols-10 md:grid-cols-12 lg:grid-cols-18 gap-1.5 max-h-60 overflow-y-auto p-1 bg-slate-50/50 rounded-xl border border-slate-100">
+                <!-- Populated dynamically via JavaScript with all 118 elements -->
+            </div>
+        </div>
+
+        <!-- Middle Section: Assembly Workspace & Real-Time Analysis -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Column: Bond Configuration & Atom Role Controls -->
+            <div class="space-y-6">
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-indigo-600"></i> Assembly Settings
+                    </h3>
+                    <div class="space-y-4 text-xs">
+                        <div>
+                            <label class="block font-medium text-slate-700 mb-1">Target Bond Type</label>
+                            <select id="bondTypeSelect" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-semibold focus:outline-none focus:border-indigo-500">
+                                <option value="1">Single Bond (2 Sharing e⁻)</option>
+                                <option value="2">Double Bond (4 Sharing e⁻)</option>
+                                <option value="3">Triple Bond (6 Sharing e⁻)</option>
+                            </select>
+                            <span class="text-[10px] text-slate-400 mt-1 block">Applies when attaching new elements to central core</span>
+                        </div>
+
+                        <div>
+                            <label class="block font-medium text-slate-700 mb-1">Default Element Role</label>
+                            <select id="roleSelect" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-semibold focus:outline-none focus:border-indigo-500">
+                                <option value="auto">Auto-Detect (First element = Central)</option>
+                                <option value="central">Force Central Atom</option>
+                                <option value="terminal">Force Terminal Branch</option>
+                            </select>
+                        </div>
+
+                        <div class="p-3 bg-indigo-50/60 rounded-xl border border-indigo-100 text-slate-600 space-y-1">
+                            <div class="font-bold text-indigo-900 text-xs">Quick Builder Tip</div>
+                            <p class="text-[11px] leading-relaxed">Add a central core element (e.g. C, N, S, P) first, then add surrounding ligand atoms (e.g. H, O, F, Cl) to evaluate geometry.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom Element Creator (for hypothetical elements) -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-vial text-indigo-600"></i> Add Custom Synthetic Atom
+                    </h3>
+                    <div class="space-y-3 text-xs">
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="synthSymbol" placeholder="Sym (e.g. Xy)" maxlength="3" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-bold uppercase text-center focus:outline-none focus:border-indigo-500">
+                            <input type="number" id="synthValence" placeholder="Valence e⁻" min="1" max="8" value="5" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-semibold focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <button onclick="addSyntheticElement()" class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl text-xs transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-plus text-[10px]"></i> Add Synthetic Component
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column (2 cols): Dynamic Compound Canvas & Properties -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Assembly Workspace Canvas -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between min-h-[360px] relative">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700">Molecular Assembly Canvas</span>
+                            <span id="formulaTag" class="text-xs font-bold text-slate-900 font-mono">Formula: Unset</span>
+                        </div>
+                        <div class="text-[11px] text-slate-400">
+                            Components Added: <span id="compCount" class="font-bold text-slate-800">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Visual Compound Node Display Area -->
+                    <div id="compoundCanvas" class="my-8 py-6 flex flex-wrap items-center justify-center gap-6 min-h-[160px]">
+                        <div class="text-center text-slate-400 text-xs italic">
+                            <i class="fa-solid fa-hand-pointer text-2xl mb-2 text-slate-300 block"></i>
+                            Click any element from the 118-element palette above to assemble your compound.
+                        </div>
+                    </div>
+
+                    <div class="text-[11px] text-slate-400 text-right">
+                        <i class="fa-solid fa-circle-info mr-1"></i> Hover over node and click <i class="fa-solid fa-xmark text-rose-500"></i> to remove component.
+                    </div>
+                </div>
+
+                <!-- Live Analytical Breakdown -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-microscope text-indigo-600"></i> Structural & VSEPR Property Analysis
+                    </h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs mb-4">
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                            <span class="text-slate-500 block mb-1">Total Valence $e^-$ ($V$)</span>
+                            <span id="resTotalValence" class="font-bold text-slate-900 text-sm">0</span>
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                            <span class="text-slate-500 block mb-1">Shared Bonding $e^-$ ($B$)</span>
+                            <span id="resBondingValence" class="font-bold text-indigo-600 text-sm">0</span>
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                            <span class="text-slate-500 block mb-1">Predicted Geometry</span>
+                            <span id="resGeometry" class="font-bold text-slate-900 text-sm">None</span>
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                            <span class="text-slate-500 block mb-1">Ideal Bond Angle</span>
+                            <span id="resAngle" class="font-bold text-slate-900 text-sm">N/A</span>
+                        </div>
+                    </div>
+
+                    <!-- Formal Charge Breakdown Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase font-semibold">
+                                <tr>
+                                    <th class="py-2.5 px-3">Atom Component</th>
+                                    <th class="py-2.5 px-3">Role</th>
+                                    <th class="py-2.5 px-3">Valence ($V$)</th>
+                                    <th class="py-2.5 px-3">Non-bonding $e^-$</th>
+                                    <th class="py-2.5 px-3">Bonds</th>
+                                    <th class="py-2.5 px-3">Formal Charge</th>
+                                </tr>
+                            </thead>
+                            <tbody id="analysisTableBody" class="divide-y divide-slate-100 text-slate-700">
+                                <tr>
+                                    <td colspan="6" class="py-4 text-center text-slate-400 italic">Select elements from the palette above to generate analysis.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <span>&copy; 2026 Virtual Learning Labs Platform • Full 118 Elements Universal Palette Engine</span>
+            <a href="index.html" class="hover:text-indigo-600 transition">Return to Home Directory</a>
+        </div>
+    </footer>
+
+    <!-- All 118 Elements Engine Script -->
+    <script>
+        // Master Database for All 118 Elements: [Name, Symbol, Atomic Number, Mass, Category, ValenceElectrons, Electronegativity]
+        const all118Elements = [
+            ["Hydrogen","H",1,1.008,"nonmetal",1,2.20],
+            ["Helium","He",2,4.003,"noble",2,null],
+            ["Lithium","Li",3,6.94,"metal",1,0.98],
+            ["Beryllium","Be",4,9.012,"metal",2,1.57],
+            ["Boron","B",5,10.81,"nonmetal",3,2.04],
+            ["Carbon","C",6,12.011,"nonmetal",4,2.55],
+            ["Nitrogen","N",7,14.007,"nonmetal",5,3.04],
+            ["Oxygen","O",8,15.999,"nonmetal",6,3.44],
+            ["Fluorine","F",9,18.998,"nonmetal",7,3.98],
+            ["Neon","Ne",10,20.180,"noble",8,null],
+            ["Sodium","Na",11,22.990,"metal",1,0.93],
+            ["Magnesium","Mg",12,24.305,"metal",2,1.31],
+            ["Aluminum","Al",13,26.982,"metal",3,1.61],
+            ["Silicon","Si",14,28.085,"nonmetal",4,1.90],
+            ["Phosphorus","P",15,30.974,"nonmetal",5,2.19],
+            ["Sulfur","S",16,32.06,"nonmetal",6,2.58],
+            ["Chlorine","Cl",17,35.45,"nonmetal",7,3.16],
+            ["Argon","Ar",18,39.95,"noble",8,null],
+            ["Potassium","K",19,39.098,"metal",1,0.82],
+            ["Calcium","Ca",20,40.078,"metal",2,1.00],
+            ["Scandium","Sc",21,44.956,"metal",3,1.36],
+            ["Titanium","Ti",22,47.867,"metal",4,1.54],
+            ["Vanadium","V",23,50.942,"metal",5,1.63],
+            ["Chromium","Cr",24,51.996,"metal",6,1.66],
+            ["Manganese","Mn",25,54.938,"metal",7,1.55],
+            ["Iron","Fe",26,55.845,"metal",8,1.83],
+            ["Cobalt","Co",27,58.933,"metal",9,1.88],
+            ["Nickel","Ni",28,58.693,"metal",10,1.91],
+            ["Copper","Cu",29,63.546,"metal",1,1.90],
+            ["Zinc","Zn",30,65.38,"metal",2,1.65],
+            ["Gallium","Ga",31,69.723,"metal",3,1.81],
+            ["Germanium","Ge",32,72.630,"nonmetal",4,2.01],
+            ["Arsenic","As",33,74.922,"nonmetal",5,2.18],
+            ["Selenium","Se",34,78.971,"nonmetal",6,2.55],
+            ["Bromine","Br",35,79.904,"nonmetal",7,2.96],
+            ["Krypton","Kr",36,83.798,"noble",8,3.00],
+            ["Rubidium","Rb",37,85.468,"metal",1,0.82],
+            ["Strontium","Sr",38,87.62,"metal",2,0.95],
+            ["Yttrium","Y",39,88.906,"metal",3,1.22],
+            ["Zirconium","Zr",40,91.224,"metal",4,1.33],
+            ["Niobium","Nb",41,92.906,"metal",5,1.60],
+            ["Molybdenum","Mo",42,95.95,"metal",6,2.16],
+            ["Technetium","Tc",43,98,"metal",7,1.90],
+            ["Ruthenium","Ru",44,101.07,"metal",8,2.20],
+            ["Rhodium","Rh",45,102.91,"metal",9,2.28],
+            ["Palladium","Pd",46,106.42,"metal",10,2.20],
+            ["Silver","Ag",47,107.87,"metal",1,1.93],
+            ["Cadmium","Cd",48,112.41,"metal",2,1.69],
+            ["Indium","In",49,114.82,"metal",3,1.78],
+            ["Tin","Sn",50,118.71,"metal",4,1.96],
+            ["Antimony","Sb",51,121.76,"nonmetal",5,2.05],
+            ["Tellurium","Te",52,127.60,"nonmetal",6,2.10],
+            ["Iodine","I",53,126.90,"nonmetal",7,2.66],
+            ["Xenon","Xe",54,131.29,"noble",8,2.60],
+            ["Cesium","Cs",55,132.91,"metal",1,0.79],
+            ["Barium","Ba",56,137.33,"metal",2,0.89],
+            ["Lanthanum","La",57,138.91,"metal",3,1.10],
+            ["Cerium","Ce",58,140.12,"metal",4,1.12],
+            ["Praseodymium","Pr",59,140.91,"metal",5,1.13],
+            ["Neodymium","Nd",60,144.24,"metal",6,1.14],
+            ["Promethium","Pm",61,145,"metal",7,1.13],
+            ["Samarium","Sm",62,150.36,"metal",8,1.17],
+            ["Europium","Eu",63,151.96,"metal",9,1.20],
+            ["Gadolinium","Gd",64,157.25,"metal",10,1.20],
+            ["Terbium","Tb",65,158.93,"metal",11,1.10],
+            ["Dysprosium","Dy",66,162.50,"metal",12,1.22],
+            ["Holmium","Ho",67,164.93,"metal",13,1.23],
+            ["Erbium","Er",68,167.26,"metal",14,1.24],
+            ["Thulium","Tm",69,168.93,"metal",15,1.25],
+            ["Ytterbium","Yb",70,173.05,"metal",16,1.10],
+            ["Lutetium","Lu",71,174.97,"metal",3,1.27],
+            ["Hafnium","Hf",72,178.49,"metal",4,1.30],
+            ["Tantalum","Ta",73,180.95,"metal",5,1.50],
+            ["Tungsten","W",74,183.84,"metal",6,2.36],
+            ["Rhenium","Re",75,186.21,"metal",7,1.90],
+            ["Osmium","Os",76,190.23,"metal",8,2.20],
+            ["Iridium","Ir",77,192.22,"metal",9,2.20],
+            ["Platinum","Pt",78,195.08,"metal",10,2.28],
+            ["Gold","Au",79,196.97,"metal",1,2.54],
+            ["Mercury","Hg",80,200.59,"metal",2,2.00],
+            ["Thallium","Tl",81,204.38,"metal",3,1.62],
+            ["Lead","Pb",82,207.2,"metal",4,2.33],
+            ["Bismuth","Bi",83,208.98,"metal",5,2.02],
+            ["Polonium","Po",84,209,"nonmetal",6,2.00],
+            ["Astatine","At",85,210,"nonmetal",7,2.20],
+            ["Radon","Rn",86,222,"noble",8,2.20],
+            ["Francium","Fr",87,223,"metal",1,0.70],
+            ["Radium","Ra",88,226,"metal",2,0.90],
+            ["Actinium","Ac",89,227,"metal",3,1.10],
+            ["Thorium","Th",90,232.04,"metal",4,1.30],
+            ["Protactinium","Pa",91,231.04,"metal",5,1.50],
+            ["Uranium","U",92,238.03,"metal",6,1.38],
+            ["Neptunium","Np",93,237,"metal",7,1.36],
+            ["Plutonium","Pu",94,244,"metal",8,1.28],
+            ["Americium","Am",95,243,"metal",9,1.30],
+            ["Curium","Cm",96,247,"metal",10,1.30],
+            ["Berkelium","Bk",97,247,"metal",11,1.30],
+            ["Californium","Cf",98,251,"metal",12,1.30],
+            ["Einsteinium","Es",99,252,"metal",13,1.30],
+            ["Fermium","Fm",100,257,"metal",14,1.30],
+            ["Mendelevium","Md",101,258,"metal",15,1.30],
+            ["Nobelium","No",102,259,"metal",16,1.30],
+            ["Lawrencium","Lr",103,266,"metal",3,1.30],
+            ["Rutherfordium","Rf",104,267,"metal",4,null],
+            ["Dubnium","Db",105,268,"metal",5,null],
+            ["Seaborgium","Sg",106,269,"metal",6,null],
+            ["Bohrium","Bh",107,270,"metal",7,null],
+            ["Hassium","Hs",108,277,"metal",8,null],
+            ["Meitnerium","Mt",109,278,"metal",9,null],
+            ["Darmstadtium","Ds",110,281,"metal",10,null],
+            ["Roentgenium","Rg",111,282,"metal",1,null],
+            ["Copernicium","Cn",112,285,"metal",2,null],
+            ["Nihonium","Nh",113,286,"metal",3,null],
+            ["Flerovium","Fl",114,289,"metal",4,null],
+            ["Moscovium","Mc",115,290,"metal",5,null],
+            ["Livermorium","Lv",116,293,"metal",6,null],
+            ["Tennessine","Ts",117,294,"nonmetal",7,null],
+            ["Oganesson","Og",118,294,"noble",8,null]
+        ];
+
+        let constructedCompound = [];
+
+        function render118Palette(filterCategory = 'all', searchQuery = '') {
+            const grid = document.getElementById('elementsPaletteGrid');
+            grid.innerHTML = '';
+
+            all118Elements.forEach(data => {
+                const [name, symbol, number, mass, category, valence, electroneg] = data;
+
+                if (filterCategory !== 'all' && category !== filterCategory) return;
+                if (searchQuery && !name.toLowerCase().includes(searchQuery) && !symbol.toLowerCase().includes(searchQuery) && number.toString() !== searchQuery) return;
+
+                const card = document.createElement('button');
+                let bgClass = "bg-slate-100 hover:bg-indigo-100 border-slate-200 text-slate-800";
+                if (category === 'noble') bgClass = "bg-purple-100 hover:bg-purple-200 border-purple-200 text-purple-900";
+                if (category === 'nonmetal') bgClass = "bg-amber-100 hover:bg-amber-200 border-amber-200 text-amber-900";
+                if (category === 'metal') bgClass = "bg-indigo-100 hover:bg-indigo-200 border-indigo-200 text-indigo-900";
+
+                card.className = `p-1 rounded-lg border ${bgClass} font-bold transition flex flex-col items-center justify-center text-center shadow-2xs hover:scale-105`;
+                card.onclick = () => addElementFromPalette(data);
+                card.title = `${name} (Z=${number}, Valence e⁻ = ${valence})`;
+                card.innerHTML = `
+                    <span class="text-[8px] opacity-60 leading-none">${number}</span>
+                    <span class="text-xs tracking-tight">${symbol}</span>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function addElementFromPalette(data) {
+            const [name, symbol, number, mass, category, valence, electroneg] = data;
+            const targetBond = parseInt(document.getElementById('bondTypeSelect').value);
+            const roleSetting = document.getElementById('roleSelect').value;
+
+            let assignedRole = "terminal";
+            if (roleSetting === "central") assignedRole = "central";
+            else if (roleSetting === "terminal") assignedRole = "terminal";
+            else {
+                // Auto-detect: First added component is central core
+                assignedRole = constructedCompound.length === 0 ? "central" : "terminal";
+            }
+
+            constructedCompound.push({
+                id: Date.now() + Math.random(),
+                name,
+                symbol,
+                number,
+                valence,
+                category,
+                role: assignedRole,
+                bondOrder: constructedCompound.length === 0 ? 0 : targetBond
+            });
+
+            renderCompoundCanvas();
+        }
+
+        function addSyntheticElement() {
+            const symbol = document.getElementById('synthSymbol').value.trim().toUpperCase();
+            const valence = parseInt(document.getElementById('synthValence').value);
+            if (!symbol || isNaN(valence)) {
+                alert("Please enter a valid symbol and valence electron number.");
+                return;
+            }
+            addElementFromPalette([`Synthetic (${symbol})`, symbol, 999, 300, "nonmetal", valence, 2.5]);
+            document.getElementById('synthSymbol').value = '';
+        }
+
+        function removeComponent(id) {
+            constructedCompound = constructedCompound.filter(c => c.id !== id);
+            renderCompoundCanvas();
+        }
+
+        function clearCustomBuilder() {
+            constructedCompound = [];
+            renderCompoundCanvas();
+            document.getElementById('analysisTableBody').innerHTML = `<tr><td colspan="6" class="py-4 text-center text-slate-400 italic">Select elements from the palette above to generate analysis.</td></tr>`;
+            document.getElementById('resTotalValence').innerText = '0';
+            document.getElementById('resBondingValence').innerText = '0';
+            document.getElementById('resGeometry').innerText = 'None';
+            document.getElementById('resAngle').innerText = 'N/A';
+            document.getElementById('formulaTag').innerText = 'Formula: Unset';
+            document.getElementById('compCount').innerText = '0';
+        }
+
+        function renderCompoundCanvas() {
+            const canvas = document.getElementById('compoundCanvas');
+            document.getElementById('compCount').innerText = constructedCompound.length;
+
+            if (constructedCompound.length === 0) {
+                canvas.innerHTML = `
+                    <div class="text-center text-slate-400 text-xs italic">
+                        <i class="fa-solid fa-hand-pointer text-2xl mb-2 text-slate-300 block"></i>
+                        Click any element from the 118-element palette above to assemble your compound.
+                    </div>
+                `;
+                return;
+            }
+
+            canvas.innerHTML = '';
+            
+            // Build formula string
+            const counts = {};
+            constructedCompound.forEach(c => { counts[c.symbol] = (counts[c.symbol] || 0) + 1; });
+            const formula = Object.entries(counts).map(([sym, cnt]) => cnt > 1 ? `${sym}<sub>${cnt}</sub>` : sym).join('');
+            document.getElementById('formulaTag').innerHTML = `Formula: ${formula}`;
+
+            constructedCompound.forEach((item, index) => {
+                if (index > 0) {
+                    // Render bond connector
+                    const bondDiv = document.createElement('div');
+                    bondDiv.className = "flex flex-col items-center justify-center";
+                    let bondText = "Single (2e⁻)";
+                    let hClass = "h-1 w-12 bg-indigo-500 rounded-full";
+                    if (item.bondOrder === 2) { bondText = "Double (4e⁻)"; hClass = "h-2 w-14 bg-indigo-500 rounded-full"; }
+                    if (item.bondOrder === 3) { bondText = "Triple (6e⁻)"; hClass = "h-3 w-16 bg-indigo-600 rounded-full"; }
+
+                    bondDiv.innerHTML = `
+                        <span class="text-[9px] font-bold text-indigo-600 mb-1">${bondText}</span>
+                        <div class="${hClass}"></div>
+                    `;
+                    canvas.appendChild(bondDiv);
+                }
+
+                // Render Atom Node
+                const node = document.createElement('div');
+                node.className = "relative flex flex-col items-center group";
+                node.innerHTML = `
+                    <div class="w-14 h-14 rounded-2xl ${item.role === 'central' ? 'bg-indigo-50 border-2 border-indigo-500 text-indigo-700' : 'bg-slate-100 border-2 border-slate-300 text-slate-800'} flex items-center justify-center font-extrabold text-base shadow-md">
+                        ${item.symbol}
+                    </div>
+                    <span class="text-[10px] font-medium text-slate-500 mt-1">${item.role}</span>
+                    <button onclick="removeComponent(${item.id})" class="absolute -top-2 -right-2 w-5 h-5 bg-rose-500 text-white rounded-full text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow cursor-pointer">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                `;
+                canvas.appendChild(node);
+            });
+
+            buildAndValidateCompound();
+        }
+
+        function buildAndValidateCompound() {
+            if (constructedCompound.length === 0) return;
+
+            let totalV = 0;
+            let totalB = 0;
+
+            constructedCompound.forEach(item => {
+                totalV += item.valence;
+                totalB += (item.bondOrder || 0) * 2;
+            });
+
+            const centralAtom = constructedCompound.find(c => c.role === 'central') || constructedCompound[0];
+            const terminalAtoms = constructedCompound.filter(c => c.id !== centralAtom.id);
+            
+            const numBonds = terminalAtoms.reduce((acc, curr) => acc + curr.bondOrder, 0);
+            
+            // Calculate central lone pairs
+            const nonBondCentral = Math.max(0, centralAtom.valence - numBonds);
+            const lonePairsCentral = Math.floor(nonBondCentral / 2);
+            const totalDomains = numBonds + lonePairsCentral;
+
+            let geometry = "Linear";
+            let angle = "180°";
+
+            if (totalDomains === 3) {
+                geometry = lonePairsCentral === 0 ? "Trigonal Planar" : "Bent";
+                angle = lonePairsCentral === 0 ? "120°" : "< 120°";
+            } else if (totalDomains === 4) {
+                if (lonePairsCentral === 0) { geometry = "Tetrahedral"; angle = "109.5°"; }
+                else if (lonePairsCentral === 1) { geometry = "Trigonal Pyramidal"; angle = "107°"; }
+                else { geometry = "Bent (V-shaped)"; angle = "104.5°"; }
+            } else if (totalDomains === 5) {
+                geometry = "Trigonal Bipyramidal"; angle = "90°, 120°";
+            } else if (totalDomains >= 6) {
+                geometry = "Octahedral"; angle = "90°";
+            }
+
+            document.getElementById('resTotalValence').innerText = totalV;
+            document.getElementById('resBondingValence').innerText = totalB;
+            document.getElementById('resGeometry').innerText = geometry;
+            document.getElementById('resAngle').innerText = angle;
+
+            // Render Formal Charge Table
+            const tbody = document.getElementById('analysisTableBody');
+            tbody.innerHTML = '';
+
+            constructedCompound.forEach(comp => {
+                const isCentral = comp.id === centralAtom.id;
+                const bondsCount = isCentral ? numBonds : comp.bondOrder;
+                const nonBondCount = Math.max(0, comp.valence - bondsCount);
+                const formalCharge = comp.valence - nonBondCount - bondsCount;
+
+                const row = document.createElement('tr');
+                row.className = "hover:bg-slate-50 transition";
+                row.innerHTML = `
+                    <td class="py-2.5 px-3 font-bold text-slate-900">${comp.symbol} (${comp.name})</td>
+                    <td class="py-2.5 px-3 uppercase text-[10px] font-semibold">${comp.role}</td>
+                    <td class="py-2.5 px-3">${comp.valence}</td>
+                    <td class="py-2.5 px-3">${nonBondCount}</td>
+                    <td class="py-2.5 px-3">${bondsCount}</td>
+                    <td class="py-2.5 px-3 font-bold ${formalCharge === 0 ? 'text-emerald-600' : 'text-amber-600'}">${formalCharge > 0 ? '+' + formalCharge : formalCharge}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function filterPalette(cat) {
+            document.querySelectorAll('.pal-filter-btn').forEach(b => {
+                b.className = "pal-filter-btn px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition";
+            });
+            event.target.className = "pal-filter-btn px-2.5 py-1.5 rounded-lg bg-indigo-600 text-white font-medium transition";
+            const query = document.getElementById('paletteSearch').value.toLowerCase();
+            render118Palette(cat, query);
+        }
+
+        document.getElementById('paletteSearch').addEventListener('input', (e) => {
+            render118Palette('all', e.target.value.toLowerCase());
+        });
+
+        // Initialize Palette
+        window.addEventListener('DOMContentLoaded', () => {
+            render118Palette();
+        });
+    </script>
+</body>
+</html>

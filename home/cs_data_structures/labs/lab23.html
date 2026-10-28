@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #23: DP on Trees: Maximum Independent Set</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        code, .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .node-circle { transition: all 0.4s ease-in-out; }
+        .tree-line { transition: all 0.4s ease-in-out; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <div>
+        <!-- Navbar -->
+        <header class="bg-white border-b border-slate-100 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="#" class="bg-indigo-600 text-white p-2 rounded-xl shadow-md shadow-indigo-100">
+                        <i class="fa-solid fa-flask text-base"></i>
+                    </a>
+                    <div>
+                        <span class="font-bold text-slate-900 text-sm block leading-snug">Virtual Labs</span>
+                        <span class="text-[10px] text-indigo-600 font-bold uppercase tracking-wider block">CS & DATA STRUCTURES</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <span class="bg-indigo-50 text-indigo-700 text-xs font-semibold px-3 py-1 rounded-full border border-indigo-100">
+                        Lab #23 of 32
+                    </span>
+                    <button onclick="resetTreeState()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Reset Tree
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Lab Title Banner -->
+        <div class="bg-white border-b border-slate-100 py-6 px-6">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center space-x-2 text-xs text-indigo-600 font-semibold mb-1">
+                        <span>Dynamic Programming on Trees</span>
+                        <i class="fa-solid fa-chevron-right text-[9px] text-slate-400"></i>
+                        <span class="text-slate-500">Inclusion vs Exclusion States</span>
+                    </div>
+                    <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">
+                        Lab #23: DP on Trees: Maximum Independent Set
+                    </h1>
+                    <p class="text-xs text-slate-500 mt-1">
+                        Trace inclusion/exclusion state transitions (dp[u][0] vs dp[u][1]) on hierarchical tree structures.
+                    </p>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-semibold text-slate-600 bg-indigo-50 text-indigo-700 border border-indigo-200/80 px-3 py-1 rounded-full">
+                        <i class="fa-solid fa-sitemap mr-1"></i> Tree DP Studio
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Workbench Area -->
+        <main class="max-w-7xl mx-auto px-6 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+            <!-- Control & Status Panel -->
+            <div class="space-y-5 lg:col-span-1">
+                
+                <!-- Controls -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Tree DP Controls</h3>
+                    <button onclick="runTreeDP()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-xs">
+                        Run Post-Order Tree DP
+                    </button>
+                    <div class="bg-emerald-50 border border-emerald-100 p-3 rounded-xl text-center space-y-1">
+                        <span class="text-[11px] text-emerald-600 font-semibold block">Max Independent Set Weight</span>
+                        <span class="text-xl font-black text-emerald-700 font-mono" id="maxWeightBox">--</span>
+                    </div>
+                </div>
+
+                <!-- Execution Log -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Tree DP Trace Log</h3>
+                    <div id="logContainer" class="bg-slate-900 text-slate-300 p-3 rounded-xl font-mono text-[11px] h-44 overflow-y-auto space-y-1">
+                        <div class="text-slate-500">// Engine ready. Click Run Post-Order Tree DP.</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Visualization Canvas -->
+            <div class="lg:col-span-3 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between relative min-h-[550px] overflow-hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Interactive Tree Hierarchy Canvas (Node Weight / dp[0], dp[1])</span>
+                    <div class="flex items-center space-x-3 text-[11px] text-slate-500 font-medium">
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-slate-300 rounded-full inline-block mr-1"></span> Pending</span>
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-emerald-500 rounded-full inline-block mr-1"></span> Included in Set</span>
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-rose-400 rounded-full inline-block mr-1"></span> Excluded</span>
+                    </div>
+                </div>
+
+                <!-- SVG Tree Render Container -->
+                <div class="relative w-full h-[500px] border border-slate-100 rounded-xl bg-slate-50/50 overflow-auto flex items-center justify-center" id="canvasBox">
+                    <svg id="treeSvg" class="w-full h-full min-w-[700px] min-h-[480px]"></svg>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-100 py-6 text-center text-xs text-slate-400">
+        <span>&copy; 2026 Virtual Labs • DP on Trees Studio Suite</span>
+    </footer>
+
+    <!-- Script implementing Tree DP for Maximum Independent Set -->
+    <script>
+        const nodes = [
+            { id: 0, label: 'Root (A)', weight: 10, x: 350, y: 80, children: [1, 2], state: 'pending', dp0: 0, dp1: 0, chosen: false },
+            { id: 1, label: 'Node (B)', weight: 5, x: 200, y: 200, children: [3, 4], state: 'pending', dp0: 0, dp1: 0, chosen: false },
+            { id: 2, label: 'Node (C)', weight: 8, x: 500, y: 200, children: [5], state: 'pending', dp0: 0, dp1: 0, chosen: false },
+            { id: 3, label: 'Leaf (D)', weight: 2, x: 120, y: 340, children: [], state: 'pending', dp0: 0, dp1: 0, chosen: false },
+            { id: 4, label: 'Leaf (E)', weight: 6, x: 280, y: 340, children: [], state: 'pending', dp0: 0, dp1: 0, chosen: false },
+            { id: 5, label: 'Leaf (F)', weight: 7, x: 500, y: 340, children: [], state: 'pending', dp0: 0, dp1: 0, chosen: false }
+        ];
+
+        let timer = null;
+
+        function resetTreeState() {
+            if (timer) clearInterval(timer);
+            nodes.forEach(n => {
+                n.state = 'pending';
+                n.dp0 = 0;
+                n.dp1 = 0;
+                n.chosen = false;
+            });
+            document.getElementById('maxWeightBox').innerText = '--';
+            document.getElementById('logContainer').innerHTML = '<div class="text-slate-500">// Engine ready. Click Run Post-Order Tree DP.</div>';
+            renderTree();
+        }
+
+        function runTreeDP() {
+            if (timer) clearInterval(timer);
+            nodes.forEach(n => {
+                n.state = 'pending';
+                n.dp0 = 0;
+                n.dp1 = 0;
+                n.chosen = false;
+            });
+            document.getElementById('logContainer').innerHTML = '';
+
+            logTrace(`--- Starting Post-Order Tree DP (Maximum Independent Set) ---`);
+
+            let order = [];
+            function postOrder(uId) {
+                let node = nodes[uId];
+                for (let cId of node.children) {
+                    postOrder(cId);
+                }
+                order.push(uId);
+            }
+            postOrder(0); // Root is 0
+
+            let idx = 0;
+            timer = setInterval(() => {
+                if (idx >= order.length) {
+                    clearInterval(timer);
+                    let root = nodes[0];
+                    let maxW = Math.max(root.dp0, root.dp1);
+                    document.getElementById('maxWeightBox').innerText = maxW;
+                    logTrace(`--- Tree DP Complete! Maximum Independent Set Weight: ${maxW} ---`, 'highlight');
+                    
+                    // Backtrack to choose nodes
+                    backtrackTree(0, false);
+                    renderTree();
+                    return;
+                }
+
+                let uId = order[idx];
+                let node = nodes[uId];
+
+                let sumDp0 = 0; // if exclude u, sum of max(child.dp0, child.dp1)
+                let sumDp1 = node.weight; // if include u, sum of child.dp0
+
+                for (let cId of node.children) {
+                    let child = nodes[cId];
+                    sumDp0 += Math.max(child.dp0, child.dp1);
+                    sumDp1 += child.dp0;
+                }
+
+                node.dp0 = sumDp0;
+                node.dp1 = sumDp1;
+                node.state = 'evaluated';
+
+                logTrace(`Node [${node.label}] computed: dp[0] (exclude) = ${node.dp0}, dp[1] (include) = <strong class="text-emerald-400">${node.dp1}</strong>`);
+                renderTree();
+                idx++;
+            }, 800);
+        }
+
+        function backtrackTree(uId, parentChosen) {
+            let node = nodes[uId];
+            if (!parentChosen && node.dp1 > node.dp0) {
+                node.chosen = true;
+                node.state = 'included';
+                logTrace(`Including node [${node.label}] in Maximum Independent Set`, 'match');
+                for (let cId of node.children) {
+                    backtrackTree(cId, true);
+                }
+            } else {
+                node.chosen = false;
+                node.state = 'excluded';
+                logTrace(`Excluding node [${node.label}] from Independent Set`);
+                for (let cId of node.children) {
+                    backtrackTree(cId, false);
+                }
+            }
+        }
+
+        function logTrace(msg, type = 'info') {
+            const container = document.getElementById('logContainer');
+            let color = 'text-slate-300';
+            if (type === 'match') color = 'text-emerald-300 font-bold';
+            if (type === 'highlight') color = 'text-indigo-300 font-bold';
+
+            container.innerHTML += `<div class="${color}">&gt; ${msg}</div>`;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function renderTree() {
+            const svg = document.getElementById('treeSvg');
+            svg.innerHTML = '';
+
+            // Draw Edges
+            nodes.forEach(n => {
+                n.children.forEach(cId => {
+                    let child = nodes[cId];
+                    svg.innerHTML += `<line x1="${n.x}" y1="${n.y}" x2="${child.x}" y2="${child.y}" stroke="#cbd5e1" stroke-width="2.5" class="tree-line"/>`;
+                });
+            });
+
+            // Draw Nodes
+            nodes.forEach(n => {
+                let fillColor = '#cbd5e1'; // Pending
+                if (n.state === 'evaluated') fillColor = '#4f46e5';
+                if (n.state === 'included') fillColor = '#10b981';
+                if (n.state === 'excluded') fillColor = '#f43f5e';
+
+                svg.innerHTML += `
+                    <g class="node-circle">
+                        <circle cx="${n.x}" cy="${n.y}" r="28" fill="${fillColor}" />
+                        <text x="${n.x}" y="${n.y - 4}" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Inter">${n.label.split(' ')[0]}</text>
+                        <text x="${n.x}" y="${n.y + 10}" text-anchor="middle" fill="#e2e8f0" font-size="9" font-family="JetBrains Mono">wt:${n.weight}</text>
+                        <text x="${n.x}" y="${n.y + 42}" text-anchor="middle" fill="#475569" font-size="10" font-weight="bold" font-family="JetBrains Mono">[${n.dp0}, ${n.dp1}]</text>
+                    </g>
+                `;
+            });
+        }
+
+        window.addEventListener('resize', renderTree);
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTree();
+        });
+    </script>
+</body>
+</html>

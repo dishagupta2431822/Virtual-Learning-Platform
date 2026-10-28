@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Process Synchronization & Concurrency Lab</title>
+    <style>
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --accent-blue: #2563eb;
+            --accent-blue-hover: #1d4ed8;
+            --accent-green: #16a34a;
+            --accent-purple: #9333ea;
+            --accent-orange: #ea580c;
+            --accent-red: #dc2626;
+            --border-color: #cbd5e1;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            line-height: 1.5;
+            padding: 1rem;
+            min-height: 100vh;
+        }
+
+        /* Fully stretchable container */
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background-color: var(--bg-card);
+            padding: 1.25rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        h1 {
+            font-size: clamp(1.2rem, 2vw, 1.5rem);
+            color: var(--accent-blue);
+        }
+
+        p.subtitle {
+            color: var(--text-secondary);
+            font-size: clamp(0.8rem, 1.2vw, 0.9rem);
+        }
+
+        /* Stretchable Navigation Tabs */
+        .tab-buttons {
+            display: flex;
+            gap: 0.35rem;
+            background-color: #e2e8f0;
+            padding: 0.3rem;
+            border-radius: 6px;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: max-content;
+        }
+
+        .tab-btn {
+            flex: 1 1 auto;
+            padding: 0.45rem 0.85rem;
+            border: none;
+            background: none;
+            font-weight: 600;
+            font-size: clamp(0.75rem, 1vw, 0.85rem);
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background-color: var(--bg-card);
+            color: var(--accent-blue);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Dynamic stretchable description card */
+        .desc-card {
+            background-color: #eff6ff;
+            border-left: 5px solid var(--accent-blue);
+            border-radius: 6px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            width: 100%;
+        }
+
+        .desc-title {
+            font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-bottom: 0.3rem;
+        }
+
+        .desc-text {
+            font-size: clamp(0.8rem, 1.2vw, 0.9rem);
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .semaphore-pills {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-top: 0.75rem;
+            padding-top: 0.5rem;
+            border-top: 1px dashed #bfdbfe;
+        }
+
+        .sem-pill {
+            background-color: #ffffff;
+            border: 1px solid #bfdbfe;
+            padding: 0.25rem 0.65rem;
+            border-radius: 20px;
+            font-size: 0.775rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            flex: 0 1 auto;
+        }
+
+        /* Fully Fluid Grid Layout */
+        .lab-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            width: 100%;
+        }
+
+        .card-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--bg-body);
+        }
+
+        .btn {
+            padding: 0.6rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.825rem;
+            transition: all 0.2s;
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-primary { background-color: var(--accent-blue); color: white; }
+        .btn-primary:hover { background-color: var(--accent-blue-hover); }
+        .btn-success { background-color: var(--accent-green); color: white; }
+        .btn-warning { background-color: var(--accent-orange); color: white; }
+        .btn-danger { background-color: var(--accent-red); color: white; }
+
+        /* Producer-Consumer Bounded Buffer Visuals */
+        .buffer-container {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 1rem 0;
+            padding: 1rem;
+            background-color: #f1f5f9;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            width: 100%;
+            min-height: 80px;
+        }
+
+        .buffer-slot {
+            flex: 1 1 50px;
+            max-width: 80px;
+            height: 50px;
+            border: 2px dashed var(--border-color);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+            background-color: #ffffff;
+            transition: all 0.3s;
+        }
+
+        .buffer-slot.filled {
+            border: 2px solid var(--accent-blue);
+            background-color: #dbeafe;
+            color: var(--accent-blue);
+        }
+
+        /* Dining Philosophers Visuals */
+        .table-visualizer {
+            position: relative;
+            width: min(100%, 280px);
+            aspect-ratio: 1 / 1;
+            margin: 1rem auto;
+            border-radius: 50%;
+            background-color: #f1f5f9;
+            border: 4px solid var(--border-color);
+        }
+
+        .philosopher {
+            position: absolute;
+            width: clamp(45px, 15%, 55px);
+            height: clamp(45px, 15%, 55px);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.725rem;
+            font-weight: bold;
+            color: white;
+            transition: all 0.3s;
+            transform: translate(-50%, -50%);
+        }
+
+        .philosopher.thinking { background-color: #64748b; }
+        .philosopher.hungry { background-color: var(--accent-orange); }
+        .philosopher.eating { background-color: var(--accent-green); }
+
+        .chopstick {
+            position: absolute;
+            width: 28px;
+            height: 6px;
+            background-color: #94a3b8;
+            border-radius: 3px;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s;
+        }
+
+        .chopstick.in-use { background-color: var(--accent-purple); }
+
+        /* Readers-Writers Visuals */
+        .rw-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            align-items: center;
+            margin: 1rem 0;
+            width: 100%;
+        }
+
+        .rw-box {
+            background-color: #f1f5f9;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            min-height: 100px;
+        }
+
+        .db-resource {
+            background-color: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        /* Peterson & TAS Visuals */
+        .sync-box {
+            background-color: #f1f5f9;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            width: 100%;
+        }
+
+        .critical-section {
+            background-color: #fee2e2;
+            border: 2px solid var(--accent-red);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            font-weight: bold;
+            color: var(--accent-red);
+            margin: 1rem 0;
+            width: 100%;
+        }
+
+        .critical-section.occupied {
+            background-color: #dcfce7;
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        /* Stretchable Console Logger Box */
+        .logger {
+            height: min(250px, 30vh);
+            background-color: #0f172a;
+            color: #38bdf8;
+            font-family: monospace;
+            font-size: 0.775rem;
+            padding: 0.75rem;
+            border-radius: 6px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            width: 100%;
+        }
+
+        .log-producer { color: #4ade80; }
+        .log-consumer { color: #f97316; }
+        .log-system { color: #38bdf8; }
+        .log-warning { color: #facc15; }
+        .log-error { color: #f87171; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div>
+                <h1>Process Synchronization & Concurrency Lab</h1>
+                <p class="subtitle">Stretchable responsive simulator for semaphores, mutexes, and race conditions</p>
+            </div>
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchProblem('pc')">Producer-Consumer</button>
+                <button class="tab-btn" onclick="switchProblem('dp')">Dining Philosophers</button>
+                <button class="tab-btn" onclick="switchProblem('rw')">Readers-Writers</button>
+                <button class="tab-btn" onclick="switchProblem('peterson')">Peterson's Solution</button>
+                <button class="tab-btn" onclick="switchProblem('tas')">Test-and-Set</button>
+            </div>
+        </header>
+
+        <!-- Dynamic Description -->
+        <div class="desc-card" id="problemDesc"></div>
+
+        <!-- Main Lab Content Layout -->
+        <div class="lab-grid">
+            <!-- Left Panel -->
+            <div>
+                <div class="card" id="controlsCard"></div>
+
+                <div class="card">
+                    <div class="card-title">Event Log</div>
+                    <div class="logger" id="eventLog"></div>
+                    <button class="btn btn-warning" style="margin-top: 0.5rem;" onclick="clearLog()">Clear Log</button>
+                </div>
+            </div>
+
+            <!-- Right Visualizer Panel -->
+            <div>
+                <div class="card">
+                    <div class="card-title" id="visualizerTitle">Synchronization Visualizer</div>
+                    
+                    <div id="visualizerContainer"></div>
+
+                    <div id="metricsPanel" style="margin-top: 1rem;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentProblem = 'pc';
+
+        // 1. Producer-Consumer State
+        let bufferSize = 5;
+        let buffer = [];
+        let mutex = 1;
+        let full = 0;
+        let empty = 5;
+        let pcAutoInterval = null;
+
+        // 2. Dining Philosophers State
+        let philosophers = [
+            { id: 0, state: 'THINKING' },
+            { id: 1, state: 'THINKING' },
+            { id: 2, state: 'THINKING' },
+            { id: 3, state: 'THINKING' },
+            { id: 4, state: 'THINKING' }
+        ];
+        let chopsticks = [false, false, false, false, false];
+        let dpAutoInterval = null;
+
+        // 3. Readers-Writers State
+        let readCount = 0;
+        let rwMutex = 1;
+        let wrt = 1;
+        let activeReaders = 0;
+        let activeWriters = 0;
+
+        // 4. Peterson's State
+        let pFlag = [false, false];
+        let turn = 0;
+        let pInCS = null;
+
+        // 5. Test-and-Set State
+        let tasLock = false;
+        let tasInCS = null;
+
+        function switchProblem(prob) {
+            currentProblem = prob;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            const btnIdx = { 'pc': 0, 'dp': 1, 'rw': 2, 'peterson': 3, 'tas': 4 }[prob];
+            document.querySelectorAll('.tab-btn')[btnIdx].classList.add('active');
+
+            stopAuto();
+            clearLog();
+            renderProblem();
+        }
+
+        function renderProblem() {
+            const desc = document.getElementById('problemDesc');
+            const controls = document.getElementById('controlsCard');
+            const visTitle = document.getElementById('visualizerTitle');
+
+            if (currentProblem === 'pc') {
+                visTitle.innerText = 'Bounded Buffer Memory State';
+                desc.innerHTML = `
+                    <div class="desc-title">Producer-Consumer Problem (Bounded Buffer)</div>
+                    <div class="desc-text">
+                        Uses binary <strong>mutex</strong> and counting semaphores (<strong>full</strong>, <strong>empty</strong>) to synchronize threads accessing a shared buffer.
+                    </div>
+                    <div class="semaphore-pills">
+                        <span class="sem-pill">Mutex Lock: <span id="semMutex">${mutex}</span></span>
+                        <span class="sem-pill">Empty Slots: <span id="semEmpty">${empty}</span></span>
+                        <span class="sem-pill">Full Slots: <span id="semFull">${full}</span></span>
+                    </div>
+                `;
+
+                controls.innerHTML = `
+                    <div class="card-title">Manual & Auto Controls</div>
+                    <button class="btn btn-success" onclick="produceItem()">Produce Item (Producer)</button>
+                    <button class="btn btn-primary" onclick="consumeItem()">Consume Item (Consumer)</button>
+                    <hr style="margin: 0.75rem 0; border: none; border-top: 1px solid var(--border-color);">
+                    <button class="btn btn-warning" onclick="toggleAutoPC()" id="autoPcBtn">Start Auto Simulation</button>
+                    <button class="btn btn-danger" onclick="resetPC()">Reset Buffer</button>
+                `;
+
+                renderBuffer();
+            } else if (currentProblem === 'dp') {
+                visTitle.innerText = 'Philosophers & Chopstick Allocation';
+                desc.innerHTML = `
+                    <div class="desc-title">Dining Philosophers Problem</div>
+                    <div class="desc-text">
+                        Models resource allocation among 5 processes requesting pairs of chopsticks while avoiding <strong>Deadlock</strong>.
+                    </div>
+                    <div class="semaphore-pills">
+                        <span class="sem-pill" style="color: #64748b;">Gray: Thinking</span>
+                        <span class="sem-pill" style="color: var(--accent-orange);">Orange: Hungry</span>
+                        <span class="sem-pill" style="color: var(--accent-green);">Green: Eating</span>
+                    </div>
+                `;
+
+                controls.innerHTML = `
+                    <div class="card-title">Philosopher Control</div>
+                    <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);">Select Philosopher:</label>
+                    <select id="philSelect" style="width:100%; padding: 0.5rem; margin-bottom: 0.75rem; border:1px solid var(--border-color); border-radius:4px;">
+                        <option value="0">Philosopher 0</option>
+                        <option value="1">Philosopher 1</option>
+                        <option value="2">Philosopher 2</option>
+                        <option value="3">Philosopher 3</option>
+                        <option value="4">Philosopher 4</option>
+                    </select>
+                    <button class="btn btn-success" onclick="philosopherEat()">Request Chopsticks & Eat</button>
+                    <button class="btn btn-primary" onclick="philosopherThink()">Release Chopsticks & Think</button>
+                    <hr style="margin: 0.75rem 0; border: none; border-top: 1px solid var(--border-color);">
+                    <button class="btn btn-warning" onclick="toggleAutoDP()" id="autoDpBtn">Start Auto Simulation</button>
+                    <button class="btn btn-danger" onclick="resetDP()">Reset Table</button>
+                `;
+
+                renderPhilosophers();
+            } else if (currentProblem === 'rw') {
+                visTitle.innerText = 'Shared Database Concurrency Control';
+                desc.innerHTML = `
+                    <div class="desc-title">Readers-Writers Problem</div>
+                    <div class="desc-text">
+                        Allows multiple <strong>Readers</strong> concurrently, but <strong>Writers</strong> demand exclusive database locks.
+                    </div>
+                    <div class="semaphore-pills">
+                        <span class="sem-pill">Read Count: <span id="semRC">${readCount}</span></span>
+                        <span class="sem-pill">Write Lock (wrt): <span id="semWRT">${wrt}</span></span>
+                    </div>
+                `;
+
+                controls.innerHTML = `
+                    <div class="card-title">Access Request Controls</div>
+                    <button class="btn btn-primary" onclick="addReader()">Add Reader Thread</button>
+                    <button class="btn btn-primary" style="background-color:#64748b;" onclick="removeReader()">Remove Reader Thread</button>
+                    <hr style="margin: 0.75rem 0; border: none; border-top: 1px solid var(--border-color);">
+                    <button class="btn btn-success" onclick="startWriter()">Start Writer Thread</button>
+                    <button class="btn btn-warning" onclick="stopWriter()">Stop Writer Thread</button>
+                    <button class="btn btn-danger" onclick="resetRW()">Reset Database</button>
+                `;
+
+                renderRW();
+            } else if (currentProblem === 'peterson') {
+                visTitle.innerText = "Peterson's Algorithm Critical Section";
+                desc.innerHTML = `
+                    <div class="desc-title">Peterson's Solution</div>
+                    <div class="desc-text">
+                        Software mutual exclusion for 2 processes using <strong>flag[2]</strong> and <strong>turn</strong> variables.
+                    </div>
+                    <div class="semaphore-pills">
+                        <span class="sem-pill">flag[0]: ${pFlag[0]}</span>
+                        <span class="sem-pill">flag[1]: ${pFlag[1]}</span>
+                        <span class="sem-pill">turn: P${turn}</span>
+                    </div>
+                `;
+
+                controls.innerHTML = `
+                    <div class="card-title">Process Requests</div>
+                    <button class="btn btn-primary" onclick="requestPeterson(0)">Process P0 Request Entry</button>
+                    <button class="btn btn-danger" onclick="exitPeterson(0)">Process P0 Exit CS</button>
+                    <hr style="margin: 0.75rem 0; border: none; border-top: 1px solid var(--border-color);">
+                    <button class="btn btn-success" onclick="requestPeterson(1)">Process P1 Request Entry</button>
+                    <button class="btn btn-warning" onclick="exitPeterson(1)">Process P1 Exit CS</button>
+                `;
+
+                renderPeterson();
+            } else if (currentProblem === 'tas') {
+                visTitle.innerText = 'Test-and-Set Hardware Lock';
+                desc.innerHTML = `
+                    <div class="desc-title">Test-and-Set Instruction</div>
+                    <div class="desc-text">
+                        Atomic hardware instruction providing simple spinlock-based mutual exclusion.
+                    </div>
+                    <div class="semaphore-pills">
+                        <span class="sem-pill">Hardware Lock State: ${tasLock ? 'TRUE (Locked)' : 'FALSE (Unlocked)'}</span>
+                    </div>
+                `;
+
+                controls.innerHTML = `
+                    <div class="card-title">Spinlock Threads</div>
+                    <button class="btn btn-primary" onclick="requestTAS('Thread-A')">Thread A Request Lock</button>
+                    <button class="btn btn-danger" onclick="releaseTAS('Thread-A')">Thread A Release Lock</button>
+                    <hr style="margin: 0.75rem 0; border: none; border-top: 1px solid var(--border-color);">
+                    <button class="btn btn-success" onclick="requestTAS('Thread-B')">Thread B Request Lock</button>
+                    <button class="btn btn-warning" onclick="releaseTAS('Thread-B')">Thread B Release Lock</button>
+                `;
+
+                renderTAS();
+            }
+        }
+
+        // --- 1. PRODUCER-CONSUMER LOGIC ---
+        function produceItem() {
+            if (empty === 0) { log('Buffer FULL! Producer blocked.', 'log-warning'); return; }
+            if (mutex === 0) { log('Mutex LOCKED!', 'log-warning'); return; }
+
+            empty--; mutex--;
+            let item = 'Item-' + Math.floor(Math.random() * 899 + 100);
+            buffer.push(item);
+            log(`Producer produced: [${item}]. Buffer: ${buffer.length}/${bufferSize}`, 'log-producer');
+            mutex++; full++;
+
+            updatePCSemaphores();
+            renderBuffer();
+        }
+
+        function consumeItem() {
+            if (full === 0) { log('Buffer EMPTY! Consumer blocked.', 'log-warning'); return; }
+            if (mutex === 0) { log('Mutex LOCKED!', 'log-warning'); return; }
+
+            full--; mutex--;
+            let item = buffer.shift();
+            log(`Consumer consumed: [${item}]. Remaining: ${buffer.length}/${bufferSize}`, 'log-consumer');
+            mutex++; empty++;
+
+            updatePCSemaphores();
+            renderBuffer();
+        }
+
+        function updatePCSemaphores() {
+            if (document.getElementById('semMutex')) {
+                document.getElementById('semMutex').innerText = mutex;
+                document.getElementById('semEmpty').innerText = empty;
+                document.getElementById('semFull').innerText = full;
+            }
+        }
+
+        function renderBuffer() {
+            const container = document.getElementById('visualizerContainer');
+            let slotsHTML = '';
+            for (let i = 0; i < bufferSize; i++) {
+                slotsHTML += `<div class="buffer-slot ${i < buffer.length ? 'filled' : ''}">${i < buffer.length ? buffer[i] : 'Empty'}</div>`;
+            }
+            container.innerHTML = `<div class="buffer-container">${slotsHTML}</div>`;
+            document.getElementById('metricsPanel').innerHTML = `
+                <div style="display:flex; justify-content:space-around; font-weight:600; font-size:0.85rem; text-align:center;">
+                    <div>Buffer Usage: <span style="color:var(--accent-blue);">${buffer.length} / ${bufferSize}</span></div>
+                    <div>Status: <span style="color:${buffer.length === bufferSize ? 'var(--accent-red)' : (buffer.length === 0 ? 'var(--accent-orange)' : 'var(--accent-green)')};">${buffer.length === bufferSize ? 'FULL' : (buffer.length === 0 ? 'EMPTY' : 'ACTIVE')}</span></div>
+                </div>
+            `;
+        }
+
+        function toggleAutoPC() {
+            const btn = document.getElementById('autoPcBtn');
+            if (pcAutoInterval) {
+                clearInterval(pcAutoInterval); pcAutoInterval = null;
+                btn.innerText = 'Start Auto Simulation'; btn.className = 'btn btn-warning';
+                log('Auto simulation stopped.', 'log-system');
+            } else {
+                btn.innerText = 'Stop Auto Simulation'; btn.className = 'btn btn-danger';
+                log('Auto simulation started...', 'log-system');
+                pcAutoInterval = setInterval(() => {
+                    if (Math.random() > 0.45) produceItem(); else consumeItem();
+                }, 1200);
+            }
+        }
+
+        function resetPC() {
+            stopAuto(); buffer = []; mutex = 1; full = 0; empty = bufferSize;
+            log('Bounded Buffer reset.', 'log-system');
+            updatePCSemaphores(); renderBuffer();
+        }
+
+        // --- 2. DINING PHILOSOPHERS LOGIC ---
+        function philosopherEat() {
+            let id = parseInt(document.getElementById('philSelect').value);
+            let p = philosophers[id];
+            let left = id, right = (id + 1) % 5;
+
+            if (p.state === 'EATING') { log(`Philosopher ${id} is already eating!`, 'log-warning'); return; }
+            p.state = 'HUNGRY';
+
+            if (!chopsticks[left] && !chopsticks[right]) {
+                chopsticks[left] = true; chopsticks[right] = true;
+                p.state = 'EATING';
+                log(`Philosopher ${id} acquired chopsticks ${left} & ${right} and is EATING.`, 'log-producer');
+            } else {
+                log(`Philosopher ${id} BLOCKED! Chopstick(s) occupied.`, 'log-error');
+            }
+            renderPhilosophers();
+        }
+
+        function philosopherThink() {
+            let id = parseInt(document.getElementById('philSelect').value);
+            let p = philosophers[id];
+            let left = id, right = (id + 1) % 5;
+
+            if (p.state === 'EATING') { chopsticks[left] = false; chopsticks[right] = false; }
+            p.state = 'THINKING';
+            log(`Philosopher ${id} released chopsticks and returned to THINKING.`, 'log-consumer');
+            renderPhilosophers();
+        }
+
+        function renderPhilosophers() {
+            const container = document.getElementById('visualizerContainer');
+            const radius = 100, centerX = 140, centerY = 140;
+            let philNodes = '', chopstickNodes = '';
+
+            for (let i = 0; i < 5; i++) {
+                let pAngle = (i * 72 - 90) * (Math.PI / 180);
+                let px = centerX + radius * Math.cos(pAngle);
+                let py = centerY + radius * Math.sin(pAngle);
+
+                philNodes += `<div class="philosopher ${philosophers[i].state.toLowerCase()}" style="left:${px}px; top:${py}px;">P${i}<br><span style="font-size:0.65rem;">${philosophers[i].state[0]}</span></div>`;
+
+                let cAngle = (i * 72 - 54) * (Math.PI / 180);
+                let cx = centerX + (radius - 25) * Math.cos(cAngle);
+                let cy = centerY + (radius - 25) * Math.sin(cAngle);
+
+                chopstickNodes += `<div class="chopstick ${chopsticks[i] ? 'in-use' : ''}" style="left:${cx}px; top:${cy}px; transform: translate(-50%, -50%) rotate(${i * 72}deg);"></div>`;
+            }
+
+            container.innerHTML = `<div class="table-visualizer">${philNodes}${chopstickNodes}</div>`;
+            document.getElementById('metricsPanel').innerHTML = `
+                <div style="display:flex; justify-content:space-around; font-weight:600; font-size:0.85rem; text-align:center;">
+                    <div>Active Eaters: <span style="color:var(--accent-green);">${philosophers.filter(p=>p.state==='EATING').length}</span></div>
+                    <div>Free Chopsticks: <span style="color:var(--accent-purple);">${chopsticks.filter(c=>!c).length} / 5</span></div>
+                </div>
+            `;
+        }
+
+        function toggleAutoDP() {
+            const btn = document.getElementById('autoDpBtn');
+            if (dpAutoInterval) {
+                clearInterval(dpAutoInterval); dpAutoInterval = null;
+                btn.innerText = 'Start Auto Simulation'; btn.className = 'btn btn-warning';
+                log('Dining Philosophers auto simulation stopped.', 'log-system');
+            } else {
+                btn.innerText = 'Stop Auto Simulation'; btn.className = 'btn btn-danger';
+                log('Dining Philosophers auto simulation started...', 'log-system');
+                dpAutoInterval = setInterval(() => {
+                    let randP = Math.floor(Math.random() * 5);
+                    document.getElementById('philSelect').value = randP;
+                    if (philosophers[randP].state === 'EATING') philosopherThink();
+                    else philosopherEat();
+                }, 1200);
+            }
+        }
+
+        function resetDP() {
+            stopAuto(); philosophers.forEach(p => p.state = 'THINKING'); chopsticks = [false, false, false, false, false];
+            log('Dining Philosophers table reset.', 'log-system'); renderPhilosophers();
+        }
+
+        // --- 3. READERS-WRITERS LOGIC ---
+        function addReader() {
+            if (activeWriters > 0) {
+                log('Reader BLOCKED! Writer currently modifying database.', 'log-error');
+                return;
+            }
+            readCount++;
+            if (readCount === 1) wrt = 0;
+            activeReaders++;
+            log(`Reader added. Active readers: ${activeReaders}`, 'log-producer');
+            updateRWSemaphores(); renderRW();
+        }
+
+        function removeReader() {
+            if (activeReaders === 0) { log('No active readers to remove.', 'log-warning'); return; }
+            readCount--; activeReaders--;
+            if (readCount === 0) wrt = 1;
+            log(`Reader left. Remaining active readers: ${activeReaders}`, 'log-consumer');
+            updateRWSemaphores(); renderRW();
+        }
+
+        function startWriter() {
+            if (wrt === 0 || activeReaders > 0 || activeWriters > 0) {
+                log('Writer BLOCKED! Database in use.', 'log-error');
+                return;
+            }
+            wrt = 0; activeWriters = 1;
+            log('Writer entered CS. Exclusive access granted.', 'log-warning');
+            updateRWSemaphores(); renderRW();
+        }
+
+        function stopWriter() {
+            if (activeWriters === 0) { log('No active writer to stop.', 'log-warning'); return; }
+            wrt = 1; activeWriters = 0;
+            log('Writer exited CS. Database unlocked.', 'log-system');
+            updateRWSemaphores(); renderRW();
+        }
+
+        function updateRWSemaphores() {
+            if (document.getElementById('semRC')) {
+                document.getElementById('semRC').innerText = readCount;
+                document.getElementById('semWRT').innerText = wrt;
+            }
+        }
+
+        function renderRW() {
+            const container = document.getElementById('visualizerContainer');
+            container.innerHTML = `
+                <div class="rw-container">
+                    <div class="rw-box">
+                        <strong>Active Readers</strong>
+                        <div style="font-size:1.5rem; color:var(--accent-blue); font-weight:bold;">${activeReaders}</div>
+                    </div>
+                    <div class="db-resource">
+                        DATABASE<br>
+                        <span style="font-size:0.75rem; color:var(--text-secondary);">
+                            ${activeWriters > 0 ? 'WRITING...' : (activeReaders > 0 ? 'READING...' : 'IDLE')}
+                        </span>
+                    </div>
+                    <div class="rw-box">
+                        <strong>Active Writers</strong>
+                        <div style="font-size:1.5rem; color:var(--accent-red); font-weight:bold;">${activeWriters}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function resetRW() {
+            readCount = 0; rwMutex = 1; wrt = 1; activeReaders = 0; activeWriters = 0;
+            log('Database access reset.', 'log-system'); updateRWSemaphores(); renderRW();
+        }
+
+        // --- 4. PETERSON'S SOLUTION LOGIC ---
+        function requestPeterson(i) {
+            let j = 1 - i;
+            pFlag[i] = true;
+            turn = j;
+
+            log(`P${i} requests entry: flag[${i}]=true, turn=${j}`, 'log-system');
+
+            if (pFlag[j] && turn === j) {
+                log(`P${i} BLOCKED in busy-wait loop!`, 'log-error');
+            } else {
+                pInCS = `P${i}`;
+                log(`P${i} entered Critical Section!`, 'log-producer');
+            }
+            renderPeterson();
+        }
+
+        function exitPeterson(i) {
+            if (pInCS !== `P${i}`) {
+                log(`P${i} is not in Critical Section!`, 'log-warning');
+                return;
+            }
+            pFlag[i] = false;
+            pInCS = null;
+            log(`P${i} exited Critical Section.`, 'log-consumer');
+
+            let j = 1 - i;
+            if (pFlag[j]) {
+                pInCS = `P${j}`;
+                log(`P${j} unblocked and entered Critical Section!`, 'log-producer');
+            }
+            renderPeterson();
+        }
+
+        function renderPeterson() {
+            const container = document.getElementById('visualizerContainer');
+            container.innerHTML = `
+                <div class="sync-box">
+                    <div style="display:flex; justify-content:space-around; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem;">
+                        <div>flag[0]: <strong>${pFlag[0]}</strong></div>
+                        <div>Turn Victim: <strong>P${turn}</strong></div>
+                        <div>flag[1]: <strong>${pFlag[1]}</strong></div>
+                    </div>
+                    <div class="critical-section ${pInCS ? 'occupied' : ''}">
+                        CRITICAL SECTION: ${pInCS ? pInCS + ' EXECUTING' : 'EMPTY'}
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- 5. TEST-AND-SET LOGIC ---
+        function requestTAS(thread) {
+            log(`${thread} executing Test-and-Set(&lock)...`, 'log-system');
+            let initialLock = tasLock;
+            tasLock = true;
+
+            if (initialLock) {
+                log(`${thread} BLOCKED! Lock was already TRUE.`, 'log-error');
+            } else {
+                tasInCS = thread;
+                log(`${thread} acquired lock and entered CS!`, 'log-producer');
+            }
+            renderTAS();
+        }
+
+        function releaseTAS(thread) {
+            if (tasInCS !== thread) {
+                log(`${thread} does not hold the lock!`, 'log-warning');
+                return;
+            }
+            tasLock = false;
+            tasInCS = null;
+            log(`${thread} released lock.`, 'log-consumer');
+            renderTAS();
+        }
+
+        function renderTAS() {
+            const container = document.getElementById('visualizerContainer');
+            container.innerHTML = `
+                <div class="sync-box">
+                    <div style="text-align:center; margin-bottom:1rem;">
+                        Atomic Lock State: <strong style="color:${tasLock ? 'var(--accent-red)' : 'var(--accent-green)'};">${tasLock ? 'LOCKED (true)' : 'UNLOCKED (false)'}</strong>
+                    </div>
+                    <div class="critical-section ${tasInCS ? 'occupied' : ''}">
+                        CRITICAL SECTION: ${tasInCS ? tasInCS + ' EXECUTING' : 'EMPTY'}
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- COMMON HELPERS ---
+        function stopAuto() {
+            if (pcAutoInterval) { clearInterval(pcAutoInterval); pcAutoInterval = null; }
+            if (dpAutoInterval) { clearInterval(dpAutoInterval); dpAutoInterval = null; }
+        }
+
+        function log(msg, className = 'log-system') {
+            const logger = document.getElementById('eventLog');
+            let time = new Date().toLocaleTimeString().split(' ')[0];
+            logger.innerHTML += `<div class="${className}">[${time}] ${msg}</div>`;
+            logger.scrollTop = logger.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('eventLog').innerHTML = '';
+        }
+
+        // Initialize Lab
+        renderProblem();
+        log('Virtual Lab initialized. Ready for simulation.', 'log-system');
+    </script>
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #5: Serialize & Deserialize Binary Trees</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        code, .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .node-circle { transition: all 0.4s ease-in-out; }
+        .tree-line { transition: all 0.4s ease-in-out; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <div>
+        <!-- Navbar -->
+        <header class="bg-white border-b border-slate-100 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="#" class="bg-indigo-600 text-white p-2 rounded-xl shadow-md shadow-indigo-100">
+                        <i class="fa-solid fa-flask text-base"></i>
+                    </a>
+                    <div>
+                        <span class="font-bold text-slate-900 text-sm block leading-snug">Virtual Labs</span>
+                        <span class="text-[10px] text-indigo-600 font-bold uppercase tracking-wider block">CS & DATA STRUCTURES</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <span class="bg-indigo-50 text-indigo-700 text-xs font-semibold px-3 py-1 rounded-full border border-indigo-100">
+                        Lab #5 of 32
+                    </span>
+                    <button onclick="resetToDefaultTree()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Default Tree
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Lab Title Banner -->
+        <div class="bg-white border-b border-slate-100 py-6 px-6">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center space-x-2 text-xs text-indigo-600 font-semibold mb-1">
+                        <span>Trees & BST</span>
+                        <i class="fa-solid fa-chevron-right text-[9px] text-slate-400"></i>
+                        <span class="text-slate-500">Pre-Order Queue Encoding & Decoding</span>
+                    </div>
+                    <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">
+                        Lab #5: Serialize & Deserialize Binary Trees
+                    </h1>
+                    <p class="text-xs text-slate-500 mt-1">
+                        Step through string encoding and tree reconstruction using pre-order traversal markers.
+                    </p>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-semibold text-slate-600 bg-indigo-50 text-indigo-700 border border-indigo-200/80 px-3 py-1 rounded-full">
+                        <i class="fa-solid fa-file-code mr-1"></i> String Codec Studio
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Workbench Area -->
+        <main class="max-w-7xl mx-auto px-6 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+            <!-- Control & Status Panel -->
+            <div class="space-y-5 lg:col-span-1">
+                
+                <!-- Serialization Controls -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">1. Serialize Tree</h3>
+                    <button onclick="handleSerialize()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-xs flex items-center justify-center space-x-1.5">
+                        <i class="fa-solid fa-code text-[10px]"></i>
+                        <span>Generate Serialized String</span>
+                    </button>
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-600 block mb-1">Serialized Output Buffer</label>
+                        <textarea id="serializedOutput" readonly rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-mono text-indigo-600 outline-none resize-none"></textarea>
+                    </div>
+                </div>
+
+                <!-- Deserialization Controls -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">2. Deserialize String</h3>
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-600 block mb-1">Input Serialized String</label>
+                        <input type="text" id="serializedInput" value="1,2,4,#,#,5,#,#,3,#,#" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono text-slate-800 outline-none focus:border-indigo-500 transition">
+                    </div>
+                    <button onclick="handleDeserialize()" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-xs flex items-center justify-center space-x-1.5">
+                        <i class="fa-solid fa-arrows-rotate text-[10px]"></i>
+                        <span>Reconstruct Tree from String</span>
+                    </button>
+                </div>
+
+                <!-- Trace Log -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Codec Trace Log</h3>
+                    <div id="logContainer" class="bg-slate-900 text-slate-300 p-3 rounded-xl font-mono text-[11px] h-44 overflow-y-auto space-y-1">
+                        <div class="text-slate-500">// Codec engine ready. Click Serialize or Deserialize.</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Visualization Canvas -->
+            <div class="lg:col-span-3 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between relative min-h-[550px] overflow-hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Interactive Binary Tree Canvas</span>
+                    <div class="flex items-center space-x-3 text-[11px] text-slate-500 font-medium">
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-indigo-600 rounded-full inline-block mr-1"></span> Tree Node</span>
+                    </div>
+                </div>
+
+                <!-- SVG Tree Render Container -->
+                <div class="relative w-full h-[500px] border border-slate-100 rounded-xl bg-slate-50/50 overflow-auto flex items-center justify-center" id="canvasBox">
+                    <svg id="treeSvg" class="w-full h-full min-w-[700px] min-h-[480px]"></svg>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-100 py-6 text-center text-xs text-slate-400">
+        <span>&copy; 2026 Virtual Labs • Serialize & Deserialize Binary Trees Suite</span>
+    </footer>
+
+    <!-- Script implementing Serialization & Deserialization -->
+    <script>
+        class TreeNode {
+            constructor(val) {
+                this.val = val;
+                this.left = null;
+                this.right = null;
+                this.x = 0;
+                this.y = 0;
+            }
+        }
+
+        let root = new TreeNode(1);
+        root.left = new TreeNode(2);
+        root.right = new TreeNode(3);
+        root.left.left = new TreeNode(4);
+        root.left.right = new TreeNode(5);
+
+        function serialize(node, arr = []) {
+            if (!node) {
+                arr.push("#");
+                logTrace(`Serialize: null &rarr; pushed '#'`);
+                return arr;
+            }
+            logTrace(`Serialize: visiting Node [${node.val}] &rarr; pushed '${node.val}'`);
+            arr.push(node.val);
+            serialize(node.left, arr);
+            serialize(node.right, arr);
+            return arr;
+        }
+
+        function handleSerialize() {
+            document.getElementById('logContainer').innerHTML = '';
+            logTrace(`--- Starting Pre-Order Serialization ---`);
+            const resArr = serialize(root);
+            const str = resArr.join(",");
+            document.getElementById('serializedOutput').value = str;
+            document.getElementById('serializedInput').value = str;
+            logTrace(`Serialized String Result: <strong class="text-indigo-400">${str}</strong>`, 'highlight');
+        }
+
+        function deserializeHelper(queue) {
+            if (queue.length === 0) return null;
+            let val = queue.shift();
+            if (val === "#") {
+                logTrace(`Deserialize: popped '#' &rarr; return null`);
+                return null;
+            }
+            let node = new TreeNode(parseInt(val));
+            logTrace(`Deserialize: created Node [${val}]`);
+            node.left = deserializeHelper(queue);
+            node.right = deserializeHelper(queue);
+            return node;
+        }
+
+        function handleDeserialize() {
+            const data = document.getElementById('serializedInput').value;
+            if (!data) return;
+
+            document.getElementById('logContainer').innerHTML = '';
+            logTrace(`--- Starting Tree Deserialization ---`);
+            const queue = data.split(",");
+            root = deserializeHelper(queue);
+            logTrace(`Tree successfully reconstructed from string!`, 'highlight');
+            render();
+        }
+
+        function resetToDefaultTree() {
+            root = new TreeNode(1);
+            root.left = new TreeNode(2);
+            root.right = new TreeNode(3);
+            root.left.left = new TreeNode(4);
+            root.left.right = new TreeNode(5);
+            document.getElementById('serializedOutput').value = '';
+            document.getElementById('serializedInput').value = '1,2,4,#,#,5,#,#,3,#,#';
+            document.getElementById('logContainer').innerHTML = '<div class="text-slate-500">// Codec engine ready. Click Serialize or Deserialize.</div>';
+            render();
+        }
+
+        function logTrace(msg, type = 'info') {
+            const container = document.getElementById('logContainer');
+            let color = 'text-slate-300';
+            if (type === 'highlight') color = 'text-indigo-300 font-bold';
+
+            container.innerHTML += `<div class="${color}">&gt; ${msg}</div>`;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function calculatePositions(node, depth = 0, x = 350, offset = 140) {
+            if (!node) return;
+            node.x = x;
+            node.y = 50 + depth * 65;
+
+            if (node.left) calculatePositions(node.left, depth + 1, x - offset, offset / 1.8);
+            if (node.right) calculatePositions(node.right, depth + 1, x + offset, offset / 1.8);
+        }
+
+        function drawTreeSvg(node, svg) {
+            if (!node) return;
+
+            if (node.left) {
+                svg.innerHTML += `<line x1="${node.x}" y1="${node.y}" x2="${node.left.x}" y2="${node.left.y}" stroke="#cbd5e1" stroke-width="2" class="tree-line"/>`;
+                drawTreeSvg(node.left, svg);
+            }
+            if (node.right) {
+                svg.innerHTML += `<line x1="${node.x}" y1="${node.y}" x2="${node.right.x}" y2="${node.right.y}" stroke="#cbd5e1" stroke-width="2" class="tree-line"/>`;
+                drawTreeSvg(node.right, svg);
+            }
+
+            svg.innerHTML += `
+                <g class="node-circle">
+                    <circle cx="${node.x}" cy="${node.y}" r="20" fill="#4f46e5" />
+                    <text x="${node.x}" y="${node.y + 4}" text-anchor="middle" fill="white" font-size="12" font-weight="bold" font-family="Inter">${node.val}</text>
+                </g>
+            `;
+        }
+
+        function render() {
+            const svg = document.getElementById('treeSvg');
+            svg.innerHTML = '';
+            calculatePositions(root, 0, svg.clientWidth / 2 || 350, 140);
+            drawTreeSvg(root, svg);
+        }
+
+        window.addEventListener('resize', render);
+        document.addEventListener('DOMContentLoaded', () => {
+            render();
+            handleSerialize();
+        });
+    </script>
+</body>
+</html>

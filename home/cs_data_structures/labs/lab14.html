@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #14: Bellman-Ford Shortest Path - Full Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        code, .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .node-circle { transition: all 0.4s ease-in-out; }
+        .tree-line { transition: all 0.4s ease-in-out; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <div>
+        <!-- Navbar -->
+        <header class="bg-white border-b border-slate-100 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="#" class="bg-indigo-600 text-white p-2 rounded-xl shadow-md shadow-indigo-100">
+                        <i class="fa-solid fa-flask text-base"></i>
+                    </a>
+                    <div>
+                        <span class="font-bold text-slate-900 text-sm block leading-snug">Virtual Labs</span>
+                        <span class="text-[10px] text-indigo-600 font-bold uppercase tracking-wider block">CS & DATA STRUCTURES</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <span class="bg-indigo-50 text-indigo-700 text-xs font-semibold px-3 py-1 rounded-full border border-indigo-100">
+                        Lab #14 of 32
+                    </span>
+                    <button onclick="resetToDefaultGraph()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Reset Graph
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Lab Title Banner -->
+        <div class="bg-white border-b border-slate-100 py-6 px-6">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center space-x-2 text-xs text-indigo-600 font-semibold mb-1">
+                        <span>Graphs</span>
+                        <i class="fa-solid fa-chevron-right text-[9px] text-slate-400"></i>
+                        <span class="text-slate-500">Custom Graph Builder & Negative Weight Cycles</span>
+                    </div>
+                    <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">
+                        Lab #14: Bellman-Ford Shortest Path Studio
+                    </h1>
+                    <p class="text-xs text-slate-500 mt-1">
+                        Build custom directed graphs with negative weights, trace V-1 relaxation passes, and detect negative cycles.
+                    </p>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-semibold text-slate-600 bg-indigo-50 text-indigo-700 border border-indigo-200/80 px-3 py-1 rounded-full">
+                        <i class="fa-solid fa-route mr-1"></i> Full Interactive Studio
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Workbench Area -->
+        <main class="max-w-7xl mx-auto px-6 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+            <!-- Control & Status Panel -->
+            <div class="space-y-5 lg:col-span-1">
+                
+                <!-- Graph Builder Form -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">1. Add Directed Weighted Edge</h3>
+                    <form onsubmit="handleAddEdge(event)" class="space-y-3">
+                        <div class="grid grid-cols-3 gap-2">
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-500 block mb-1">From (u)</label>
+                                <input type="text" id="edgeU" placeholder="A" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs text-slate-800 outline-none focus:border-indigo-500 text-center font-mono uppercase">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-500 block mb-1">To (v)</label>
+                                <input type="text" id="edgeV" placeholder="B" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs text-slate-800 outline-none focus:border-indigo-500 text-center font-mono uppercase">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-500 block mb-1">Weight</label>
+                                <input type="number" id="edgeW" placeholder="-2" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs text-slate-800 outline-none focus:border-indigo-500 text-center font-mono">
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-xs">
+                            + Insert Directed Edge
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Simulation Controls -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">2. Run Bellman-Ford</h3>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 block mb-1">Source Node</label>
+                        <select id="sourceSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-2 text-xs text-slate-800 outline-none focus:border-indigo-500 transition font-semibold">
+                            <option value="A">Node A</option>
+                        </select>
+                    </div>
+                    <button onclick="runBellmanFordStudio()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-xs">
+                        Execute V-1 Relaxations
+                    </button>
+                </div>
+
+                <!-- Distance Vector Table -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Distance Vector (dist[])</h3>
+                    <div id="distTableBox" class="space-y-1 font-mono text-xs">
+                        <div class="text-slate-400 italic">Run simulation to view distances.</div>
+                    </div>
+                </div>
+
+                <!-- Execution Log -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Execution Trace Log</h3>
+                    <div id="logContainer" class="bg-slate-900 text-slate-300 p-3 rounded-xl font-mono text-[11px] h-36 overflow-y-auto space-y-1">
+                        <div class="text-slate-500">// Engine ready. Add edges or run simulation.</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Visualization Canvas -->
+            <div class="lg:col-span-3 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between relative min-h-[550px] overflow-hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Interactive Directed Weighted Graph Canvas</span>
+                    <div class="flex items-center space-x-3 text-[11px] text-slate-500 font-medium">
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-slate-300 rounded-full inline-block mr-1"></span> Pending</span>
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-indigo-600 rounded-full inline-block mr-1"></span> Relaxed / Updated</span>
+                    </div>
+                </div>
+
+                <!-- SVG Graph Render Container -->
+                <div class="relative w-full h-[500px] border border-slate-100 rounded-xl bg-slate-50/50 overflow-auto flex items-center justify-center" id="canvasBox">
+                    <svg id="graphSvg" class="w-full h-full min-w-[700px] min-h-[480px]"></svg>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-100 py-6 text-center text-xs text-slate-400">
+        <span>&copy; 2026 Virtual Labs • Bellman-Ford Shortest Path Full Studio</span>
+    </footer>
+
+    <!-- Script implementing custom inputs & Bellman-Ford simulation -->
+    <script>
+        let nodesMap = new Map(); // name -> {id, label, x, y, state}
+        let edges = []; // {u, v, weight} representing u -> v
+        let timer = null;
+
+        function initDefaultGraph() {
+            nodesMap.clear();
+            edges = [];
+
+            const defaultNodes = ['A', 'B', 'C', 'D'];
+            const coords = [
+                {x: 150, y: 150},
+                {x: 350, y: 80},
+                {x: 550, y: 150},
+                {x: 350, y: 250}
+            ];
+
+            defaultNodes.forEach((name, idx) => {
+                nodesMap.set(name, {
+                    id: name,
+                    label: name,
+                    x: coords[idx].x,
+                    y: coords[idx].y,
+                    state: 'pending'
+                });
+            });
+
+            const defaultEdges = [
+                {u: 'A', v: 'B', weight: 4},
+                {u: 'A', v: 'C', weight: 5},
+                {u: 'B', v: 'D', weight: -3},
+                {u: 'C', v: 'D', weight: 3},
+                {u: 'D', v: 'B', weight: 1}
+            ];
+
+            defaultEdges.forEach(e => edges.push(e));
+            updateSourceSelect();
+            render();
+        }
+
+        function updateSourceSelect() {
+            const select = document.getElementById('sourceSelect');
+            select.innerHTML = '';
+            nodesMap.forEach((node, id) => {
+                select.innerHTML += `<option value="${id}">Node ${id}</option>`;
+            });
+        }
+
+        function handleAddEdge(e) {
+            e.preventDefault();
+            const u = document.getElementById('edgeU').value.trim().toUpperCase();
+            const v = document.getElementById('edgeV').value.trim().toUpperCase();
+            const weight = parseInt(document.getElementById('edgeW').value);
+
+            if (!u || !v || isNaN(weight) || u === v) return;
+
+            if (!nodesMap.has(u)) {
+                let count = nodesMap.size;
+                nodesMap.set(u, { id: u, label: u, x: 100 + (count * 110) % 550, y: 100 + (count * 70) % 350, state: 'pending' });
+            }
+            if (!nodesMap.has(v)) {
+                let count = nodesMap.size;
+                nodesMap.set(v, { id: v, label: v, x: 100 + (count * 110) % 550, y: 100 + (count * 70) % 350, state: 'pending' });
+            }
+
+            let existing = edges.find(edge => edge.u === u && edge.v === v);
+            if (existing) {
+                existing.weight = weight;
+                logTrace(`Updated edge (${u} &rarr; ${v}) weight to ${weight}`);
+            } else {
+                edges.push({u, v, weight});
+                logTrace(`Added directed edge (${u} &rarr; ${v}, w=${weight})`);
+            }
+
+            document.getElementById('edgeU').value = '';
+            document.getElementById('edgeV').value = '';
+            document.getElementById('edgeW').value = '';
+            updateSourceSelect();
+            render();
+        }
+
+        function runBellmanFordStudio() {
+            if (timer) clearInterval(timer);
+            nodesMap.forEach(n => n.state = 'pending');
+            document.getElementById('logContainer').innerHTML = '';
+
+            const src = document.getElementById('sourceSelect').value;
+            let distances = new Map();
+            nodesMap.forEach((node, id) => distances.set(id, Infinity));
+            distances.set(src, 0);
+
+            updateDistTable(distances);
+            logTrace(`--- Starting Bellman-Ford from Source [${src}] ---`);
+
+            let V = nodesMap.size;
+            let iter = 1;
+
+            timer = setInterval(() => {
+                if (iter >= V) {
+                    // Final check for negative cycle
+                    let negativeCycle = false;
+                    edges.forEach(e => {
+                        let dU = distances.get(e.u);
+                        let dV = distances.get(e.v);
+                        if (dU !== Infinity && dU + e.weight < dV) {
+                            negativeCycle = true;
+                        }
+                    });
+
+                    clearInterval(timer);
+                    if (negativeCycle) {
+                        logTrace(`--- Negative Weight Cycle Detected! ---`, 'err');
+                    } else {
+                        logTrace(`--- Bellman-Ford V-1 Passes Complete ---`, 'highlight');
+                    }
+                    render();
+                    return;
+                }
+
+                logTrace(`Pass ${iter} of ${V - 1}: Relaxing all ${edges.length} edges`);
+                let updated = false;
+
+                edges.forEach(e => {
+                    let dU = distances.get(e.u);
+                    let dV = distances.get(e.v);
+                    if (dU !== Infinity && dU + e.weight < dV) {
+                        distances.set(e.v, dU + e.weight);
+                        nodesMap.get(e.v).state = 'relaxed';
+                        updated = true;
+                        logTrace(`Relax (${e.u} &rarr; ${e.v}, w=${e.weight}): dist[${e.v}] updated to <strong class="text-emerald-400">${dU + e.weight}</strong>`, 'relax');
+                    }
+                });
+
+                updateDistTable(distances);
+                iter++;
+                render();
+            }, 1500);
+        }
+
+        function updateDistTable(distances) {
+            const box = document.getElementById('distTableBox');
+            box.innerHTML = '';
+            distances.forEach((dist, id) => {
+                let valStr = dist === Infinity ? '&infin;' : dist;
+                box.innerHTML += `<div class="flex justify-between bg-slate-50 p-2 rounded-lg border border-slate-100"><span>Node ${id}:</span> <span class="font-bold text-indigo-600">${valStr}</span></div>`;
+            });
+        }
+
+        function resetToDefaultGraph() {
+            if (timer) clearInterval(timer);
+            initDefaultGraph();
+            document.getElementById('distTableBox').innerHTML = '<div class="text-slate-400 italic">Run simulation to view distances.</div>';
+            document.getElementById('logContainer').innerHTML = '<div class="text-slate-500">// Engine ready. Add edges or run simulation.</div>';
+        }
+
+        function logTrace(msg, type = 'info') {
+            const container = document.getElementById('logContainer');
+            let color = 'text-slate-300';
+            if (type === 'relax') color = 'text-amber-300';
+            if (type === 'err') color = 'text-rose-400 font-bold';
+            if (type === 'highlight') color = 'text-emerald-300 font-bold';
+
+            container.innerHTML += `<div class="${color}">&gt; ${msg}</div>`;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function render() {
+            const svg = document.getElementById('graphSvg');
+            svg.innerHTML = '';
+
+            edges.forEach(e => {
+                let n1 = nodesMap.get(e.u);
+                let n2 = nodesMap.get(e.v);
+                if (n1 && n2) {
+                    let midX = (n1.x + n2.x) / 2;
+                    let midY = (n1.y + n2.y) / 2;
+                    svg.innerHTML += `<line x1="${n1.x}" y1="${n1.y}" x2="${n2.x}" y2="${n2.y}" stroke="#cbd5e1" stroke-width="2.5" marker-end="url(#arrow)" class="tree-line"/>`;
+                    svg.innerHTML += `<circle cx="${midX}" cy="${midY}" r="11" fill="white" stroke="#cbd5e1" stroke-width="1.5"/><text x="${midX}" y="${midY + 3.5}" text-anchor="middle" fill="#475569" font-size="10" font-weight="bold" font-family="JetBrains Mono">${e.weight}</text>`;
+                }
+            });
+
+            svg.innerHTML += `
+                <defs>
+                    <marker id="arrow" viewBox="0 0 10 10" refX="24" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/>
+                    </marker>
+                </defs>
+            `;
+
+            nodesMap.forEach(n => {
+                let fillColor = n.state === 'relaxed' ? '#4f46e5' : '#cbd5e1';
+                svg.innerHTML += `
+                    <g class="node-circle">
+                        <circle cx="${n.x}" cy="${n.y}" r="26" fill="${fillColor}" />
+                        <text x="${n.x}" y="${n.y + 5}" text-anchor="middle" fill="white" font-size="12" font-weight="bold" font-family="Inter">${n.label}</text>
+                    </g>
+                `;
+            });
+        }
+
+        window.addEventListener('resize', render);
+        document.addEventListener('DOMContentLoaded', () => {
+            initDefaultGraph();
+        });
+    </script>
+</body>
+</html>

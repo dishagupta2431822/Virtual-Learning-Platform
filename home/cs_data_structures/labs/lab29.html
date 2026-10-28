@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #29: Union-Find (DSU) Path Compression Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        code, .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .node-circle { transition: all 0.4s ease-in-out; }
+        .tree-line { transition: all 0.4s ease-in-out; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <div>
+        <!-- Navbar -->
+        <header class="bg-white border-b border-slate-100 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="#" class="bg-indigo-600 text-white p-2 rounded-xl shadow-md shadow-indigo-100">
+                        <i class="fa-solid fa-flask text-base"></i>
+                    </a>
+                    <div>
+                        <span class="font-bold text-slate-900 text-sm block leading-snug">Virtual Labs</span>
+                        <span class="text-[10px] text-indigo-600 font-bold uppercase tracking-wider block">CS & DATA STRUCTURES</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <span class="bg-indigo-50 text-indigo-700 text-xs font-semibold px-3 py-1 rounded-full border border-indigo-100">
+                        Lab #29 of 32
+                    </span>
+                    <button onclick="resetDSUState()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Reset Forest
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Lab Title Banner -->
+        <div class="bg-white border-b border-slate-100 py-6 px-6">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center space-x-2 text-xs text-indigo-600 font-semibold mb-1">
+                        <span>Data Structures</span>
+                        <i class="fa-solid fa-chevron-right text-[9px] text-slate-400"></i>
+                        <span class="text-slate-500">Path Compression & Rank Merges</span>
+                    </div>
+                    <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">
+                        Lab #29: Union-Find (DSU) Path Compression
+                    </h1>
+                    <p class="text-xs text-slate-500 mt-1">
+                        Trace parent pointer flattening, tree rank merges, and set union operations live.
+                    </p>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-semibold text-slate-600 bg-indigo-50 text-indigo-700 border border-indigo-200/80 px-3 py-1 rounded-full">
+                        <i class="fa-solid fa-diagram-project mr-1"></i> DSU Forest Studio
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Workbench Area -->
+        <main class="max-w-7xl mx-auto px-6 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+            <!-- Control & Status Panel -->
+            <div class="space-y-5 lg:col-span-1">
+                
+                <!-- Operations Form -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">DSU Operations</h3>
+                    
+                    <!-- Union Form -->
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-slate-500 block">Union Sets (u, v)</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="unionU" placeholder="A" class="bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs text-slate-800 outline-none focus:border-indigo-500 font-mono uppercase text-center">
+                            <input type="text" id="unionV" placeholder="B" class="bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs text-slate-800 outline-none focus:border-indigo-500 font-mono uppercase text-center">
+                        </div>
+                        <button onclick="handleUnion()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2 rounded-xl transition shadow-xs">
+                            Execute Union(u, v)
+                        </button>
+                    </div>
+
+                    <hr class="border-slate-100">
+
+                    <!-- Find Form -->
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-slate-500 block">Find Root (u) with Path Compression</label>
+                        <input type="text" id="findU" placeholder="A" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs text-slate-800 outline-none focus:border-indigo-500 font-mono uppercase text-center">
+                        <button onclick="handleFind()" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-2 rounded-xl transition shadow-xs">
+                            Execute Find(u)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Execution Log -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">DSU Trace Log</h3>
+                    <div id="logContainer" class="bg-slate-900 text-slate-300 p-3 rounded-xl font-mono text-[11px] h-48 overflow-y-auto space-y-1">
+                        <div class="text-slate-500">// Engine ready. Perform Union or Find operations.</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Visualization Canvas -->
+            <div class="lg:col-span-3 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between relative min-h-[550px] overflow-hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Interactive DSU Forest & Root Trees Canvas</span>
+                    <div class="flex items-center space-x-3 text-[11px] text-slate-500 font-medium">
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-indigo-600 rounded-full inline-block mr-1"></span> Set Root</span>
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-slate-400 rounded-full inline-block mr-1"></span> Child Node</span>
+                    </div>
+                </div>
+
+                <!-- SVG Forest Render Container -->
+                <div class="relative w-full h-[500px] border border-slate-100 rounded-xl bg-slate-50/50 overflow-auto flex items-center justify-center" id="canvasBox">
+                    <svg id="forestSvg" class="w-full h-full min-w-[700px] min-h-[480px]"></svg>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-100 py-6 text-center text-xs text-slate-400">
+        <span>&copy; 2026 Virtual Labs • Union-Find (DSU) Path Compression Studio Suite</span>
+    </footer>
+
+    <!-- Script implementing DSU forest with Path Compression and Union by Rank -->
+    <script>
+        let parentMap = new Map(); // id -> parentId
+        let rankMap = new Map();   // id -> rank
+        let coordsMap = new Map(); // id -> {x, y}
+
+        function initDefaultForest() {
+            parentMap.clear();
+            rankMap.clear();
+            coordsMap.clear();
+
+            const elements = ['A', 'B', 'C', 'D', 'E', 'F'];
+            const coords = [
+                {x: 120, y: 150},
+                {x: 240, y: 150},
+                {x: 360, y: 150},
+                {x: 480, y: 150},
+                {x: 600, y: 150},
+                {x: 720, y: 150}
+            ];
+
+            elements.forEach((el, idx) => {
+                parentMap.set(el, el);
+                rankMap.set(el, 0);
+                coordsMap.set(el, coords[idx]);
+            });
+
+            renderForest();
+            logTrace("Initialized DSU forest with 6 isolated sets: A, B, C, D, E, F");
+        }
+
+        function find(i) {
+            let root = i;
+            // Find root
+            while (root !== parentMap.get(root)) {
+                root = parentMap.get(root);
+            }
+            
+            // Path compression pass
+            let curr = i;
+            while (curr !== root) {
+                let nxt = parentMap.get(curr);
+                parentMap.set(curr, root);
+                curr = nxt;
+            }
+            return root;
+        }
+
+        function unionSets(i, j) {
+            let rootI = find(i);
+            let rootJ = find(j);
+
+            if (rootI === rootJ) {
+                logTrace(`Elements [${i}] and [${j}] are already in the same set (Root: ${rootI})`, 'err');
+                return false;
+            }
+
+            let rankI = rankMap.get(rootI);
+            let rankJ = rankMap.get(rootJ);
+
+            if (rankI < rankJ) {
+                parentMap.set(rootI, rootJ);
+                // Adjust position visually closer to parent
+                let pCoords = coordsMap.get(rootJ);
+                coordsMap.set(rootI, {x: pCoords.x + 40, y: pCoords.y + 100});
+                logTrace(`Union by Rank: Attached root [${rootI}] (rank ${rankI}) under root [${rootJ}] (rank ${rankJ})`, 'match');
+            } else if (rankI > rankJ) {
+                parentMap.set(rootJ, rootI);
+                let pCoords = coordsMap.get(rootI);
+                coordsMap.set(rootJ, {x: pCoords.x + 40, y: pCoords.y + 100});
+                logTrace(`Union by Rank: Attached root [${rootJ}] (rank ${rankJ}) under root [${rootI}] (rank ${rankI})`, 'match');
+            } else {
+                parentMap.set(rootJ, rootI);
+                rankMap.set(rootI, rankI + 1);
+                let pCoords = coordsMap.get(rootI);
+                coordsMap.set(rootJ, {x: pCoords.x + 40, y: pCoords.y + 100});
+                logTrace(`Union by Rank: Attached root [${rootJ}] under [${rootI}] and incremented rank of [${rootI}] to ${rankI + 1}`, 'match');
+            }
+            return true;
+        }
+
+        function handleUnion() {
+            let u = document.getElementById('unionU').value.trim().toUpperCase();
+            let v = document.getElementById('unionV').value.trim().toUpperCase();
+
+            if (!u || !v || !parentMap.has(u) || !parentMap.has(v)) {
+                logTrace("Error: Please provide valid existing element names.", 'err');
+                return;
+            }
+
+            unionSets(u, v);
+            document.getElementById('unionU').value = '';
+            document.getElementById('unionV').value = '';
+            renderForest();
+        }
+
+        function handleFind() {
+            let u = document.getElementById('findU').value.trim().toUpperCase();
+            if (!u || !parentMap.has(u)) {
+                logTrace("Error: Please provide a valid existing element name.", 'err');
+                return;
+            }
+
+            let root = find(u);
+            logTrace(`Find([${u}]) with Path Compression &rarr; Root Representative: <strong class="text-emerald-400">${root}</strong>`, 'highlight');
+            document.getElementById('findU').value = '';
+            renderForest();
+        }
+
+        function resetDSUState() {
+            initDefaultForest();
+            document.getElementById('logContainer').innerHTML = '<div class="text-slate-500">// Engine ready. Perform Union or Find operations.</div>';
+        }
+
+        function logTrace(msg, type = 'info') {
+            const container = document.getElementById('logContainer');
+            let color = 'text-slate-300';
+            if (type === 'match') color = 'text-amber-300 font-semibold';
+            if (type === 'highlight') color = 'text-emerald-300 font-bold';
+            if (type === 'err') color = 'text-rose-400 font-bold';
+
+            container.innerHTML += `<div class="${color}">&gt; ${msg}</div>`;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function renderForest() {
+            const svg = document.getElementById('forestSvg');
+            svg.innerHTML = '';
+
+            // Draw parent pointer lines
+            parentMap.forEach((parent, child) => {
+                if (parent !== child) {
+                    let cPos = coordsMap.get(child);
+                    let pPos = coordsMap.get(parent);
+                    if (cPos && pPos) {
+                        svg.innerHTML += `<line x1="${cPos.x}" y1="${cPos.y}" x2="${pPos.x}" y2="${pPos.y}" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrow)" class="tree-line"/>`;
+                    }
+                }
+            });
+
+            svg.innerHTML += `
+                <defs>
+                    <marker id="arrow" viewBox="0 0 10 10" refX="24" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/>
+                    </marker>
+                </defs>
+            `;
+
+            // Draw Nodes
+            parentMap.forEach((parent, id) => {
+                let pos = coordsMap.get(id);
+                let isRoot = (parent === id);
+                let fillColor = isRoot ? '#4f46e5' : '#94a3b8';
+
+                if (pos) {
+                    svg.innerHTML += `
+                        <g class="node-circle">
+                            <circle cx="${pos.x}" cy="${pos.y}" r="24" fill="${fillColor}" />
+                            <text x="${pos.x}" y="${pos.y + 5}" text-anchor="middle" fill="white" font-size="12" font-weight="bold" font-family="Inter">${id}</text>
+                        </g>
+                    `;
+                }
+            });
+        }
+
+        window.addEventListener('resize', renderForest);
+        document.addEventListener('DOMContentLoaded', () => {
+            initDefaultForest();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #21: Simple Pendulum & Gravity | Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="/home/physics_circuit_designs/index.html" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors" title="Back to Physics Labs">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </a>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Lab #21</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">Simple Pendulum & Gravity</span>
+                </div>
+            </div>
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-600">
+                <a href="#simulator" class="hover:text-indigo-600 transition-colors">Simulator</a>
+                <a href="#tutorial" class="hover:text-indigo-600 transition-colors">Tutorial & Theory</a>
+                <a href="#pendulumTable" class="hover:text-indigo-600 transition-colors">Period & Gravity Data</a>
+            </nav>
+            <div class="flex items-center space-x-3">
+                <a href="/home/physics_circuit_designs/index.html" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-xl text-sm shadow-sm transition-all shadow-indigo-500/20">
+                    All Labs
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Lab Container -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left 2 Columns: Interactive Simulator & Workbench -->
+        <div id="simulator" class="lg:col-span-2 space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+                    <div>
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700">Classical Mechanics Lab &bull; Oscillations</span>
+                        <h1 class="text-2xl font-bold text-slate-900 mt-1">Simple Pendulum & Gravity Workbench</h1>
+                    </div>
+                    <button onclick="resetLab()" class="text-slate-400 hover:text-slate-600 text-xs font-medium bg-slate-100 px-3 py-1.5 rounded-lg transition-colors">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> Reset
+                    </button>
+                </div>
+
+                <!-- Gravity Environment Presets -->
+                <div class="grid grid-cols-4 gap-2 mb-6">
+                    <button id="btnEarth" onclick="setGravityPreset('EARTH')" class="py-2.5 px-2 rounded-xl font-bold text-xs transition-all bg-indigo-600 text-white shadow-sm">
+                        <i class="fa-solid fa-earth-americas mr-1"></i> Earth (9.81 m/s²)
+                    </button>
+                    <button id="btnMoon" onclick="setGravityPreset('MOON')" class="py-2.5 px-2 rounded-xl font-bold text-xs transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">
+                        <i class="fa-solid fa-moon mr-1"></i> Moon (1.62 m/s²)
+                    </button>
+                    <button id="btnMars" onclick="setGravityPreset('MARS')" class="py-2.5 px-2 rounded-xl font-bold text-xs transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">
+                        <i class="fa-solid fa-globe mr-1"></i> Mars (3.71 m/s²)
+                    </button>
+                    <button id="btnJupiter" onclick="setGravityPreset('JUPITER')" class="py-2.5 px-2 rounded-xl font-bold text-xs transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">
+                        <i class="fa-solid fa-circle-dot mr-1"></i> Jupiter (24.79 m/s²)
+                    </button>
+                </div>
+
+                <!-- Parameter Sliders -->
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">String Length (L): <span id="valL" class="text-indigo-600 font-bold">1.00 m</span></label>
+                        <input type="range" id="sliderL" min="0.1" max="2.5" step="0.05" value="1.0" oninput="updateParameters()" class="w-full accent-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Bob Mass (m): <span id="valM" class="text-indigo-600 font-bold">0.50 kg</span></label>
+                        <input type="range" id="sliderM" min="0.1" max="2.0" step="0.1" value="0.5" oninput="updateParameters()" class="w-full accent-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Initial Angle (&theta;₀): <span id="valTheta0" class="text-indigo-600 font-bold">10.0°</span></label>
+                        <input type="range" id="sliderTheta0" min="2" max="30" step="1" value="10" oninput="updateParameters()" class="w-full accent-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Custom Gravity (g): <span id="valG" class="text-indigo-600 font-bold">9.81 m/s²</span></label>
+                        <input type="range" id="sliderG" min="1.0" max="25.0" step="0.1" value="9.81" oninput="updateParametersFromCustomG()" class="w-full accent-indigo-600">
+                    </div>
+                </div>
+
+                <!-- Live Animation Board -->
+                <div class="bg-slate-950 rounded-2xl p-6 text-white relative overflow-hidden shadow-inner border border-slate-800">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-xs font-mono text-slate-400 uppercase tracking-widest">
+                            Pendulum Simulation &bull; <span id="envBadge" class="text-indigo-400 font-bold">EARTH ENVIRONMENT</span>
+                        </div>
+                        <div class="text-xs font-mono bg-slate-900 px-3 py-1 rounded-lg border border-slate-800 text-emerald-400">
+                            Theoretical Period (T): <span id="periodVal" class="font-bold text-white">2.01 s</span>
+                        </div>
+                    </div>
+
+                    <!-- Visual Canvas / SVG Pendulum Area -->
+                    <div class="h-64 relative border border-slate-800 rounded-xl overflow-hidden flex items-center justify-center bg-slate-900">
+                        <!-- Ceiling Anchor Point -->
+                        <div class="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-2 bg-slate-600 rounded-sm z-20"></div>
+
+                        <!-- SVG Animated Pendulum -->
+                        <svg class="absolute inset-0 w-full h-full z-10" viewBox="0 0 600 240" preserveAspectRatio="none">
+                            <!-- Dashed Vertical Center Line -->
+                            <line x1="300" y1="10" x2="300" y2="230" stroke="#334155" stroke-dasharray="4" stroke-width="1.5" />
+                            <!-- Pendulum String -->
+                            <line id="pendulumString" x1="300" y1="10" x2="300" y2="150" stroke="#cbd5e1" stroke-width="2" />
+                            <!-- Pendulum Bob -->
+                            <circle id="pendulumBob" cx="300" cy="150" r="14" fill="#6366f1" stroke="#a5b4fc" stroke-width="2" class="shadow-lg shadow-indigo-500/50" />
+                        </svg>
+                    </div>
+
+                    <!-- Live Telemetry Readout -->
+                    <div class="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-slate-800/80 text-center">
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Period (T)</span>
+                            <span id="readoutT" class="text-lg font-bold text-indigo-400 font-mono">2.01 s</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Frequency (f)</span>
+                            <span id="readoutF" class="text-lg font-bold text-emerald-400 font-mono">0.50 Hz</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Angular Speed (&omega;)</span>
+                            <span id="readoutOmega" class="text-lg font-bold text-amber-400 font-mono">3.13 rad/s</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulation Action Controls -->
+                <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+                    <div class="text-xs text-slate-500">
+                        Formula: <code class="bg-slate-100 px-2 py-1 rounded text-slate-700 font-mono font-bold">T = 2&pi; &radic;(L / g)</code>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="toggleAnimation()" id="animBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium px-4 py-2 rounded-xl shadow-sm transition-all">
+                            <i class="fa-solid fa-pause mr-1"></i> Pause Pendulum
+                        </button>
+                        <button onclick="alert('Lab #21 simple pendulum report exported successfully as CSV.')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium px-4 py-2 rounded-xl transition-colors">
+                            <i class="fa-solid fa-download mr-1"></i> Export Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pendulum Period Verification Table -->
+            <div id="pendulumTable" class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <h3 class="font-bold text-slate-900 text-lg mb-2">Simple Pendulum Period & Gravity Checkpoints</h3>
+                <p class="text-xs text-slate-500 mb-4">Calculated periods across standard lengths ($L$) and gravity environments.</p>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
+                                <th class="py-3 px-4 font-semibold">Environment</th>
+                                <th class="py-3 px-4 font-semibold">Gravity (g)</th>
+                                <th class="py-3 px-4 font-semibold">Length (L)</th>
+                                <th class="py-3 px-4 font-semibold">Calculated Period (T)</th>
+                                <th class="py-3 px-4 font-semibold">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="matrixRows" class="divide-y divide-slate-100 text-xs">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right 1 Column: Tutorial & Theory Panel -->
+        <div id="tutorial" class="space-y-6">
+            <!-- Lab Overview Card -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Tutorial & Theory</h3>
+                        <span class="text-xs text-slate-400">Simple Harmonic Motion</span>
+                    </div>
+                </div>
+                <div class="space-y-4 text-xs text-slate-600 leading-relaxed">
+                    <p>
+                        A <strong>simple pendulum</strong> consists of a mass $m$ suspended from a frictionless pivot by a light, inextensible string of length $L$.
+                    </p>
+                    <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl">
+                        <h4 class="font-bold text-indigo-900 text-xs mb-1 uppercase tracking-wider">Small-Angle Approximation</h4>
+                        <p class="text-indigo-800">For small angular displacements ($\theta \le 15^\circ$), $\sin\theta \approx \theta$, yielding simple harmonic motion with period $T = 2\pi\sqrt{\frac{L}{g}}$.</p>
+                    </div>
+                    <div class="bg-violet-50 border border-violet-100 p-4 rounded-xl">
+                        <h4 class="font-bold text-violet-900 text-xs mb-1 uppercase tracking-wider">Mass Independence</h4>
+                        <p class="text-violet-800">The oscillation period depends <strong class="text-violet-950">only on length $L$ and acceleration due to gravity $g$</strong>, completely independent of the bob's mass $m$.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Experiment Objectives -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <h3 class="font-bold text-slate-900 text-base mb-3">Experiment Objectives</h3>
+                <ul class="space-y-2.5 text-xs text-slate-600">
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Measure period $T$ vs string length $L$ and plot $T^2$ vs $L$.</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Determine local gravitational acceleration $g$ from pendulum period data.</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Verify that mass $m$ does not influence the oscillation period.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Need Assistance? -->
+            <div class="bg-gradient-to-br from-indigo-950 to-slate-900 text-white rounded-2xl p-6 shadow-md">
+                <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white mb-3">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+                <h4 class="font-bold text-sm mb-1">Need Lab Support?</h4>
+                <p class="text-xs text-slate-300 leading-relaxed mb-4">Consult simple harmonic motion and pendulum dynamics chapters in your physics manual.</p>
+                <a href="physics-labs.html#contact" class="inline-block bg-white text-indigo-950 font-bold px-4 py-2 rounded-xl text-xs hover:bg-slate-100 transition-colors">
+                    Contact Instructor
+                </a>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Site Footer -->
+    <footer class="bg-slate-900 text-slate-300 py-8 border-t border-slate-800 mt-16 text-center text-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            &copy; 2026 Virtual Learning Labs Platform &bull; Lab #21: Simple Pendulum & Gravity
+        </div>
+    </footer>
+
+    <!-- Interactive Simulation Script -->
+    <script>
+        let isAnimating = true;
+        let animTime = 0;
+        let animationFrameId = null;
+        let currentPreset = 'EARTH';
+
+        const PRESETS = {
+            'EARTH': 9.81,
+            'MOON': 1.62,
+            'MARS': 3.71,
+            'JUPITER': 24.79
+        };
+
+        function setGravityPreset(presetKey) {
+            currentPreset = presetKey;
+            const gVal = PRESETS[presetKey];
+            document.getElementById('sliderG').value = gVal;
+
+            const btnEarth = document.getElementById('btnEarth');
+            const btnMoon = document.getElementById('btnMoon');
+            const btnMars = document.getElementById('btnMars');
+            const btnJupiter = document.getElementById('btnJupiter');
+
+            [btnEarth, btnMoon, btnMars, btnJupiter].forEach(b => {
+                b.className = "py-2.5 px-2 rounded-xl font-bold text-xs transition-all bg-slate-100 text-slate-600 hover:bg-slate-200";
+            });
+
+            if (presetKey === 'EARTH') btnEarth.className = "py-2.5 px-2 rounded-xl font-bold text-xs transition-all bg-indigo-600 text-white shadow-sm";
+            if (presetKey === 'MOON') btnMoon.className = "py-2.5 px-2 rounded-xl font-bold text-xs transition-all bg-indigo-600 text-white shadow-sm";
+            if (presetKey === 'MARS') btnMars.className = "py-2.5 px-2 rounded-xl font-bold text-xs transition-all bg-indigo-600 text-white shadow-sm";
+            if (presetKey === 'JUPITER') btnJupiter.className = "py-2.5 px-2 rounded-xl font-bold text-xs transition-all bg-indigo-600 text-white shadow-sm";
+
+            updateParameters();
+        }
+
+        function updateParametersFromCustomG() {
+            currentPreset = 'CUSTOM';
+            const btnEarth = document.getElementById('btnEarth');
+            const btnMoon = document.getElementById('btnMoon');
+            const btnMars = document.getElementById('btnMars');
+            const btnJupiter = document.getElementById('btnJupiter');
+
+            [btnEarth, btnMoon, btnMars, btnJupiter].forEach(b => {
+                b.className = "py-2.5 px-2 rounded-xl font-bold text-xs transition-all bg-slate-100 text-slate-600 hover:bg-slate-200";
+            });
+
+            updateParameters();
+        }
+
+        function updateParameters() {
+            const L = parseFloat(document.getElementById('sliderL').value);
+            const m = parseFloat(document.getElementById('sliderM').value);
+            const theta0Deg = parseFloat(document.getElementById('sliderTheta0').value);
+            const g = parseFloat(document.getElementById('sliderG').value);
+
+            document.getElementById('valL').innerText = L.toFixed(2) + ' m';
+            document.getElementById('valM').innerText = m.toFixed(2) + ' kg';
+            document.getElementById('valTheta0').innerText = theta0Deg.toFixed(1) + '°';
+            document.getElementById('valG').innerText = g.toFixed(2) + ' m/s²';
+
+            // Period T = 2 * pi * sqrt(L / g)
+            const T = 2 * Math.PI * Math.sqrt(L / g);
+            const freq = 1 / T;
+            const omega = 2 * Math.PI * freq;
+
+            document.getElementById('periodVal').innerText = T.toFixed(2) + ' s';
+            document.getElementById('readoutT').innerText = T.toFixed(2) + ' s';
+            document.getElementById('readoutF').innerText = freq.toFixed(2) + ' Hz';
+            document.getElementById('readoutOmega').innerText = omega.toFixed(2) + ' rad/s';
+
+            const envBadge = document.getElementById('envBadge');
+            if (currentPreset !== 'CUSTOM') {
+                envBadge.innerText = `${currentPreset} ENVIRONMENT`;
+            } else {
+                envBadge.innerText = `CUSTOM GRAVITY (${g.toFixed(2)} m/s²)`;
+            }
+
+            renderMatrixTable(L, g);
+        }
+
+        function renderMatrixTable(currentL, currentG) {
+            const tbody = document.getElementById('matrixRows');
+            tbody.innerHTML = '';
+
+            const environments = [
+                { name: 'Earth', g: 9.81 },
+                { name: 'Moon', g: 1.62 },
+                { name: 'Mars', g: 3.71 },
+                { name: 'Jupiter', g: 24.79 }
+            ];
+
+            environments.forEach(env => {
+                const T = 2 * Math.PI * Math.sqrt(currentL / env.g);
+                const isCurrentEnv = Math.abs(currentG - env.g) < 0.1;
+
+                const tr = document.createElement('tr');
+                tr.className = isCurrentEnv ? "bg-indigo-50/80 font-semibold border-b border-slate-100" : "border-b border-slate-100 text-slate-600";
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-semibold text-slate-900">${env.name}</td>
+                    <td class="py-3 px-4 font-mono">${env.g.toFixed(2)} m/s²</td>
+                    <td class="py-3 px-4 font-mono">${currentL.toFixed(2)} m</td>
+                    <td class="py-3 px-4 font-mono font-bold text-indigo-600">${T.toFixed(2)} s</td>
+                    <td class="py-3 px-4">${isCurrentEnv ? '<span class="text-indigo-600 font-bold"><i class="fa-solid fa-arrow-left mr-1"></i> Active Preset</span>' : 'Standard Reference'}</td>
+                </tr>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function animationLoop() {
+            if (!isAnimating) return;
+            animTime += 0.03;
+
+            const L = parseFloat(document.getElementById('sliderL').value);
+            const m = parseFloat(document.getElementById('sliderM').value);
+            const theta0Deg = parseFloat(document.getElementById('sliderTheta0').value);
+            const g = parseFloat(document.getElementById('sliderG').value);
+
+            const omega = Math.sqrt(g / L);
+            const theta0Rad = theta0Deg * (Math.PI / 180);
+            
+            // Current angle = theta0 * cos(omega * t)
+            const currentAngleRad = theta0Rad * Math.cos(omega * animTime);
+
+            // Pendulum visual drawing
+            // Anchor is at (300, 10)
+            const visualLength = Math.min(180, Math.max(50, L * 90)); // pixel scaling
+            const bobX = 300 + (visualLength * Math.sin(currentAngleRad));
+            const bobY = 10 + (visualLength * Math.cos(currentAngleRad));
+
+            // Bob radius scale by mass
+            const bobRadius = Math.min(22, Math.max(10, 10 + (m * 6)));
+
+            const stringEl = document.getElementById('pendulumString');
+            const bobEl = document.getElementById('pendulumBob');
+
+            stringEl.setAttribute('x2', bobX.toFixed(1));
+            stringEl.setAttribute('y2', bobY.toFixed(1));
+
+            bobEl.setAttribute('cx', bobX.toFixed(1));
+            bobEl.setAttribute('cy', bobY.toFixed(1));
+            bobEl.setAttribute('r', bobRadius.toFixed(1));
+
+            animationFrameId = requestAnimationFrame(animationLoop);
+        }
+
+        function toggleAnimation() {
+            const btn = document.getElementById('animBtn');
+            if (isAnimating) {
+                isAnimating = false;
+                cancelAnimationFrame(animationFrameId);
+                btn.innerHTML = `<i class="fa-solid fa-play mr-1"></i> Resume Pendulum`;
+                btn.className = "bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium px-4 py-2 rounded-xl shadow-sm transition-all";
+            } else {
+                isAnimating = true;
+                animationLoop();
+                btn.innerHTML = `<i class="fa-solid fa-pause mr-1"></i> Pause Pendulum`;
+                btn.className = "bg-amber-600 hover:bg-amber-700 text-white text-xs font-medium px-4 py-2 rounded-xl shadow-sm transition-all";
+            }
+        }
+
+        function resetLab() {
+            setGravityPreset('EARTH');
+            document.getElementById('sliderL').value = 1.0;
+            document.getElementById('sliderM').value = 0.5;
+            document.getElementById('sliderTheta0').value = 10;
+            updateParameters();
+            if (!isAnimating) toggleAnimation();
+        }
+
+        // Initialize
+        updateParameters();
+        animationLoop();
+    </script>
+</body>
+</html>

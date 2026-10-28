@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #27: Logic Gates Multiplexers & Decoders | Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="/home/physics_circuit_designs/index.html" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors" title="Back to Physics Labs">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </a>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Lab #27</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">Multiplexers & Decoders</span>
+                </div>
+            </div>
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-600">
+                <a href="#simulator" class="hover:text-indigo-600 transition-colors">Simulator</a>
+                <a href="#tutorial" class="hover:text-indigo-600 transition-colors">Tutorial & Theory</a>
+                <a href="#truthTable" class="hover:text-indigo-600 transition-colors">Truth Table</a>
+            </nav>
+            <div class="flex items-center space-x-3">
+                <a href="/home/physics_circuit_designs/index.html" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-xl text-sm shadow-sm transition-all shadow-indigo-500/20">
+                    All Labs
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Lab Container -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left 2 Columns: Interactive Simulator & Workbench -->
+        <div id="simulator" class="lg:col-span-2 space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+                    <div>
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700">Digital Electronics &bull; Combinatorial Logic</span>
+                        <h1 class="text-2xl font-bold text-slate-900 mt-1">4:1 MUX & 1:4 DEMUX Workbench</h1>
+                    </div>
+                    <button onclick="resetLab()" class="text-slate-400 hover:text-slate-600 text-xs font-medium bg-slate-100 px-3 py-1.5 rounded-lg transition-colors">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> Reset
+                    </button>
+                </div>
+
+                <!-- Mode Selection: MUX vs DEMUX -->
+                <div class="flex space-x-3 mb-6">
+                    <button id="btnMuxMode" onclick="setMode('MUX')" class="flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all bg-indigo-600 text-white shadow-sm shadow-indigo-500/20">
+                        <i class="fa-solid fa-network-wired mr-2"></i> 4:1 Multiplexer (Data Selector)
+                    </button>
+                    <button id="btnDemuxMode" onclick="setMode('DEMUX')" class="flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">
+                        <i class="fa-solid fa-route mr-2"></i> 1:4 Demultiplexer (Data Distributor)
+                    </button>
+                </div>
+
+                <!-- Select Line Switches & Inputs -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <!-- Binary Select Switches S1, S0 -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-2">Select Lines (S1, S0): <span id="selectReadout" class="text-indigo-600 font-mono font-bold">00 (Channel 0)</span></label>
+                        <div class="flex space-x-3">
+                            <button id="btnS1" onclick="toggleSelect(1)" class="flex-1 py-2 px-3 rounded-lg font-mono font-bold text-xs bg-slate-200 text-slate-700 transition-all border border-slate-300">
+                                S1 = 0
+                            </button>
+                            <button id="btnS0" onclick="toggleSelect(0)" class="flex-1 py-2 px-3 rounded-lg font-mono font-bold text-xs bg-slate-200 text-slate-700 transition-all border border-slate-300">
+                                S0 = 0
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Input Line Controls -->
+                    <div id="inputControlsContainer">
+                        <!-- Content dynamically updated based on MUX / DEMUX mode -->
+                    </div>
+                </div>
+
+                <!-- Schematic Logic Canvas -->
+                <div class="bg-slate-950 rounded-2xl p-6 text-white relative overflow-hidden shadow-inner border border-slate-800">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-xs font-mono text-slate-400 uppercase tracking-widest">
+                            Combinatorial Logic Rig &bull; <span id="circuitBadge" class="text-emerald-400 font-bold">4:1 MULTIPLEXER ACTIVE</span>
+                        </div>
+                        <div class="text-xs font-mono bg-slate-900 px-3 py-1 rounded-lg border border-slate-800 text-indigo-400">
+                            Active Routing: <span id="routeVal" class="font-bold text-white">I0 &rarr; Y</span>
+                        </div>
+                    </div>
+
+                    <!-- SVG Schematic Visualizer -->
+                    <div class="h-64 relative border border-slate-800 rounded-xl overflow-hidden flex items-center justify-center bg-slate-900">
+                        <svg class="absolute inset-0 w-full h-full p-4" viewBox="0 0 600 220" preserveAspectRatio="none" id="schematicSvg">
+                            <!-- Circuit paths dynamically injected in JavaScript -->
+                        </svg>
+                    </div>
+
+                    <!-- Live Telemetry Readout -->
+                    <div class="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-slate-800/80 text-center">
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Select Address</span>
+                            <span id="readoutAddr" class="text-lg font-bold text-indigo-400 font-mono">S1=0, S0=0 (0)</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Selected Input/Data</span>
+                            <span id="readoutInput" class="text-lg font-bold text-emerald-400 font-mono">HIGH (1)</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Output State</span>
+                            <span id="readoutOutput" class="text-lg font-bold text-amber-400 font-mono">Y = 1</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulation Action Controls -->
+                <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+                    <div class="text-xs text-slate-500">
+                        Boolean Expression: <code id="booleanFormula" class="bg-slate-100 px-2 py-1 rounded text-slate-700 font-mono font-bold">Y = S1'S0'I0 + S1'S0 I1 + S1 S0'I2 + S1 S0 I3</code>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="randomizeInputs()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium px-4 py-2 rounded-xl shadow-sm transition-all">
+                            <i class="fa-solid fa-shuffle mr-1"></i> Randomize Signals
+                        </button>
+                        <button onclick="alert('Lab #27 MUX/DEMUX report exported successfully as CSV.')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium px-4 py-2 rounded-xl transition-colors">
+                            <i class="fa-solid fa-download mr-1"></i> Export Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Truth Table -->
+            <div id="truthTable" class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <h3 class="font-bold text-slate-900 text-lg mb-2">Dynamic Truth Table</h3>
+                <p class="text-xs text-slate-500 mb-4">Logic output mapping across binary selection addresses.</p>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider" id="tableHeader">
+                                <!-- Headers injected dynamically -->
+                            </tr>
+                        </thead>
+                        <tbody id="matrixRows" class="divide-y divide-slate-100 text-xs">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right 1 Column: Tutorial & Theory Panel -->
+        <div id="tutorial" class="space-y-6">
+            <!-- Lab Overview Card -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-microchip"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Tutorial & Theory</h3>
+                        <span class="text-xs text-slate-400">Combinatorial Logic Chips</span>
+                    </div>
+                </div>
+                <div class="space-y-4 text-xs text-slate-600 leading-relaxed">
+                    <p>
+                        A <strong>Multiplexer (MUX)</strong>, or data selector, routes one of several digital input lines to a single output line based on binary select lines ($S_1, S_0$).
+                    </p>
+                    <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl">
+                        <h4 class="font-bold text-indigo-900 text-xs mb-1 uppercase tracking-wider">4:1 Multiplexer</h4>
+                        <p class="text-indigo-800">Has 4 data inputs ($I_0-I_3$), 2 select lines ($S_1, S_0$), and 1 output ($Y$). The address $(S_1 S_0)_2$ selects which input propagates to $Y$.</p>
+                    </div>
+                    <div class="bg-violet-50 border border-violet-100 p-4 rounded-xl">
+                        <h4 class="font-bold text-violet-900 text-xs mb-1 uppercase tracking-wider">1:4 Demultiplexer</h4>
+                        <p class="text-violet-800">Reverses the process: routes a single input signal $D$ to one of 4 output channels ($Y_0-Y_3$) selected by address lines ($S_1, S_0$).</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Experiment Objectives -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <h3 class="font-bold text-slate-900 text-base mb-3">Experiment Objectives</h3>
+                <ul class="space-y-2.5 text-xs text-slate-600">
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Understand data selection and routing using AND-OR logic gates.</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Verify 4:1 MUX and 1:4 DEMUX truth tables under active select addresses.</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Trace high/low digital logic levels across combinational paths.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Need Assistance? -->
+            <div class="bg-gradient-to-br from-indigo-950 to-slate-900 text-white rounded-2xl p-6 shadow-md">
+                <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white mb-3">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+                <h4 class="font-bold text-sm mb-1">Need Lab Support?</h4>
+                <p class="text-xs text-slate-300 leading-relaxed mb-4">Consult digital logic design and combinational chip chapters in your electronics textbook.</p>
+                <a href="physics-labs.html#contact" class="inline-block bg-white text-indigo-950 font-bold px-4 py-2 rounded-xl text-xs hover:bg-slate-100 transition-colors">
+                    Contact Instructor
+                </a>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Site Footer -->
+    <footer class="bg-slate-900 text-slate-300 py-8 border-t border-slate-800 mt-16 text-center text-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            &copy; 2026 Virtual Learning Labs Platform &bull; Lab #27: Logic Gates Multiplexers & Decoders
+        </div>
+    </footer>
+
+    <!-- Interactive Simulation Script -->
+    <script>
+        let mode = 'MUX'; // 'MUX' or 'DEMUX'
+        let S1 = 0;
+        let S0 = 0;
+        
+        // MUX inputs I0, I1, I2, I3
+        let muxInputs = [1, 0, 1, 0];
+
+        // DEMUX single data input D
+        let demuxInput = 1;
+
+        function setMode(newMode) {
+            mode = newMode;
+            const btnMux = document.getElementById('btnMuxMode');
+            const btnDemux = document.getElementById('btnDemuxMode');
+
+            if (mode === 'MUX') {
+                btnMux.className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all bg-indigo-600 text-white shadow-sm shadow-indigo-500/20";
+                btnDemux.className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all bg-slate-100 text-slate-600 hover:bg-slate-200";
+            } else {
+                btnDemux.className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all bg-indigo-600 text-white shadow-sm shadow-indigo-500/20";
+                btnMux.className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all bg-slate-100 text-slate-600 hover:bg-slate-200";
+            }
+
+            renderInputControls();
+            updateSimulation();
+        }
+
+        function toggleSelect(line) {
+            if (line === 1) S1 = S1 === 0 ? 1 : 0;
+            if (line === 0) S0 = S0 === 0 ? 1 : 0;
+
+            const btn1 = document.getElementById('btnS1');
+            const btn0 = document.getElementById('btnS0');
+
+            btn1.innerText = `S1 = ${S1}`;
+            btn1.className = S1 ? "flex-1 py-2 px-3 rounded-lg font-mono font-bold text-xs bg-indigo-600 text-white transition-all shadow-sm" : "flex-1 py-2 px-3 rounded-lg font-mono font-bold text-xs bg-slate-200 text-slate-700 transition-all border border-slate-300";
+
+            btn0.innerText = `S0 = ${S0}`;
+            btn0.className = S0 ? "flex-1 py-2 px-3 rounded-lg font-mono font-bold text-xs bg-indigo-600 text-white transition-all shadow-sm" : "flex-1 py-2 px-3 rounded-lg font-mono font-bold text-xs bg-slate-200 text-slate-700 transition-all border border-slate-300";
+
+            updateSimulation();
+        }
+
+        function toggleMuxInput(index) {
+            muxInputs[index] = muxInputs[index] === 0 ? 1 : 0;
+            renderInputControls();
+            updateSimulation();
+        }
+
+        function toggleDemuxInput() {
+            demuxInput = demuxInput === 0 ? 1 : 0;
+            renderInputControls();
+            updateSimulation();
+        }
+
+        function renderInputControls() {
+            const container = document.getElementById('inputControlsContainer');
+            if (mode === 'MUX') {
+                container.innerHTML = `
+                    <label class="block text-xs font-semibold text-slate-600 mb-2">Data Inputs (I0 - I3):</label>
+                    <div class="grid grid-cols-4 gap-2">
+                        ${muxInputs.map((val, idx) => `
+                            <button onclick="toggleMuxInput(${idx})" class="py-2 px-2 rounded-lg font-mono font-bold text-xs transition-all ${val ? 'bg-emerald-600 text-white shadow-sm' : 'bg-slate-200 text-slate-700 border border-slate-300'}">
+                                I${idx} =${val}
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <label class="block text-xs font-semibold text-slate-600 mb-2">Data Input Signal (D):</label>
+                    <button onclick="toggleDemuxInput()" class="w-full py-2 px-3 rounded-lg font-mono font-bold text-xs transition-all ${demuxInput ? 'bg-emerald-600 text-white shadow-sm' : 'bg-slate-200 text-slate-700 border border-slate-300'}">
+                        Input D = ${demuxInput} (${demuxInput ? 'HIGH' : 'LOW'})
+                    </button>
+                `;
+            }
+        }
+
+        function updateSimulation() {
+            const address = (S1 << 1) | S0; // 0, 1, 2, 3
+            document.getElementById('selectReadout').innerText = `${S1}${S0} (Channel ${address})`;
+
+            const circuitBadge = document.getElementById('circuitBadge');
+            const routeVal = document.getElementById('routeVal');
+            const booleanFormula = document.getElementById('booleanFormula');
+
+            if (mode === 'MUX') {
+                circuitBadge.innerText = "4:1 MULTIPLEXER ACTIVE";
+                routeVal.innerText = `I${address} \u2192 Y`;
+                booleanFormula.innerText = "Y = S1'S0'I0 + S1'S0 I1 + S1 S0'I2 + S1 S0 I3";
+
+                const outputY = muxInputs[address];
+
+                document.getElementById('readoutAddr').innerText = `S1=${S1}, S0=${S0} (${address})`;
+                document.getElementById('readoutInput').innerText = `I${address} = ${muxInputs[address]} (${muxInputs[address] ? 'HIGH' : 'LOW'})`;
+                document.getElementById('readoutOutput').innerText = `Y = ${outputY}`;
+
+                renderMuxSchematic(address, outputY);
+            } else {
+                circuitBadge.innerText = "1:4 DEMULTIPLEXER ACTIVE";
+                routeVal.innerText = `D \u2192 Y${address}`;
+                booleanFormula.innerText = "Y0=S1'S0'D, Y1=S1'S0 D, Y2=S1 S0'D, Y3=S1 S0 D";
+
+                const outputs = [0, 0, 0, 0];
+                outputs[address] = demuxInput;
+
+                document.getElementById('readoutAddr').innerText = `S1=${S1}, S0=${S0} (${address})`;
+                document.getElementById('readoutInput').innerText = `D = ${demuxInput} (${demuxInput ? 'HIGH' : 'LOW'})`;
+                document.getElementById('readoutOutput').innerText = `Y${address} = ${outputs[address]}`;
+
+                renderDemuxSchematic(address, outputs);
+            }
+
+            renderTruthTable(address);
+        }
+
+        function renderMuxSchematic(selectedAddr, outputY) {
+            const svg = document.getElementById('schematicSvg');
+            let svgContent = `
+                <!-- Central MUX Chip Body -->
+                <rect x="220" y="30" width="160" height="160" rx="12" fill="#0f172a" stroke="#6366f1" stroke-width="3" />
+                <text x="260" y="115" fill="#a5b4fc" font-size="16" font-family="sans-serif" font-weight="bold">4:1 MUX</text>
+
+                <!-- Select Lines (Bottom) -->
+                <line x1="270" y1="210" x2="270" y2="190" stroke="${S1 ? '#6366f1' : '#475569'}" stroke-width="3" />
+                <text x="262" y="218" fill="#cbd5e1" font-size="10" font-family="monospace">S1</text>
+                
+                <line x1="330" y1="210" x2="330" y2="190" stroke="${S0 ? '#6366f1' : '#475569'}" stroke-width="3" />
+                <text x="322" y="218" fill="#cbd5e1" font-size="10" font-family="monospace">S0</text>
+            `;
+
+            // Inputs I0 - I3 (Left)
+            const yPositions = [55, 90, 125, 160];
+            muxInputs.forEach((val, i) => {
+                const isActive = i === selectedAddr;
+                const strokeColor = isActive ? (val ? '#10b981' : '#f59e0b') : '#334155';
+                const strokeWidth = isActive ? '4' : '2';
+
+                svgContent += `
+                    <line x1="100" y1="${yPositions[i]}" x2="220" y2="${yPositions[i]}" stroke="${strokeColor}" stroke-width="${strokeWidth}" />
+                    <circle cx="100" cy="${yPositions[i]}" r="6" fill="${val ? '#10b981' : '#475569'}" />
+                    <text x="75" y="${yPositions[i] + 4}" fill="#cbd5e1" font-size="11" font-family="monospace">I${i}</text>
+                `;
+            });
+
+            // Output Y (Right)
+            const outColor = outputY ? '#10b981' : '#f59e0b';
+            svgContent += `
+                <line x1="380" y1="110" x2="500" y2="110" stroke="${outColor}" stroke-width="4" />
+                <circle cx="500" cy="110" r="10" fill="${outColor}" stroke="#ffffff" stroke-width="2" />
+                <text x="518" y="114" fill="#cbd5e1" font-size="12" font-family="monospace" font-weight="bold">Y = ${outputY}</text>
+            `;
+
+            svg.innerHTML = svgContent;
+        }
+
+        function renderDemuxSchematic(selectedAddr, outputs) {
+            const svg = document.getElementById('schematicSvg');
+            let svgContent = `
+                <!-- Central DEMUX Chip Body -->
+                <rect x="220" y="30" width="160" height="160" rx="12" fill="#0f172a" stroke="#6366f1" stroke-width="3" />
+                <text x="250" y="115" fill="#a5b4fc" font-size="16" font-family="sans-serif" font-weight="bold">1:4 DEMUX</text>
+
+                <!-- Select Lines (Bottom) -->
+                <line x1="270" y1="210" x2="270" y2="190" stroke="${S1 ? '#6366f1' : '#475569'}" stroke-width="3" />
+                <text x="262" y="218" fill="#cbd5e1" font-size="10" font-family="monospace">S1</text>
+                
+                <line x1="330" y1="210" x2="330" y2="190" stroke="${S0 ? '#6366f1' : '#475569'}" stroke-width="3" />
+                <text x="322" y="218" fill="#cbd5e1" font-size="10" font-family="monospace">S0</text>
+
+                <!-- Single Input D (Left) -->
+                <line x1="100" y1="110" x2="220" y2="110" stroke="${demuxInput ? '#10b981' : '#f59e0b'}" stroke-width="4" />
+                <circle cx="100" cy="110" r="8" fill="${demuxInput ? '#10b981' : '#475569'}" />
+                <text x="70" y="114" fill="#cbd5e1" font-size="12" font-family="monospace" font-weight="bold">D</text>
+            `;
+
+            // Outputs Y0 - Y3 (Right)
+            const yPositions = [55, 90, 125, 160];
+            outputs.forEach((val, i) => {
+                const isActive = i === selectedAddr;
+                const strokeColor = isActive ? (val ? '#10b981' : '#f59e0b') : '#334155';
+                const strokeWidth = isActive ? '4' : '2';
+
+                svgContent += `
+                    <line x1="380" y1="${yPositions[i]}" x2="500" y2="${yPositions[i]}" stroke="${strokeColor}" stroke-width="${strokeWidth}" />
+                    <circle cx="500" cy="${yPositions[i]}" r="6" fill="${val ? '#10b981' : '#475569'}" />
+                    <text x="515" y="${yPositions[i] + 4}" fill="#cbd5e1" font-size="11" font-family="monospace">Y${i} = ${val}</text>
+                `;
+            });
+
+            svg.innerHTML = svgContent;
+        }
+
+        function renderTruthTable(activeAddr) {
+            const header = document.getElementById('tableHeader');
+            const tbody = document.getElementById('matrixRows');
+
+            if (mode === 'MUX') {
+                header.innerHTML = `
+                    <th class="py-3 px-4 font-semibold">S1</th>
+                    <th class="py-3 px-4 font-semibold">S0</th>
+                    <th class="py-3 px-4 font-semibold">Selected Channel</th>
+                    <th class="py-3 px-4 font-semibold">Output (Y) Expression</th>
+                    <th class="py-3 px-4 font-semibold">Active Value</th>
+                `;
+
+                tbody.innerHTML = [0, 1, 2, 3].map(addr => {
+                    const s1Val = (addr >> 1) & 1;
+                    const s0Val = addr & 1;
+                    const isCurrent = addr === activeAddr;
+
+                    return `
+                        <tr class="${isCurrent ? 'bg-indigo-50/80 font-semibold border-b border-slate-100' : 'border-b border-slate-100 text-slate-600'}">
+                            <td class="py-3 px-4 font-mono">${s1Val}</td>
+                            <td class="py-3 px-4 font-mono">${s0Val}</td>
+                            <td class="py-3 px-4 font-mono font-bold text-slate-900">Channel ${addr} (I${addr})</td>
+                            <td class="py-3 px-4 font-mono text-indigo-600">Y = I${addr}</td>
+                            <td class="py-3 px-4 font-mono font-bold ${muxInputs[addr] ? 'text-emerald-600' : 'text-slate-500'}">${muxInputs[addr]}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } else {
+                header.innerHTML = `
+                    <th class="py-3 px-4 font-semibold">S1</th>
+                    <th class="py-3 px-4 font-semibold">S0</th>
+                    <th class="py-3 px-4 font-semibold">Y0</th>
+                    <th class="py-3 px-4 font-semibold">Y1</th>
+                    <th class="py-3 px-4 font-semibold">Y2</th>
+                    <th class="py-3 px-4 font-semibold">Y3</th>
+                `;
+
+                tbody.innerHTML = [0, 1, 2, 3].map(addr => {
+                    const s1Val = (addr >> 1) & 1;
+                    const s0Val = addr & 1;
+                    const isCurrent = addr === activeAddr;
+
+                    const outputs = [0, 0, 0, 0];
+                    outputs[addr] = demuxInput;
+
+                    return `
+                        <tr class="${isCurrent ? 'bg-indigo-50/80 font-semibold border-b border-slate-100' : 'border-b border-slate-100 text-slate-600'}">
+                            <td class="py-3 px-4 font-mono">${s1Val}</td>
+                            <td class="py-3 px-4 font-mono">${s0Val}</td>
+                            <td class="py-3 px-4 font-mono ${outputs[0] ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${outputs[0]}</td>
+                            <td class="py-3 px-4 font-mono ${outputs[1] ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${outputs[1]}</td>
+                            <td class="py-3 px-4 font-mono ${outputs[2] ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${outputs[2]}</td>
+                            <td class="py-3 px-4 font-mono ${outputs[3] ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${outputs[3]}</td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+        }
+
+        function randomizeInputs() {
+            if (mode === 'MUX') {
+                muxInputs = muxInputs.map(() => Math.round(Math.random()));
+            } else {
+                demuxInput = Math.round(Math.random());
+            }
+            S1 = Math.round(Math.random());
+            S0 = Math.round(Math.random());
+
+            document.getElementById('btnS1').innerText = `S1 = ${S1}`;
+            document.getElementById('btnS1').className = S1 ? "flex-1 py-2 px-3 rounded-lg font-mono font-bold text-xs bg-indigo-600 text-white transition-all shadow-sm" : "flex-1 py-2 px-3 rounded-lg font-mono font-bold text-xs bg-slate-200 text-slate-700 transition-all border border-slate-300";
+
+            document.getElementById('btnS0').innerText = `S0 = ${S0}`;
+            document.getElementById('btnS0').className = S0 ? "flex-1 py-2 px-3 rounded-lg font-mono font-bold text-xs bg-indigo-600 text-white transition-all shadow-sm" : "flex-1 py-2 px-3 rounded-lg font-mono font-bold text-xs bg-slate-200 text-slate-700 transition-all border border-slate-300";
+
+            renderInputControls();
+            updateSimulation();
+        }
+
+        function resetLab() {
+            S1 = 0;
+            S0 = 0;
+            muxInputs = [1, 0, 1, 0];
+            demuxInput = 1;
+
+            document.getElementById('btnS1').innerText = `S1 = 0`;
+            document.getElementById('btnS1').className = "flex-1 py-2 px-3 rounded-lg font-mono font-bold text-xs bg-slate-200 text-slate-700 transition-all border border-slate-300";
+
+            document.getElementById('btnS0').innerText = `S0 = 0`;
+            document.getElementById('btnS0').className = "flex-1 py-2 px-3 rounded-lg font-mono font-bold text-xs bg-slate-200 text-slate-700 transition-all border border-slate-300";
+
+            setMode('MUX');
+        }
+
+        // Initialize
+        renderInputControls();
+        updateSimulation();
+    </script>
+</body>
+</html>

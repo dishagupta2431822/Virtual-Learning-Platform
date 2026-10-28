@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #25: Quicksort Partition & Dual Pivot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        code, .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .array-bar { transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <div>
+        <!-- Navbar -->
+        <header class="bg-white border-b border-slate-100 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="#" class="bg-indigo-600 text-white p-2 rounded-xl shadow-md shadow-indigo-100">
+                        <i class="fa-solid fa-flask text-base"></i>
+                    </a>
+                    <div>
+                        <span class="font-bold text-slate-900 text-sm block leading-snug">Virtual Labs</span>
+                        <span class="text-[10px] text-indigo-600 font-bold uppercase tracking-wider block">CS & DATA STRUCTURES</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <span class="bg-indigo-50 text-indigo-700 text-xs font-semibold px-3 py-1 rounded-full border border-indigo-100">
+                        Lab #25 of 32
+                    </span>
+                    <button onclick="resetQuicksortState()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Reset Studio
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Lab Title Banner -->
+        <div class="bg-white border-b border-slate-100 py-6 px-6">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center space-x-2 text-xs text-indigo-600 font-semibold mb-1">
+                        <span>Sorting Algorithms</span>
+                        <i class="fa-solid fa-chevron-right text-[9px] text-slate-400"></i>
+                        <span class="text-slate-500">Pivot Selection & i/j Pointers</span>
+                    </div>
+                    <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">
+                        Lab #25: Quicksort Partition & Dual Pivot
+                    </h1>
+                    <p class="text-xs text-slate-500 mt-1">
+                        Trace pivot selection, boundary pointers i/j, and recursive array partitioning steps live.
+                    </p>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-semibold text-slate-600 bg-indigo-50 text-indigo-700 border border-indigo-200/80 px-3 py-1 rounded-full">
+                        <i class="fa-solid fa-scissors mr-1"></i> Quicksort Studio
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Workbench Area -->
+        <main class="max-w-7xl mx-auto px-6 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+            <!-- Control & Status Panel -->
+            <div class="space-y-5 lg:col-span-1">
+                
+                <!-- Parameters -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Partition Parameters</h3>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 block mb-1">Custom Array (Comma separated)</label>
+                        <input type="text" id="arrayInput" value="38, 27, 43, 3, 9, 82, 10" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 outline-none focus:border-indigo-500 font-mono transition">
+                    </div>
+                    <button onclick="runPartitionSimulation()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-xs">
+                        Run Lomuto Partition
+                    </button>
+                    <div class="bg-indigo-50 border border-indigo-100 p-3 rounded-xl text-center space-y-1">
+                        <span class="text-[11px] text-indigo-600 font-semibold block">Partition Status</span>
+                        <span class="text-base font-black text-indigo-800 font-mono" id="partitionStatusBox">Ready</span>
+                    </div>
+                </div>
+
+                <!-- Execution Log -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Partition Trace Log</h3>
+                    <div id="logContainer" class="bg-slate-900 text-slate-300 p-3 rounded-xl font-mono text-[11px] h-44 overflow-y-auto space-y-1">
+                        <div class="text-slate-500">// Engine ready. Click Run Lomuto Partition.</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Visualization Canvas -->
+            <div class="lg:col-span-3 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between relative min-h-[550px] overflow-hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Interactive Array Elements & Pointers Canvas</span>
+                    <div class="flex items-center space-x-3 text-[11px] text-slate-500 font-medium">
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-indigo-500 rounded-full inline-block mr-1"></span> Pointer j (Scan)</span>
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-amber-500 rounded-full inline-block mr-1"></span> Pointer i (Boundary)</span>
+                        <span class="flex items-center"><span class="w-2.5 h-2.5 bg-rose-500 rounded-full inline-block mr-1"></span> Pivot</span>
+                    </div>
+                </div>
+
+                <!-- Array Visualizer Container -->
+                <div class="relative w-full h-[500px] border border-slate-100 rounded-xl bg-slate-50/50 overflow-auto flex flex-col items-center justify-center p-6 space-y-8">
+                    <div id="arrayContainer" class="flex flex-wrap justify-center gap-3"></div>
+                    <div class="text-xs font-mono text-slate-500" id="pointerLegendBox">
+                        Legend: i = boundary of elements &le; pivot, j = current scanning element
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-100 py-6 text-center text-xs text-slate-400">
+        <span>&copy; 2026 Virtual Labs • Quicksort Partition Studio Suite</span>
+    </footer>
+
+    <!-- Script implementing Lomuto partition animation -->
+    <script>
+        let timer = null;
+
+        function resetQuicksortState() {
+            if (timer) clearInterval(timer);
+            document.getElementById('partitionStatusBox').innerText = 'Ready';
+            document.getElementById('logContainer').innerHTML = '<div class="text-slate-500">// Engine ready. Click Run Lomuto Partition.</div>';
+            renderArrayElements();
+        }
+
+        function getArrayInput() {
+            const input = document.getElementById('arrayInput').value;
+            return input.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+        }
+
+        function renderArrayElements(highlight = {}) {
+            const arr = getArrayInput();
+            const container = document.getElementById('arrayContainer');
+            container.innerHTML = '';
+
+            arr.forEach((val, idx) => {
+                let div = document.createElement('div');
+                div.className = 'w-14 h-20 rounded-xl border border-slate-200 bg-white shadow-xs flex flex-col items-center justify-between p-2 font-mono array-bar';
+                div.id = `bar-${idx}`;
+
+                let badge = '';
+                if (idx === highlight.pivot) {
+                    div.className += ' bg-rose-500 text-white border-rose-500 shadow-md';
+                    badge = '<span class="text-[9px] font-bold bg-rose-600 px-1.5 py-0.5 rounded text-white">PIVOT</span>';
+                } else if (idx === highlight.i) {
+                    div.className += ' bg-amber-500 text-white border-amber-500 shadow-md';
+                    badge = '<span class="text-[9px] font-bold bg-amber-600 px-1.5 py-0.5 rounded text-white">i</span>';
+                } else if (idx === highlight.j) {
+                    div.className += ' bg-indigo-500 text-white border-indigo-500 shadow-md';
+                    badge = '<span class="text-[9px] font-bold bg-indigo-600 px-1.5 py-0.5 rounded text-white">j</span>';
+                } else if (highlight.sorted && highlight.sorted.includes(idx)) {
+                    div.className += ' bg-emerald-50 text-emerald-700 border-emerald-300';
+                    badge = '<span class="text-[9px] font-bold bg-emerald-100 px-1.5 py-0.5 rounded text-emerald-800">OK</span>';
+                } else {
+                    badge = `<span class="text-[9px] text-slate-400">${idx}</span>`;
+                }
+
+                div.innerHTML = `
+                    <span class="text-sm font-bold">${val}</span>
+                    ${badge}
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function runPartitionSimulation() {
+            if (timer) clearInterval(timer);
+            let arr = getArrayInput();
+            document.getElementById('logContainer').innerHTML = '';
+
+            if (arr.length < 2) {
+                logTrace('Error: Please provide at least 2 numbers to partition.', 'err');
+                return;
+            }
+
+            logTrace(`--- Starting Lomuto Partition on Array [${arr.join(', ')}] ---`);
+            document.getElementById('partitionStatusBox').innerText = 'Partitioning...';
+
+            let low = 0;
+            let high = arr.length - 1;
+            let pivot = arr[high];
+            let i = low - 1;
+            let j = low;
+
+            timer = setInterval(() => {
+                if (j >= high) {
+                    clearInterval(timer);
+                    // Swap arr[i+1] with pivot (arr[high])
+                    let temp = arr[i + 1];
+                    arr[i + 1] = arr[high];
+                    arr[high] = temp;
+
+                    logTrace(`Placing pivot ${pivot} at correct position index ${i + 1}`, 'highlight');
+                    document.getElementById('partitionStatusBox').innerText = 'Partition Complete!';
+                    renderArrayElements({ pivot: i + 1, sorted: [i + 1] });
+                    return;
+                }
+
+                renderArrayElements({ pivot: high, i: i, j: j });
+
+                if (arr[j] <= pivot) {
+                    i++;
+                    let temp = arr[i];
+                    arr[i] = arr[j];
+                    arr[j] = temp;
+                    logTrace(`arr[j]=${arr[j]} <= pivot(${pivot}) &rarr; increment i to ${i}, swap with arr[j]`);
+                } else {
+                    logTrace(`arr[j]=${arr[j]} > pivot(${pivot}) &rarr; skip`);
+                }
+
+                document.getElementById('arrayInput').value = arr.join(', ');
+                j++;
+            }, 800);
+        }
+
+        function logTrace(msg, type = 'info') {
+            const container = document.getElementById('logContainer');
+            let color = 'text-slate-300';
+            if (type === 'highlight') color = 'text-emerald-300 font-bold';
+            if (type === 'err') color = 'text-rose-400 font-bold';
+
+            container.innerHTML += `<div class="${color}">&gt; ${msg}</div>`;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            resetQuicksortState();
+        });
+    </script>
+</body>
+</html>

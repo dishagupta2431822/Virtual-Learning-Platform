@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemistry & Molecular Structures | 24 Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+                    <i class="fa-solid fa-flask-vial text-lg"></i>
+                </div>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Virtual Labs</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">Chemistry & Molecular</span>
+                </div>
+            </div>
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-600">
+                <a href="#overview" class="hover:text-indigo-600 transition-colors">Overview</a>
+                <a href="#labs" class="hover:text-indigo-600 transition-colors">All 24 Labs</a>
+                <a href="#benefits" class="hover:text-indigo-600 transition-colors">Key Benefits</a>
+                <a href="#contact" class="hover:text-indigo-600 transition-colors">Contact</a>
+            </nav>
+            <div class="flex items-center space-x-3">
+                <a href="#labs" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-xl text-sm shadow-sm transition-all shadow-indigo-500/20">
+                    Explore Track
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="overview" class="relative overflow-hidden bg-gradient-to-b from-indigo-50/50 via-white to-slate-50 py-16 sm:py-24 border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-3xl mx-auto text-center">
+                <div class="inline-flex items-center space-x-2 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full text-xs font-semibold text-indigo-700 mb-6 shadow-sm">
+                    <i class="fa-solid fa-atom text-indigo-600"></i>
+                    <span>Interactive Chemistry & Lewis Structures Suite</span>
+                </div>
+                <h1 class="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-6">
+                    Interactive Chemistry & Lewis Structures
+                </h1>
+                <p class="text-lg text-slate-600 mb-8 leading-relaxed">
+                    Build 3D molecules, balance chemical equations, explore VSEPR geometries, and simulate titration curves with real-time feedback right inside your browser.
+                </p>
+                <div class="flex flex-wrap items-center justify-center gap-4">
+                    <div class="bg-white px-5 py-3 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-flask"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-2xl font-bold text-slate-900">24</div>
+                            <div class="text-xs text-slate-500 font-medium">Labs Available</div>
+                        </div>
+                    </div>
+                    <div class="bg-white px-5 py-3 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-cube"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-2xl font-bold text-slate-900">Real-Time</div>
+                            <div class="text-xs text-slate-500 font-medium">3D Simulation Engine</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content & 24 Labs Grid Section -->
+    <main id="labs" class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">All 24 Virtual Labs</h2>
+                <p class="text-sm text-slate-500 mt-1">Explore individual lab modules spanning organic chemistry, physical chemistry, thermodynamics, and molecular bonding.</p>
+            </div>
+            <!-- Search & Filter Bar -->
+            <div class="w-full md:w-72">
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-search"></i>
+                    </span>
+                    <input type="text" id="labSearch" placeholder="Search chemistry labs..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 shadow-sm">
+                </div>
+            </div>
+        </div>
+
+        <!-- 24 Labs Grid Container -->
+        <div id="labsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Labs will be dynamically injected here via JS -->
+        </div>
+    </main>
+
+    <!-- Key Benefits Section -->
+    <section id="benefits" class="bg-white py-16 border-t border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Key Benefits for Students & Researchers</h2>
+                <p class="text-slate-600 mt-2 text-sm">Designed to accelerate mastery in experimental chemistry and molecular visualization.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xl mb-4 shadow-md shadow-indigo-500/20">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-lg mb-2">Risk-Free Reaction Simulation</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed">Test exothermic titrations, high-temperature enthalpy shifts, and volatile chemical combinations without hazardous lab risks.</p>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xl mb-4 shadow-md shadow-indigo-500/20">
+                        <i class="fa-solid fa-cube"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-lg mb-2">3D Molecular Visualization</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed">Inspect VSEPR geometries, bond angles, hybridization states, and Lewis structures interactively in 3D space.</p>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xl mb-4 shadow-md shadow-indigo-500/20">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-lg mb-2">Self-Paced Coursework</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed">Ideal for AP Chemistry, university organic/inorganic labs, and competitive exam preparation.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Site Contact & Info Footer -->
+    <footer id="contact" class="bg-slate-900 text-slate-300 pt-16 pb-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+            <div>
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold">
+                        <i class="fa-solid fa-flask-vial"></i>
+                    </div>
+                    <span class="font-bold text-white text-lg">Virtual Labs</span>
+                </div>
+                <p class="text-slate-400 text-sm leading-relaxed mb-4">
+                    Empowering students with interactive virtual simulations for chemistry, molecular modeling, and chemical engineering.
+                </p>
+                <div class="flex space-x-4 text-slate-400">
+                    <a href="#" class="hover:text-white transition-colors"><i class="fa-brands fa-github text-lg"></i></a>
+                    <a href="#" class="hover:text-white transition-colors"><i class="fa-brands fa-twitter text-lg"></i></a>
+                    <a href="#" class="hover:text-white transition-colors"><i class="fa-brands fa-linkedin text-lg"></i></a>
+                </div>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Specializations</h4>
+                <ul class="space-y-2 text-sm text-slate-400">
+                    <li><a href="#" class="hover:text-white transition-colors">Lewis Structures & VSEPR</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Organic Functional Groups</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Thermodynamics & Kinetics</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Acid-Base Equilibria</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
+                <ul class="space-y-2 text-sm text-slate-400">
+                    <li><a href="#overview" class="hover:text-white transition-colors">Overview</a></li>
+                    <li><a href="#labs" class="hover:text-white transition-colors">Browse All 24 Labs</a></li>
+                    <li><a href="#benefits" class="hover:text-white transition-colors">Key Benefits</a></li>
+                    <li><a href="#contact" class="hover:text-white transition-colors">Support & Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Contact Info</h4>
+                <ul class="space-y-3 text-sm text-slate-400">
+                    <li class="flex items-center space-x-3">
+                        <i class="fa-solid fa-envelope text-indigo-400"></i>
+                        <span>chemistry@virtuallabs.edu</span>
+                    </li>
+                    <li class="flex items-center space-x-3">
+                        <i class="fa-solid fa-phone text-indigo-400"></i>
+                        <span>+1 (555) 492-8104</span>
+                    </li>
+                    <li class="flex items-center space-x-3">
+                        <i class="fa-solid fa-location-dot text-indigo-400"></i>
+                        <span>Department of Chemical Sciences</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 border-t border-slate-800 text-center text-xs text-slate-500">
+            &copy; 2026 Virtual Learning Labs Platform. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- JavaScript to Render 24 Chemistry Labs -->
+    <script>
+        const labsData = [
+            { id: 1, title: "Lewis Dot Structures & Octet Rule", category: "Inorganic", desc: "Construct Lewis structures, assign formal charges, and verify octet compliance for molecules.", icon: "fa-atom", file: "labs/lab1.html" },
+            { id: 2, title: "VSEPR Theory & Molecular Geometry", category: "Inorganic", desc: "Predict bond angles and 3D molecular shapes based on electron pair repulsions.", icon: "fa-shapes", file: "labs/lab2.html" },
+            { id: 3, title: "Balancing Chemical Equations", category: "Physical", desc: "Balance stoichiometric coefficients and monitor mass conservation in real-time.", icon: "fa-calculator", file: "labs/lab3.html" },
+            { id: 4, title: "Ideal Gas Law & Kinetic Theory", category: "Physical", desc: "Explore pressure, volume, temperature, and particle velocity distributions.", icon: "fa-wind", file: "labs/lab4.html" },
+            { id: 5, title: "Acid-Base Titration & pH Curves", category: "Physical", desc: "Perform virtual titrations, monitor pH indicators, and analyze equivalence points.", icon: "fa-vial", file: "labs/lab5.html" },
+            { id: 6, title: "Electrochemical Cells & Reduction", category: "Physical", desc: "Build galvanic and electrolytic cells, measure cell potentials and ion flow.", icon: "fa-bolt", file: "labs/lab6.html" },
+            { id: 7, title: "Thermochemistry & Enthalpy of Reaction", category: "Thermodynamics", desc: "Measure heat changes, bond energies, and exothermic/endothermic profile curves.", icon: "fa-fire", file: "labs/lab7.html" },
+            { id: 8, title: "Chemical Equilibrium & Le Chatelier", category: "Physical", desc: "Shift equilibrium positions by altering concentration, pressure, and temperature.", icon: "fa-scale-balanced", file: "labs/lab8.html" },
+            { id: 9, title: "Reaction Rates & Arrhenius Equation", category: "Kinetics", desc: "Determine activation energy, reaction orders, and temperature dependency.", icon: "fa-stopwatch", file: "labs/lab9.html" },
+            { id: 10, title: "Organic Functional Groups & Naming", category: "Organic", desc: "Identify IUPAC nomenclature and functional group reactivity in organic compounds.", icon: "fa-dna", file: "labs/lab10.html" },
+            { id: 11, title: "Stereoisomerism & Chiral Centers", category: "Organic", desc: "Explore optical activity, R/S configurations, enantiomers, and diastereomers.", icon: "fa-rotate", file: "labs/lab11.html" },
+            { id: 12, title: "Alkanes, Alkenes & Alkynes 3D Models", category: "Organic", desc: "Visualize single, double, and triple carbon-carbon bonds and torsional strain.", icon: "fa-cube", file: "labs/lab12.html" },
+            { id: 13, title: "Aromaticity & Benzene Ring Resonance", category: "Organic", desc: "Inspect delocalized pi electrons, Huckel's rule, and electrophilic aromatic substitution.", icon: "fa-ring", file: "labs/lab13.html" },
+            { id: 14, title: "Nucleophilic Substitution (Sn1 & Sn2)", category: "Organic", desc: "Trace reaction mechanisms, carbocation intermediates, and steric hindrance effects.", icon: "fa-shuffle", file: "labs/lab14.html" },
+            { id: 15, title: "Elimination Reactions (E1 & E2)", category: "Organic", desc: "Compare Zaitsev's rule, base strengths, and alkene formation pathways.", icon: "fa-arrow-rotate-right", file: "labs/lab15.html" },
+            { id: 16, title: "Periodic Trends Explorer", category: "Inorganic", desc: "Analyze atomic radii, electronegativity, ionization energy, and electron affinity across periods.", icon: "fa-chart-bar", file: "labs/lab16.html" },
+            { id: 17, title: "Molecular Orbital Theory (MO Diagrams)", category: "Inorganic", desc: "Construct bonding and antibonding molecular orbitals and calculate bond orders.", icon: "fa-diagram-project", file: "labs/lab17.html" },
+            { id: 18, title: "Coordination Complexes & Ligands", category: "Inorganic", desc: "Explore transition metal complexes, crystal field splitting, and color absorption.", icon: "fa-gem", file: "labs/lab18.html" },
+            { id: 19, title: "Buffer Solutions & Henderson-Hasselbalch", category: "Physical", desc: "Calculate and test buffer capacity against strong acid and base additions.", icon: "fa-droplet", file: "labs/lab19.html" },
+            { id: 20, title: "Solubility Product (Ksp) & Precipitation", category: "Physical", desc: "Determine molar solubility, common ion effects, and precipitate formation limits.", icon: "fa-filter", file: "labs/lab20.html" },
+            { id: 21, title: "Radioactive Decay & Half-Life Kinetics", category: "Physical", desc: "Simulate alpha, beta, and gamma decay chains and carbon-14 dating half-lives.", icon: "fa-radiation", file: "labs/lab21.html" },
+            { id: 22, title: "Spectroscopy (UV-Vis & IR Absorption)", category: "Analytical", desc: "Analyze transmittance peaks, functional group fingerprints, and Beer-Lambert law.", icon: "fa-wave-square", file: "labs/lab22.html" },
+            { id: 23, title: "Polymerization & Macromolecules", category: "Organic", desc: "Build addition and condensation polymers like nylon, polyester, and polyethylene.", icon: "fa-link", file: "labs/lab23.html" },
+            { id: 24, title: "Calorimetry & Specific Heat Capacity", category: "Thermodynamics", desc: "Measure thermal energy transfers using coffee-cup and bomb calorimeters.", icon: "fa-temperature-high", file: "labs/lab24.html" }
+        ];
+
+        const grid = document.getElementById('labsGrid');
+        const searchInput = document.getElementById('labSearch');
+
+        function renderLabs(filter = '') {
+            grid.innerHTML = '';
+            const filtered = labsData.filter(lab => 
+                lab.title.toLowerCase().includes(filter.toLowerCase()) || 
+                lab.category.toLowerCase().includes(filter.toLowerCase()) ||
+                lab.desc.toLowerCase().includes(filter.toLowerCase())
+            );
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400">No chemistry labs found matching your search.</div>`;
+                return;
+            }
+
+            filtered.forEach(lab => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl border border-slate-200 p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                <i class="fa-solid ${lab.icon}"></i>
+                            </div>
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">${lab.category}</span>
+                        </div>
+                        <h3 class="font-bold text-slate-900 text-base mb-2 group-hover:text-indigo-600 transition-colors">Lab #${lab.id}: ${lab.title}</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed mb-6">${lab.desc}</p>
+                    </div>
+                    <a href="${lab.file}" class="w-full bg-slate-100 hover:bg-indigo-600 hover:text-white text-slate-700 font-medium py-2.5 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 transition-all">
+                        <span>Launch Lab Simulation</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </a>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            renderLabs(e.target.value);
+        });
+
+        // Initial render
+        renderLabs();
+    </script>
+</body>
+</html>

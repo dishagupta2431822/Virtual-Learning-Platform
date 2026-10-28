@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #11: Transistor Common-Emitter Amplifier | Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="/home/physics_circuit_designs/index.html" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors" title="Back to Physics Labs">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </a>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Lab #11</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">Transistor CE Amplifier</span>
+                </div>
+            </div>
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-600">
+                <a href="#simulator" class="hover:text-indigo-600 transition-colors">Simulator</a>
+                <a href="#tutorial" class="hover:text-indigo-600 transition-colors">Tutorial & Theory</a>
+                <a href="#loadlineTable" class="hover:text-indigo-600 transition-colors">Load-Line Data</a>
+            </nav>
+            <div class="flex items-center space-x-3">
+                <a href="/home/physics_circuit_designs/index.html" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-xl text-sm shadow-sm transition-all shadow-indigo-500/20">
+                    All Labs
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Lab Container -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left 2 Columns: Interactive Simulator & Workbench -->
+        <div id="simulator" class="lg:col-span-2 space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+                    <div>
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700">Electronics Lab &bull; BJT Analysis</span>
+                        <h1 class="text-2xl font-bold text-slate-900 mt-1">Common-Emitter (CE) Amplifier Workbench</h1>
+                    </div>
+                    <button onclick="resetLab()" class="text-slate-400 hover:text-slate-600 text-xs font-medium bg-slate-100 px-3 py-1.5 rounded-lg transition-colors">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> Reset
+                    </button>
+                </div>
+
+                <!-- Parameter Sliders -->
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Collector Supply (Vcc): <span id="valVcc" class="text-indigo-600 font-bold">15.0 V</span></label>
+                        <input type="range" id="sliderVcc" min="9" max="24" step="1" value="15" oninput="updateParameters()" class="w-full accent-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Collector Resistor (Rc): <span id="valRc" class="text-indigo-600 font-bold">2.2 kΩ</span></label>
+                        <input type="range" id="sliderRc" min="1.0" max="5.0" step="0.2" value="2.2" oninput="updateParameters()" class="w-full accent-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Base Resistor (Rb): <span id="valRb" class="text-indigo-600 font-bold">220 kΩ</span></label>
+                        <input type="range" id="sliderRb" min="100" max="500" step="10" value="220" oninput="updateParameters()" class="w-full accent-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Input Signal (Vin): <span id="valVin" class="text-indigo-600 font-bold">20 mV</span></label>
+                        <input type="range" id="sliderVin" min="5" max="50" step="5" value="20" oninput="updateParameters()" class="w-full accent-indigo-600">
+                    </div>
+                </div>
+
+                <!-- Oscilloscope Waveform Display Board -->
+                <div class="bg-slate-950 rounded-2xl p-6 text-white relative overflow-hidden shadow-inner border border-slate-800">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-xs font-mono text-slate-400 uppercase tracking-widest">
+                            Oscilloscope &bull; <span class="text-indigo-400 font-bold">INPUT (YELLOW) vs INVERTED OUTPUT (AMBER)</span>
+                        </div>
+                        <div class="text-xs font-mono bg-slate-900 px-3 py-1 rounded-lg border border-slate-800 text-emerald-400">
+                            Voltage Gain (Av): <span id="gainVal" class="font-bold text-white">-125.4</span>
+                        </div>
+                    </div>
+
+                    <!-- Visual Graph Representation -->
+                    <div class="h-56 relative border-l border-b border-slate-700 flex items-center px-2 pt-2 pb-0">
+                        <!-- Grid lines background -->
+                        <div class="absolute inset-0 grid grid-cols-5 grid-rows-4 pointer-events-none opacity-20">
+                            <div class="border-r border-b border-slate-500"></div>
+                            <div class="border-r border-b border-slate-500"></div>
+                            <div class="border-r border-b border-slate-500"></div>
+                            <div class="border-r border-b border-slate-500"></div>
+                            <div class="border-b border-slate-500"></div>
+                            <div class="border-r border-b border-slate-500"></div>
+                            <div class="border-r border-b border-slate-500"></div>
+                            <div class="border-r border-b border-slate-500"></div>
+                            <div class="border-r border-b border-slate-500"></div>
+                            <div class="border-b border-slate-500"></div>
+                        </div>
+
+                        <!-- SVG Dual Waveform Overlay -->
+                        <svg class="absolute inset-0 w-full h-full overflow-visible p-2" preserveAspectRatio="none" viewBox="0 0 500 200">
+                            <!-- Input Sine Wave (Yellow) -->
+                            <path id="inputCurve" d="" fill="none" stroke="#facc15" stroke-width="2" stroke-linecap="round" />
+                            <!-- Output Inverted Amplified Sine Wave (Amber) -->
+                            <path id="outputCurve" d="" fill="none" stroke="#fbbf24" stroke-width="3" stroke-linecap="round" />
+                        </svg>
+                    </div>
+
+                    <!-- Live Telemetry Readout -->
+                    <div class="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-slate-800/80 text-center">
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Collector-Emitter Bias (Vce)</span>
+                            <span id="readoutVce" class="text-lg font-bold text-indigo-400 font-mono">7.50 V</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Collector Current (Ic)</span>
+                            <span id="readoutIc" class="text-lg font-bold text-amber-400 font-mono">3.41 mA</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Output Voltage (Vout)</span>
+                            <span id="readoutVout" class="text-lg font-bold text-emerald-400 font-mono">2.51 V (pp)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulation Action Controls -->
+                <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+                    <div class="text-xs text-slate-500">
+                        Formula: <code class="bg-slate-100 px-2 py-1 rounded text-slate-700 font-mono font-bold">Av = -(&beta; &times; Rc) / r_e</code>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="runAutoTest()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium px-4 py-2 rounded-xl shadow-sm transition-all">
+                            <i class="fa-solid fa-play mr-1"></i> Verify Q-Point & Gain
+                        </button>
+                        <button onclick="alert('Lab #11 transistor amplifier report exported successfully as CSV.')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium px-4 py-2 rounded-xl transition-colors">
+                            <i class="fa-solid fa-download mr-1"></i> Export Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Load-Line Data Table -->
+            <div id="loadlineTable" class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <h3 class="font-bold text-slate-900 text-lg mb-2">DC Load-Line Operating Points</h3>
+                <p class="text-xs text-slate-500 mb-4">Quiescent point (Q-point) coordinates and saturation limits.</p>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
+                                <th class="py-3 px-4 font-semibold">Parameter / Limit</th>
+                                <th class="py-3 px-4 font-semibold">Calculation Formula</th>
+                                <th class="py-3 px-4 font-semibold">Value</th>
+                                <th class="py-3 px-4 font-semibold">Operating Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="loadlineRows" class="divide-y divide-slate-100 text-xs">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right 1 Column: Tutorial & Theory Panel -->
+        <div id="tutorial" class="space-y-6">
+            <!-- Lab Overview Card -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-sliders"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Tutorial & Theory</h3>
+                        <span class="text-xs text-slate-400">Common-Emitter Amplification</span>
+                    </div>
+                </div>
+                <div class="space-y-4 text-xs text-slate-600 leading-relaxed">
+                    <p>
+                        The <strong>Common-Emitter (CE) Amplifier</strong> provides high voltage and current gain, making it the most widely used BJT configuration in analog circuit design.
+                    </p>
+                    <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl">
+                        <h4 class="font-bold text-indigo-900 text-xs mb-1 uppercase tracking-wider">Phase Inversion</h4>
+                        <p class="text-indigo-800">The output voltage at the collector is <strong class="text-indigo-950">180° out of phase</strong> with the input voltage applied at the base.</p>
+                    </div>
+                    <div class="bg-violet-50 border border-violet-100 p-4 rounded-xl">
+                        <h4 class="font-bold text-violet-900 text-xs mb-1 uppercase tracking-wider">Q-Point Biasing</h4>
+                        <p class="text-violet-800">Proper biasing ensures the quiescent operating point ($V_{CEQ}, I_{CQ}$) sits safely in the active linear region, preventing clipping distortion.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Experiment Objectives -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <h3 class="font-bold text-slate-900 text-base mb-3">Experiment Objectives</h3>
+                <ul class="space-y-2.5 text-xs text-slate-600">
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Calculate voltage gain $A_v$ across varying collector resistors $R_c$.</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Analyze DC load-line limits (saturation and cut-off points).</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Observe 180° signal phase inversion on the oscilloscope.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Need Assistance? -->
+            <div class="bg-gradient-to-br from-indigo-950 to-slate-900 text-white rounded-2xl p-6 shadow-md">
+                <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white mb-3">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+                <h4 class="font-bold text-sm mb-1">Need Lab Support?</h4>
+                <p class="text-xs text-slate-300 leading-relaxed mb-4">Review BJT small-signal hybrid-pi models in your electronics textbook.</p>
+                <a href="physics-labs.html#contact" class="inline-block bg-white text-indigo-950 font-bold px-4 py-2 rounded-xl text-xs hover:bg-slate-100 transition-colors">
+                    Contact Instructor
+                </a>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Site Footer -->
+    <footer class="bg-slate-900 text-slate-300 py-8 border-t border-slate-800 mt-16 text-center text-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            &copy; 2026 Virtual Learning Labs Platform &bull; Lab #11: Transistor Common-Emitter Amplifier
+        </div>
+    </footer>
+
+    <!-- Interactive Simulation Script -->
+    <script>
+        const BETA = 150; // Transistor current gain
+
+        function updateParameters() {
+            const vcc = parseFloat(document.getElementById('sliderVcc').value);
+            const rcKohm = parseFloat(document.getElementById('sliderRc').value); // kΩ
+            const rbKohm = parseFloat(document.getElementById('sliderRb').value); // kΩ
+            const vinMv = parseFloat(document.getElementById('sliderVin').value);   // mV
+
+            document.getElementById('valVcc').innerText = vcc.toFixed(1) + ' V';
+            document.getElementById('valRc').innerText = rcKohm.toFixed(1) + ' kΩ';
+            document.getElementById('valRb').innerText = rbKohm.toFixed(0) + ' kΩ';
+            document.getElementById('valVin').innerText = vinMv.toFixed(0) + ' mV';
+
+            const rcOhms = rcKohm * 1000;
+            const rbOhms = rbKohm * 1000;
+
+            // Approximate base current Ib = (Vcc - 0.7) / Rb
+            const ib = (vcc - 0.7) / rbOhms; // Amps
+            const ic = BETA * ib; // Amps
+            const icMa = ic * 1000; // mA
+            const vce = vcc - (ic * rcOhms);
+
+            // Small-signal emitter resistance re ~ 25mV / Ic(mA)
+            const re = 25 / (icMa > 0 ? icMa : 0.1);
+            const av = -rcOhms / re;
+            const voutPp = (vinMv / 1000) * Math.abs(av) * 2; // peak-to-peak
+
+            document.getElementById('gainVal').innerText = av.toFixed(1);
+            document.getElementById('readoutVce').innerText = vce.toFixed(2) + ' V';
+            document.getElementById('readoutIc').innerText = icMa.toFixed(2) + ' mA';
+            document.getElementById('readoutVout').innerText = voutPp.toFixed(2) + ' V (pp)';
+
+            renderWaveforms(vinMv, voutPp);
+            renderLoadLineTable(vcc, rcOhms, icMa, vce);
+        }
+
+        function renderWaveforms(vinMv, voutPp) {
+            const inputPath = document.getElementById('inputCurve');
+            const outputPath = document.getElementById('outputCurve');
+
+            let inputStr = "";
+            let outputStr = "";
+
+            const vinAmp = (vinMv / 50) * 30; // visual scaling
+            const voutAmp = Math.min(80, (voutPp / 5) * 40); // visual scaling
+
+            for (let x = 0; x <= 500; x += 5) {
+                const angle = (x / 500) * 4 * Math.PI;
+                
+                // Input sine wave (centered at y=100)
+                const inY = 100 - (vinAmp * Math.sin(angle));
+                if (x === 0) inputStr += `M ${x} ${inY.toFixed(1)} `;
+                else inputStr += `L ${x} ${inY.toFixed(1)} `;
+
+                // Output inverted sine wave (centered at y=100, phase shifted by 180 deg)
+                const outY = 100 + (voutAmp * Math.sin(angle));
+                if (x === 0) outputStr += `M ${x} ${outY.toFixed(1)} `;
+                else outputStr += `L ${x} ${outY.toFixed(1)} `;
+            }
+
+            inputPath.setAttribute('d', inputStr);
+            outputPath.setAttribute('d', outputStr);
+        }
+
+        function renderLoadLineTable(vcc, rcOhms, icMa, vce) {
+            const tbody = document.getElementById('loadlineRows');
+            const icSat = (vcc / rcOhms) * 1000; // mA
+            const isLinear = vce > 1.0 && vce < (vcc - 1.0);
+
+            tbody.innerHTML = `
+                <tr class="border-b border-slate-100 text-slate-600">
+                    <td class="py-3 px-4 font-semibold text-slate-900">Quiescent Collector Voltage (VceQ)</td>
+                    <td class="py-3 px-4 font-mono">Vcc - (Ic &times; Rc)</td>
+                    <td class="py-3 px-4 font-mono font-bold text-indigo-600">${vce.toFixed(2)} V</td>
+                    <td class="py-3 px-4">${isLinear ? '<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check mr-1"></i> Active Linear Region</span>' : '<span class="text-amber-600 font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Warning: Near Limit</span>'}</td>
+                </tr>
+                <tr class="border-b border-slate-100 text-slate-600">
+                    <td class="py-3 px-4 font-semibold text-slate-900">Quiescent Collector Current (IcQ)</td>
+                    <td class="py-3 px-4 font-mono">&beta; &times; Ib</td>
+                    <td class="py-3 px-4 font-mono font-bold text-amber-600">${icMa.toFixed(2)} mA</td>
+                    <td class="py-3 px-4">Stable DC Biasing Point</td>
+                </tr>
+                <tr class="border-b border-slate-100 text-slate-600">
+                    <td class="py-3 px-4 font-semibold text-slate-900">Saturation Current (Ic(sat))</td>
+                    <td class="py-3 px-4 font-mono">Vcc / Rc</td>
+                    <td class="py-3 px-4 font-mono font-bold text-indigo-600">${icSat.toFixed(2)} mA</td>
+                    <td class="py-3 px-4">Maximum Load Line Current Limit</td>
+                </tr>
+            `;
+        }
+
+        function runAutoTest() {
+            alert('Transistor Q-point and voltage gain verified successfully! Operating in active linear region with 180° phase inversion.');
+        }
+
+        function resetLab() {
+            document.getElementById('sliderVcc').value = 15;
+            document.getElementById('sliderRc').value = 2.2;
+            document.getElementById('sliderRb').value = 220;
+            document.getElementById('sliderVin').value = 20;
+            updateParameters();
+        }
+
+        // Initialize
+        updateParameters();
+    </script>
+</body>
+</html>

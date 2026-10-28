@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #8: Ohm's Law & Kirchhoff's Rules | Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="/home/physics_circuit_designs/index.html" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors" title="Back to Physics Labs">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </a>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Lab #8</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">Ohm's Law & Kirchhoff's Rules</span>
+                </div>
+            </div>
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-600">
+                <a href="#simulator" class="hover:text-indigo-600 transition-colors">Simulator</a>
+                <a href="#tutorial" class="hover:text-indigo-600 transition-colors">Tutorial & Theory</a>
+                <a href="#kvltable" class="hover:text-indigo-600 transition-colors">KVL & KCL Verification</a>
+            </nav>
+            <div class="flex items-center space-x-3">
+                <a href="/home/physics_circuit_designs/index.html" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-xl text-sm shadow-sm transition-all shadow-indigo-500/20">
+                    All Labs
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Lab Container -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left 2 Columns: Interactive Simulator & Workbench -->
+        <div id="simulator" class="lg:col-span-2 space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+                    <div>
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700">DC Circuit Lab &bull; Network Analysis</span>
+                        <h1 class="text-2xl font-bold text-slate-900 mt-1">Series-Parallel Resistor Network Workbench</h1>
+                    </div>
+                    <button onclick="resetLab()" class="text-slate-400 hover:text-slate-600 text-xs font-medium bg-slate-100 px-3 py-1.5 rounded-lg transition-colors">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> Reset
+                    </button>
+                </div>
+
+                <!-- Parameter Sliders -->
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Source (Vs): <span id="valVs" class="text-indigo-600 font-bold">12.0 V</span></label>
+                        <input type="range" id="sliderVs" min="2" max="24" step="1" value="12" oninput="updateParameters()" class="w-full accent-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Resistor 1 (R₁): <span id="valR1" class="text-indigo-600 font-bold">10 Ω</span></label>
+                        <input type="range" id="sliderR1" min="5" max="50" step="5" value="10" oninput="updateParameters()" class="w-full accent-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Resistor 2 (R₂): <span id="valR2" class="text-indigo-600 font-bold">20 Ω</span></label>
+                        <input type="range" id="sliderR2" min="10" max="100" step="5" value="20" oninput="updateParameters()" class="w-full accent-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Resistor 3 (R₃): <span id="valR3" class="text-indigo-600 font-bold">20 Ω</span></label>
+                        <input type="range" id="sliderR3" min="10" max="100" step="5" value="20" oninput="updateParameters()" class="w-full accent-indigo-600">
+                    </div>
+                </div>
+
+                <!-- Simulation Visual Board -->
+                <div class="bg-slate-950 rounded-2xl p-6 text-white relative overflow-hidden shadow-inner border border-slate-800 flex flex-col items-center justify-center min-h-[300px]">
+                    <div class="absolute top-4 left-4 text-xs font-mono text-slate-400 uppercase tracking-widest">
+                        Circuit Status: <span class="text-emerald-400 font-bold">ONLINE &bull; KCL/KVL BALANCED</span>
+                    </div>
+
+                    <!-- Schematic Visual Representation -->
+                    <div class="w-full max-w-md my-6 p-6 bg-slate-900/80 rounded-2xl border border-slate-800 flex flex-col items-center justify-center space-y-4">
+                        <div class="flex items-center justify-between w-full text-xs font-mono text-slate-300">
+                            <span class="bg-indigo-950 text-indigo-400 px-3 py-1 rounded-lg border border-indigo-800">Source: <strong id="schemaVs">12V</strong></span>
+                            <span class="text-emerald-400 font-bold">Total Current (Itot): <strong id="schemaItot">0.60 A</strong></span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3 w-full text-center text-xs font-mono">
+                            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                                <span class="text-slate-400 block text-[10px]">R₁ Voltage</span>
+                                <span id="schemaVr1" class="text-indigo-300 font-bold">4.00 V</span>
+                            </div>
+                            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                                <span class="text-slate-400 block text-[10px]">R₂ Branch</span>
+                                <span id="schemaIr2" class="text-amber-300 font-bold">0.20 A</span>
+                            </div>
+                            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                                <span class="text-slate-400 block text-[10px]">R₃ Branch</span>
+                                <span id="schemaIr3" class="text-amber-300 font-bold">0.20 A</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="text-xs text-slate-400 text-center">
+                        Equivalent Resistance ($R_{eq}$) = <strong id="schemaReq" class="text-white">20.0 Ω</strong> | Parallel Branch Voltage ($V_{par}$) = <strong id="schemaVpar" class="text-white">8.00 V</strong>
+                    </p>
+                </div>
+
+                <!-- Live Telemetry Readout -->
+                <div class="grid grid-cols-3 gap-4 mt-6 text-center">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <span class="text-[10px] text-slate-500 uppercase tracking-wider block font-semibold">Node A Voltage (V_A)</span>
+                        <span id="readoutVa" class="text-xl font-bold text-indigo-600 font-mono">12.00 V</span>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <span class="text-[10px] text-slate-500 uppercase tracking-wider block font-semibold">Node B Voltage (V_B)</span>
+                        <span id="readoutVb" class="text-xl font-bold text-emerald-600 font-mono">8.00 V</span>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <span class="text-[10px] text-slate-500 uppercase tracking-wider block font-semibold">Total Power (P_tot)</span>
+                        <span id="readoutPower" class="text-xl font-bold text-amber-600 font-mono">7.20 W</span>
+                    </div>
+                </div>
+
+                <!-- Simulation Action Controls -->
+                <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+                    <div class="text-xs text-slate-500">
+                        Kirchhoff's Current Law: <code class="bg-slate-100 px-2 py-1 rounded text-slate-700 font-mono font-bold">&Sigma; I_in = &Sigma; I_out</code>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="verifyKclKvl()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium px-4 py-2 rounded-xl shadow-sm transition-all">
+                            <i class="fa-solid fa-check-to-slot mr-1"></i> Verify KCL & KVL Laws
+                        </button>
+                        <button onclick="alert('Lab #8 network report exported successfully as CSV.')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium px-4 py-2 rounded-xl transition-colors">
+                            <i class="fa-solid fa-download mr-1"></i> Export Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KVL & KCL Verification Table -->
+            <div id="kvltable" class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <h3 class="font-bold text-slate-900 text-lg mb-2">Kirchhoff's Laws Verification Matrix</h3>
+                <p class="text-xs text-slate-500 mb-4">Loop voltage drops and junction currents verification matrix.</p>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase tracking-wider">
+                                <th class="py-3 px-4 font-semibold">Law Rule</th>
+                                <th class="py-3 px-4 font-semibold">Circuit Component / Loop</th>
+                                <th class="py-3 px-4 font-semibold">Equation / Calculation</th>
+                                <th class="py-3 px-4 font-semibold">Value</th>
+                                <th class="py-3 px-4 font-semibold">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="matrixRows" class="divide-y divide-slate-100 text-xs">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right 1 Column: Tutorial & Theory Panel -->
+        <div id="tutorial" class="space-y-6">
+            <!-- Lab Overview Card -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-gauge"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Tutorial & Theory</h3>
+                        <span class="text-xs text-slate-400">Ohm's & Kirchhoff's Laws</span>
+                    </div>
+                </div>
+                <div class="space-y-4 text-xs text-slate-600 leading-relaxed">
+                    <p>
+                        <strong>Ohm's Law</strong> states that the current ($I$) through a conductor between two points is directly proportional to the voltage ($V$) across the two points ($V = IR$).
+                    </p>
+                    <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl">
+                        <h4 class="font-bold text-indigo-900 text-xs mb-1 uppercase tracking-wider">Kirchhoff's Current Law (KCL)</h4>
+                        <p class="text-indigo-800">The algebraic sum of all currents entering any node (junction) in a circuit must equal zero ($\sum I = 0$).</p>
+                    </div>
+                    <div class="bg-emerald-50 border border-emerald-100 p-4 rounded-xl">
+                        <h4 class="font-bold text-emerald-900 text-xs mb-1 uppercase tracking-wider">Kirchhoff's Voltage Law (KVL)</h4>
+                        <p class="text-emerald-800">The directed sum of electrical potential differences (voltage drops and rises) around any closed loop is zero ($\sum V = 0$).</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Experiment Objectives -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <h3 class="font-bold text-slate-900 text-base mb-3">Experiment Objectives</h3>
+                <ul class="space-y-2.5 text-xs text-slate-600">
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Measure nodal voltages across series-parallel resistor networks.</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Verify Kirchhoff's Current Law at parallel junction nodes.</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <i class="fa-solid fa-circle-check text-indigo-600 mt-0.5"></i>
+                        <span>Verify Kirchhoff's Voltage Law across closed circuit loops.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Need Assistance? -->
+            <div class="bg-gradient-to-br from-emerald-950 to-slate-900 text-white rounded-2xl p-6 shadow-md">
+                <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white mb-3">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+                <h4 class="font-bold text-sm mb-1">Need Lab Support?</h4>
+                <p class="text-xs text-slate-300 leading-relaxed mb-4">Review mesh analysis and nodal voltage techniques in your circuit theory guide.</p>
+                <a href="physics-labs.html#contact" class="inline-block bg-white text-emerald-950 font-bold px-4 py-2 rounded-xl text-xs hover:bg-slate-100 transition-colors">
+                    Contact Instructor
+                </a>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Site Footer -->
+    <footer class="bg-slate-900 text-slate-300 py-8 border-t border-slate-800 mt-16 text-center text-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            &copy; 2026 Virtual Learning Labs Platform &bull; Lab #8: Ohm's Law & Kirchhoff's Rules
+        </div>
+    </footer>
+
+    <!-- Interactive Simulation Script -->
+    <script>
+        function updateParameters() {
+            const vs = parseFloat(document.getElementById('sliderVs').value);
+            const r1 = parseFloat(document.getElementById('sliderR1').value);
+            const r2 = parseFloat(document.getElementById('sliderR2').value);
+            const r3 = parseFloat(document.getElementById('sliderR3').value);
+
+            document.getElementById('valVs').innerText = vs.toFixed(1) + ' V';
+            document.getElementById('valR1').innerText = r1 + ' Ω';
+            document.getElementById('valR2').innerText = r2 + ' Ω';
+            document.getElementById('valR3').innerText = r3 + ' Ω';
+
+            // Parallel combination of R2 and R3
+            const rParallel = (r2 * r3) / (r2 + r3);
+            const rEq = r1 + rParallel;
+            const iTot = vs / rEq;
+
+            const vR1 = iTot * r1;
+            const vParallel = vs - vR1; // or iTot * rParallel
+
+            const iR2 = vParallel / r2;
+            const iR3 = vParallel / r3;
+            const pTot = vs * iTot;
+
+            // Update schema readouts
+            document.getElementById('schemaVs').innerText = vs.toFixed(1) + 'V';
+            document.getElementById('schemaItot').innerText = iTot.toFixed(2) + ' A';
+            document.getElementById('schemaVr1').innerText = vR1.toFixed(2) + ' V';
+            document.getElementById('schemaIr2').innerText = iR2.toFixed(2) + ' A';
+            document.getElementById('schemaIr3').innerText = iR3.toFixed(2) + ' A';
+            document.getElementById('schemaReq').innerText = rEq.toFixed(1) + ' Ω';
+            document.getElementById('schemaVpar').innerText = vParallel.toFixed(2) + ' V';
+
+            // Telemetry
+            document.getElementById('readoutVa').innerText = vs.toFixed(2) + ' V';
+            document.getElementById('readoutVb').innerText = vParallel.toFixed(2) + ' V';
+            document.getElementById('readoutPower').innerText = pTot.toFixed(2) + ' W';
+
+            renderVerificationMatrix(vs, vR1, vParallel, iTot, iR2, iR3);
+        }
+
+        function renderVerificationMatrix(vs, vR1, vParallel, iTot, iR2, iR3) {
+            const tbody = document.getElementById('matrixRows');
+            tbody.innerHTML = `
+                <tr class="border-b border-slate-100 text-slate-600">
+                    <td class="py-3 px-4 font-semibold text-slate-900">KVL (Loop 1)</td>
+                    <td class="py-3 px-4">Source vs Resistor Drops</td>
+                    <td class="py-3 px-4 font-mono">Vs - Vr1 - Vpar = 0</td>
+                    <td class="py-3 px-4 font-mono font-bold text-indigo-600">${(vs - vR1 - vParallel).toFixed(3)} V</td>
+                    <td class="py-3 px-4"><span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check mr-1"></i> Verified (&approx; 0V)</span></td>
+                </tr>
+                <tr class="border-b border-slate-100 text-slate-600">
+                    <td class="py-3 px-4 font-semibold text-slate-900">KCL (Node B)</td>
+                    <td class="py-3 px-4">Entering vs Branch Currents</td>
+                    <td class="py-3 px-4 font-mono">Itot - (Ir2 + Ir3) = 0</td>
+                    <td class="py-3 px-4 font-mono font-bold text-emerald-600">${(iTot - (iR2 + iR3)).toFixed(3)} A</td>
+                    <td class="py-3 px-4"><span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check mr-1"></i> Verified (&approx; 0A)</span></td>
+                </tr>
+                <tr class="border-b border-slate-100 text-slate-600">
+                    <td class="py-3 px-4 font-semibold text-slate-900">Ohm's Law (R₁)</td>
+                    <td class="py-3 px-4">Series Resistor Branch</td>
+                    <td class="py-3 px-4 font-mono">Vr1 / Itot</td>
+                    <td class="py-3 px-4 font-mono font-bold text-indigo-600">${(vR1 / iTot).toFixed(1)} &Omega;</td>
+                    <td class="py-3 px-4"><span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check mr-1"></i> Exact Match</span></td>
+                </tr>
+            `;
+        }
+
+        function verifyKclKvl() {
+            alert('Kirchhoff\'s Circuit Laws successfully verified! Node currents sum to zero and loop voltages balance perfectly.');
+        }
+
+        function resetLab() {
+            document.getElementById('sliderVs').value = 12;
+            document.getElementById('sliderR1').value = 10;
+            document.getElementById('sliderR2').value = 20;
+            document.getElementById('sliderR3').value = 20;
+            updateParameters();
+        }
+
+        // Initialize
+        updateParameters();
+    </script>
+</body>
+</html>

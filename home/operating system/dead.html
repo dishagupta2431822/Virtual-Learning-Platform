@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deadlock Handling Algorithms Virtual Lab</title>
+    <style>
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --accent-blue: #2563eb;
+            --accent-blue-hover: #1d4ed8;
+            --accent-green: #16a34a;
+            --accent-orange: #ea580c;
+            --accent-red: #dc2626;
+            --accent-purple: #9333ea;
+            --border-color: #cbd5e1;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            line-height: 1.5;
+            padding: 1rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background-color: var(--bg-card);
+            padding: 1.25rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        h1 {
+            font-size: clamp(1.2rem, 2vw, 1.5rem);
+            color: var(--accent-blue);
+        }
+
+        p.subtitle {
+            color: var(--text-secondary);
+            font-size: clamp(0.8rem, 1.2vw, 0.9rem);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 0.35rem;
+            background-color: #e2e8f0;
+            padding: 0.3rem;
+            border-radius: 6px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 0.45rem 0.85rem;
+            border: none;
+            background: none;
+            font-weight: 600;
+            font-size: clamp(0.75rem, 1vw, 0.85rem);
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background-color: var(--bg-card);
+            color: var(--accent-blue);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Guided Tutorial Panel Style */
+        .tutorial-banner {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #ffffff;
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            border-left: 6px solid var(--accent-blue);
+        }
+
+        .tutorial-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tutorial-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tutorial-step-badge {
+            background-color: var(--accent-blue);
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .tutorial-body {
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .tutorial-body strong {
+            color: #f8fafc;
+        }
+
+        .tutorial-controls {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .tut-btn {
+            padding: 0.4rem 0.85rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tut-btn-next { background-color: var(--accent-blue); color: white; }
+        .tut-btn-next:hover { background-color: var(--accent-blue-hover); }
+        .tut-btn-prev { background-color: #475569; color: white; }
+        .tut-btn-prev:hover { background-color: #334155; }
+        .tut-btn-close { background-color: transparent; border: 1px solid #64748b; color: #94a3b8; }
+        .tut-btn-close:hover { color: white; border-color: white; }
+
+        .desc-card {
+            background-color: #eff6ff;
+            border-left: 5px solid var(--accent-blue);
+            border-radius: 6px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            width: 100%;
+        }
+
+        .desc-title {
+            font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-bottom: 0.3rem;
+        }
+
+        .desc-text {
+            font-size: clamp(0.8rem, 1.2vw, 0.9rem);
+            color: var(--text-primary);
+        }
+
+        .lab-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            width: 100%;
+            margin-bottom: 1.5rem;
+            transition: outline 0.3s ease;
+        }
+
+        .card-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--bg-body);
+        }
+
+        .btn {
+            padding: 0.55rem 0.9rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.825rem;
+            transition: all 0.2s;
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-primary { background-color: var(--accent-blue); color: white; }
+        .btn-primary:hover { background-color: var(--accent-blue-hover); }
+        .btn-success { background-color: var(--accent-green); color: white; }
+        .btn-warning { background-color: var(--accent-orange); color: white; }
+        .btn-danger { background-color: var(--accent-red); color: white; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 0.4rem;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: var(--text-secondary);
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 0.3rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .logger {
+            height: min(220px, 30vh);
+            background-color: #0f172a;
+            color: #38bdf8;
+            font-family: monospace;
+            font-size: 0.775rem;
+            padding: 0.75rem;
+            border-radius: 6px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            width: 100%;
+        }
+
+        .log-success { color: #4ade80; }
+        .log-info { color: #38bdf8; }
+        .log-warning { color: #facc15; }
+        .log-danger { color: #f87171; }
+
+        .rag-canvas {
+            width: 100%;
+            height: 320px;
+            background-color: #f1f5f9;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            display: block;
+        }
+
+        .matrix-flex {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            overflow-x: auto;
+        }
+
+        .matrix-box {
+            flex: 1 1 200px;
+        }
+
+        /* Target Highlight for Guided Steps */
+        .highlight-target {
+            outline: 3px solid var(--accent-blue) !important;
+            box-shadow: 0 0 12px rgba(37, 99, 235, 0.5) !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div>
+                <h1>Deadlock Handling Algorithms Virtual Lab</h1>
+                <p class="subtitle">Interactive simulator with step-by-step guided tutorial</p>
+            </div>
+            <div class="header-actions">
+                <button class="tut-btn tut-btn-next" onclick="restartTutorial()">🎓 Start Interactive Tutorial</button>
+                <div class="tab-buttons">
+                    <button class="tab-btn active" id="tabBanker" onclick="switchTab('banker')">Banker's Algorithm</button>
+                    <button class="tab-btn" id="tabDetection" onclick="switchTab('detection')">Deadlock Detection & RAG</button>
+                    <button class="tab-btn" id="tabRecovery" onclick="switchTab('recovery')">Deadlock Recovery</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dynamic Guided Tutorial Banner -->
+        <div class="tutorial-banner" id="tutorialBanner" style="display: none;">
+            <div class="tutorial-header">
+                <div class="tutorial-title">
+                    <span>💡 Interactive Guided Tutorial</span>
+                    <span class="tutorial-step-badge" id="tutStepBadge">Step 1 of 6</span>
+                </div>
+                <button class="tut-btn tut-btn-close" onclick="closeTutorial()">✕ Close Guide</button>
+            </div>
+            <div class="tutorial-body" id="tutBodyText">
+                Welcome to the Deadlock Virtual Lab! Click <strong>Next</strong> to follow a step-by-step tour.
+            </div>
+            <div class="tutorial-controls">
+                <button class="tut-btn tut-btn-prev" id="tutPrevBtn" onclick="prevTutorialStep()">◄ Previous</button>
+                <button class="tut-btn tut-btn-next" id="tutNextBtn" onclick="nextTutorialStep()">Next Step ►</button>
+            </div>
+        </div>
+
+        <div class="desc-card" id="tabDesc"></div>
+
+        <div class="lab-grid">
+            <div>
+                <div class="card" id="controlsCard"></div>
+
+                <div class="card" id="loggerCard">
+                    <div class="card-title">Execution & Trace Log</div>
+                    <div class="logger" id="eventLog"></div>
+                    <button class="btn btn-warning" style="margin-top: 0.5rem;" onclick="clearLog()">Clear Log</button>
+                </div>
+            </div>
+
+            <div>
+                <div class="card" id="visualizerCard">
+                    <div class="card-title" id="visualizerTitle">State Visualizer</div>
+                    <div id="visualizerContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTab = 'banker';
+
+        // Banker's Algorithm Default State
+        let numP = 5, numR = 3;
+        let allocation = [
+            [0, 1, 0],
+            [2, 0, 0],
+            [3, 0, 2],
+            [2, 1, 1],
+            [0, 0, 2]
+        ];
+        let maxMatrix = [
+            [7, 5, 3],
+            [3, 2, 2],
+            [9, 0, 2],
+            [2, 2, 2],
+            [4, 3, 3]
+        ];
+        let available = [3, 3, 2];
+
+        // Detection & Recovery Default State
+        let detP = 4, detR = 3;
+        let detAlloc = [
+            [0, 1, 0],
+            [2, 0, 0],
+            [3, 0, 3],
+            [2, 1, 1]
+        ];
+        let detReq = [
+            [0, 0, 0],
+            [2, 0, 2],
+            [0, 0, 1],
+            [1, 0, 0]
+        ];
+        let detAvail = [0, 0, 0];
+        let terminatedProcesses = [];
+
+        // --- GUIDED TUTORIAL STEPS ---
+        let currentTutStep = 0;
+        const tutorialSteps = [
+            {
+                tab: 'banker',
+                title: 'Welcome to the Deadlock Virtual Lab!',
+                text: 'This lab allows you to simulate and understand classical deadlock algorithms: <strong>Banker\'s Safety Check</strong>, <strong>Resource Allocation Graph (RAG) Detection</strong>, and <strong>System Recovery Strategies</strong>.',
+                target: null
+            },
+            {
+                tab: 'banker',
+                title: 'Step 1: Check System Safety (Banker\'s Algorithm)',
+                text: 'Click the blue <strong>"Check System Safety State"</strong> button. The system calculates <code>Need = Max - Allocation</code> and checks if a Safe Sequence exists. Look at the Execution Log below for the trace!',
+                target: 'controlsCard'
+            },
+            {
+                tab: 'banker',
+                title: 'Step 2: Submit a Custom Resource Request',
+                text: 'Try requesting resources for a process (e.g., P1 requesting [1, 0, 2]). Click <strong>"Submit Resource Request"</strong>. The algorithm will pretend to allocate resources and check if the resulting state is safe. If unsafe, it automatically rolls back!',
+                target: 'controlsCard'
+            },
+            {
+                tab: 'detection',
+                title: 'Step 3: Deadlock Detection & RAG Canvas',
+                text: 'We switched to the <strong>Deadlock Detection</strong> tab! Here, active allocation and request dependencies are rendered on the canvas. <strong>Green circles</strong> are safe processes, while <strong>Red circles</strong> indicate deadlocked processes.',
+                target: 'visualizerCard'
+            },
+            {
+                tab: 'detection',
+                title: 'Step 4: Toggle System State',
+                text: 'Click <strong>"Toggle Deadlocked / Safe State"</strong> to modify Available resources from [0,0,0] to [2,1,1]. Observe how the graph dynamically updates dependencies from deadlocked to safe!',
+                target: 'controlsCard'
+            },
+            {
+                tab: 'recovery',
+                title: 'Step 5: Deadlock Recovery Strategies',
+                text: 'Now on the <strong>Recovery</strong> tab! When a deadlock occurs, click <strong>"Abort Process"</strong> or <strong>"Preempt Resource"</strong> to terminate processes or reclaim held resources until the circular wait condition is broken.',
+                target: 'controlsCard'
+            }
+        ];
+
+        function startTutorial() {
+            document.getElementById('tutorialBanner').style.display = 'block';
+            currentTutStep = 0;
+            renderTutorialStep();
+        }
+
+        function closeTutorial() {
+            document.getElementById('tutorialBanner').style.display = 'none';
+            removeHighlights();
+        }
+
+        function restartTutorial() {
+            startTutorial();
+        }
+
+        function nextTutorialStep() {
+            if (currentTutStep < tutorialSteps.length - 1) {
+                currentTutStep++;
+                renderTutorialStep();
+            } else {
+                closeTutorial();
+                log("Tutorial completed! You can now freely experiment with all controls.", 'log-success');
+            }
+        }
+
+        function prevTutorialStep() {
+            if (currentTutStep > 0) {
+                currentTutStep--;
+                renderTutorialStep();
+            }
+        }
+
+        function renderTutorialStep() {
+            const step = tutorialSteps[currentTutStep];
+            
+            // Switch tab if needed
+            if (currentTab !== step.tab) {
+                switchTab(step.tab);
+            }
+
+            document.getElementById('tutStepBadge').innerText = `Step ${currentTutStep + 1} of ${tutorialSteps.length}`;
+            document.getElementById('tutBodyText').innerHTML = `<strong>${step.title}</strong><br>${step.text}`;
+            
+            document.getElementById('tutPrevBtn').style.display = currentTutStep === 0 ? 'none' : 'inline-block';
+            document.getElementById('tutNextBtn').innerText = currentTutStep === tutorialSteps.length - 1 ? 'Finish Guide ✓' : 'Next Step ►';
+
+            // Highlight target element
+            removeHighlights();
+            if (step.target) {
+                const el = document.getElementById(step.target);
+                if (el) el.classList.add('highlight-target');
+            }
+        }
+
+        function removeHighlights() {
+            document.querySelectorAll('.highlight-target').forEach(el => el.classList.remove('highlight-target'));
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            const btnIdx = { 'banker': 0, 'detection': 1, 'recovery': 2 }[tab];
+            document.querySelectorAll('.tab-btn')[btnIdx].classList.add('active');
+
+            clearLog();
+            renderTab();
+        }
+
+        function renderTab() {
+            const desc = document.getElementById('tabDesc');
+            const controls = document.getElementById('controlsCard');
+            const visTitle = document.getElementById('visualizerTitle');
+
+            if (currentTab === 'banker') {
+                visTitle.innerText = "Resource Allocation & Need Matrices";
+                desc.innerHTML = `
+                    <div class="desc-title">Banker's Safety & Resource-Request Algorithm</div>
+                    <div class="desc-text">
+                        Validates system safety state before allocating resources. Computes <strong>Need = Max - Allocation</strong> and finds a valid <strong>Safe Sequence</strong>.
+                    </div>
+                `;
+
+                controls.innerHTML = `
+                    <div class="card-title">Banker's Controls</div>
+                    <button class="btn btn-primary" onclick="runBankerSafety()">Check System Safety State</button>
+                    <hr style="margin: 0.75rem 0; border: none; border-top: 1px solid var(--border-color);">
+                    <div class="card-title">Request Resource</div>
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <select id="reqProcess" style="flex: 1; padding: 0.3rem;">
+                            ${Array.from({length: numP}, (_, i) => `<option value="${i}">Process P${i}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 0.3rem; margin-bottom: 0.5rem;">
+                        <input type="number" id="reqA" placeholder="A" value="1">
+                        <input type="number" id="reqB" placeholder="B" value="0">
+                        <input type="number" id="reqC" placeholder="C" value="2">
+                    </div>
+                    <button class="btn btn-success" onclick="requestBankerResources()">Submit Resource Request</button>
+                    <button class="btn btn-danger" onclick="resetBanker()">Reset Matrix Values</button>
+                `;
+
+                renderBankerTables();
+            } else if (currentTab === 'detection') {
+                visTitle.innerText = "Resource Allocation Graph (RAG)";
+                desc.innerHTML = `
+                    <div class="desc-title">Deadlock Detection Algorithm & RAG</div>
+                    <div class="desc-text">
+                        Scans active allocation and request matrices to identify deadlocked processes and visualizes cycle dependencies in the <strong>Resource Allocation Graph</strong>.
+                    </div>
+                `;
+
+                controls.innerHTML = `
+                    <div class="card-title">Detection Controls</div>
+                    <button class="btn btn-primary" onclick="runDeadlockDetection()">Run Deadlock Detection</button>
+                    <button class="btn btn-warning" onclick="toggleDeadlockState()">Toggle Deadlocked / Safe State</button>
+                `;
+
+                renderDetectionRAG();
+            } else if (currentTab === 'recovery') {
+                visTitle.innerText = "System Recovery Matrix State";
+                desc.innerHTML = `
+                    <div class="desc-title">Deadlock Recovery Strategies</div>
+                    <div class="desc-text">
+                        Resolves deadlocks via <strong>Process Termination</strong> (terminating processes to break cycles) or <strong>Resource Preemption</strong> (reclaiming held resources).
+                    </div>
+                `;
+
+                controls.innerHTML = `
+                    <div class="card-title">Recovery Controls</div>
+                    <button class="btn btn-danger" onclick="abortOneProcess()">Abort Process (Min Cost Priority)</button>
+                    <button class="btn btn-danger" style="background-color: #991b1b;" onclick="abortAllDeadlocked()">Abort All Deadlocked Processes</button>
+                    <button class="btn btn-warning" onclick="preemptResource()">Preempt Resource Allocation</button>
+                    <button class="btn btn-success" onclick="resetRecoveryState()">Reset System State</button>
+                `;
+
+                renderRecoveryTable();
+            }
+        }
+
+        // --- 1. BANKER'S ALGORITHM LOGIC ---
+        function getNeedMatrix() {
+            let need = [];
+            for (let i = 0; i < numP; i++) {
+                need[i] = [];
+                for (let j = 0; j < numR; j++) {
+                    need[i][j] = maxMatrix[i][j] - allocation[i][j];
+                }
+            }
+            return need;
+        }
+
+        function runBankerSafety() {
+            readBankerInputs();
+            let need = getNeedMatrix();
+            let work = [...available];
+            let finish = new Array(numP).fill(false);
+            let safeSequence = [];
+
+            log(`Starting Banker's Safety Algorithm... Work = [${work.join(', ')}]`, 'log-info');
+
+            let count = 0;
+            while (count < numP) {
+                let found = false;
+                for (let i = 0; i < numP; i++) {
+                    if (!finish[i]) {
+                        let possible = true;
+                        for (let j = 0; j < numR; j++) {
+                            if (need[i][j] > work[j]) {
+                                possible = false;
+                                break;
+                            }
+                        }
+
+                        if (possible) {
+                            for (let j = 0; j < numR; j++) {
+                                work[j] += allocation[i][j];
+                            }
+                            finish[i] = true;
+                            safeSequence.push(`P${i}`);
+                            found = true;
+                            count++;
+                            log(`Process P${i} executed. Work becomes [${work.join(', ')}]`, 'log-success');
+                        }
+                    }
+                }
+
+                if (!found) {
+                    log("System is in UNSAFE STATE! Deadlock potential detected.", 'log-danger');
+                    return { isSafe: false, sequence: [] };
+                }
+            }
+
+            log(`System is SAFE. Safe Sequence: <${safeSequence.join(' ➔ ')}>`, 'log-success');
+            return { isSafe: true, sequence: safeSequence };
+        }
+
+        function requestBankerResources() {
+            readBankerInputs();
+            let pIdx = parseInt(document.getElementById('reqProcess').value);
+            let req = [
+                parseInt(document.getElementById('reqA').value) || 0,
+                parseInt(document.getElementById('reqB').value) || 0,
+                parseInt(document.getElementById('reqC').value) || 0
+            ];
+
+            let need = getNeedMatrix();
+            log(`Process P${pIdx} requests resources: [${req.join(', ')}]`, 'log-info');
+
+            for (let j = 0; j < numR; j++) {
+                if (req[j] > need[pIdx][j]) {
+                    log(`ERROR: Request exceeds Process P${pIdx}'s maximum claim!`, 'log-danger');
+                    return;
+                }
+                if (req[j] > available[j]) {
+                    log(`BLOCKED: Not enough resources available for P${pIdx}. Process must wait.`, 'log-warning');
+                    return;
+                }
+            }
+
+            for (let j = 0; j < numR; j++) {
+                available[j] -= req[j];
+                allocation[pIdx][j] += req[j];
+            }
+
+            let result = runBankerSafety();
+            if (result.isSafe) {
+                log(`Request GRANTED to P${pIdx}. System remains safe.`, 'log-success');
+            } else {
+                for (let j = 0; j < numR; j++) {
+                    available[j] += req[j];
+                    allocation[pIdx][j] -= req[j];
+                }
+                log(`Request DENIED for P${pIdx}. Rolled back allocation to avoid Unsafe state.`, 'log-danger');
+            }
+            renderBankerTables();
+        }
+
+        function readBankerInputs() {
+            for (let i = 0; i < numP; i++) {
+                for (let j = 0; j < numR; j++) {
+                    let allocVal = parseInt(document.getElementById(`alloc_${i}_${j}`)?.value);
+                    let maxVal = parseInt(document.getElementById(`max_${i}_${j}`)?.value);
+                    if (!isNaN(allocVal)) allocation[i][j] = allocVal;
+                    if (!isNaN(maxVal)) maxMatrix[i][j] = maxVal;
+                }
+            }
+            for (let j = 0; j < numR; j++) {
+                let availVal = parseInt(document.getElementById(`avail_${j}`)?.value);
+                if (!isNaN(availVal)) available[j] = availVal;
+            }
+        }
+
+        function renderBankerTables() {
+            const container = document.getElementById('visualizerContainer');
+            let need = getNeedMatrix();
+
+            let allocHTML = `<h3>Allocation Matrix</h3><table><tr><th>Process</th><th>A</th><th>B</th><th>C</th></tr>`;
+            let maxHTML = `<h3>Max Matrix</h3><table><tr><th>Process</th><th>A</th><th>B</th><th>C</th></tr>`;
+            let needHTML = `<h3>Need Matrix</h3><table><tr><th>Process</th><th>A</th><th>B</th><th>C</th></tr>`;
+
+            for (let i = 0; i < numP; i++) {
+                allocHTML += `<tr><td>P${i}</td>`;
+                maxHTML += `<tr><td>P${i}</td>`;
+                needHTML += `<tr><td>P${i}</td>`;
+                for (let j = 0; j < numR; j++) {
+                    allocHTML += `<td><input type="number" id="alloc_${i}_${j}" value="${allocation[i][j]}"></td>`;
+                    maxHTML += `<td><input type="number" id="max_${i}_${j}" value="${maxMatrix[i][j]}"></td>`;
+                    needHTML += `<td>${need[i][j]}</td>`;
+                }
+                allocHTML += `</tr>`;
+                maxHTML += `</tr>`;
+                needHTML += `</tr>`;
+            }
+            allocHTML += `</table>`;
+            maxHTML += `</table>`;
+            needHTML += `</table>`;
+
+            let availHTML = `<h3>Available Resources</h3><table><tr><th>A</th><th>B</th><th>C</th></tr><tr>`;
+            for (let j = 0; j < numR; j++) {
+                availHTML += `<td><input type="number" id="avail_${j}" value="${available[j]}"></td>`;
+            }
+            availHTML += `</tr></table>`;
+
+            container.innerHTML = `
+                <div class="matrix-flex">
+                    <div class="matrix-box">${allocHTML}</div>
+                    <div class="matrix-box">${maxHTML}</div>
+                    <div class="matrix-box">${needHTML}</div>
+                </div>
+                ${availHTML}
+            `;
+        }
+
+        function resetBanker() {
+            allocation = [
+                [0, 1, 0], [2, 0, 0], [3, 0, 2], [2, 1, 1], [0, 0, 2]
+            ];
+            maxMatrix = [
+                [7, 5, 3], [3, 2, 2], [9, 0, 2], [2, 2, 2], [4, 3, 3]
+            ];
+            available = [3, 3, 2];
+            log("Banker's matrices reset to default.", 'log-info');
+            renderBankerTables();
+        }
+
+        // --- 2. DEADLOCK DETECTION & RAG ---
+        function runDeadlockDetection() {
+            let work = [...detAvail];
+            let finish = new Array(detP).fill(false);
+
+            for (let i = 0; i < detP; i++) {
+                if (terminatedProcesses.includes(i)) finish[i] = true;
+                else {
+                    let isZero = true;
+                    for (let j = 0; j < detR; j++) {
+                        if (detAlloc[i][j] !== 0) { isZero = false; break; }
+                    }
+                    if (isZero) finish[i] = true;
+                }
+            }
+
+            let changed = true;
+            while (changed) {
+                changed = false;
+                for (let i = 0; i < detP; i++) {
+                    if (!finish[i]) {
+                        let canExec = true;
+                        for (let j = 0; j < detR; j++) {
+                            if (detReq[i][j] > work[j]) {
+                                canExec = false;
+                                break;
+                            }
+                        }
+
+                        if (canExec) {
+                            for (let j = 0; j < detR; j++) work[j] += detAlloc[i][j];
+                            finish[i] = true;
+                            changed = true;
+                        }
+                    }
+                }
+            }
+
+            let deadlocked = [];
+            for (let i = 0; i < detP; i++) {
+                if (!finish[i]) deadlocked.push(`P${i}`);
+            }
+
+            if (deadlocked.length > 0) {
+                log(`DEADLOCK DETECTED! Deadlocked processes: { ${deadlocked.join(', ')} }`, 'log-danger');
+            } else {
+                log("NO DEADLOCK DETECTED. All processes can proceed to completion.", 'log-success');
+            }
+
+            drawRAG(deadlocked);
+            return deadlocked;
+        }
+
+        function toggleDeadlockState() {
+            if (detAvail[0] === 0) {
+                detAvail = [2, 1, 1];
+                log("Switched system state to SAFE (Sufficient available resources).", 'log-info');
+            } else {
+                detAvail = [0, 0, 0];
+                log("Switched system state to DEADLOCKED (Zero available resources).", 'log-warning');
+            }
+            renderDetectionRAG();
+        }
+
+        function renderDetectionRAG() {
+            const container = document.getElementById('visualizerContainer');
+            container.innerHTML = `<canvas id="ragCanvas" class="rag-canvas" width="600" height="320"></canvas>`;
+            runDeadlockDetection();
+        }
+
+        function drawRAG(deadlocked) {
+            const canvas = document.getElementById('ragCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const pCoords = [
+                { x: 100, y: 80 }, { x: 100, y: 240 },
+                { x: 500, y: 80 }, { x: 500, y: 240 }
+            ];
+            const rCoords = [
+                { x: 300, y: 60 }, { x: 300, y: 160 }, { x: 300, y: 260 }
+            ];
+
+            rCoords.forEach((r, idx) => {
+                ctx.fillStyle = '#e2e8f0';
+                ctx.strokeStyle = '#475569';
+                ctx.lineWidth = 2;
+                ctx.fillRect(r.x - 25, r.y - 20, 50, 40);
+                ctx.strokeRect(r.x - 25, r.y - 20, 50, 40);
+                ctx.fillStyle = '#0f172a';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.fillText(`R${idx}`, r.x - 8, r.y + 4);
+            });
+
+            pCoords.forEach((p, idx) => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 22, 0, 2 * Math.PI);
+                let isDead = deadlocked.includes(`P${idx}`);
+                let isTerm = terminatedProcesses.includes(idx);
+                ctx.fillStyle = isTerm ? '#cbd5e1' : (isDead ? '#fee2e2' : '#dcfce7');
+                ctx.strokeStyle = isTerm ? '#94a3b8' : (isDead ? '#dc2626' : '#16a34a');
+                ctx.lineWidth = 3;
+                ctx.fill();
+                ctx.stroke();
+                ctx.fillStyle = '#0f172a';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.fillText(isTerm ? `P${idx} (X)` : `P${idx}`, p.x - 10, p.y + 4);
+            });
+
+            for (let i = 0; i < detP; i++) {
+                if (terminatedProcesses.includes(i)) continue;
+                for (let j = 0; j < detR; j++) {
+                    if (detAlloc[i][j] > 0) {
+                        drawArrow(ctx, rCoords[j].x, rCoords[j].y, pCoords[i].x, pCoords[i].y, '#2563eb');
+                    }
+                    if (detReq[i][j] > 0) {
+                        drawArrow(ctx, pCoords[i].x, pCoords[i].y, rCoords[j].x, rCoords[j].y, '#ea580c');
+                    }
+                }
+            }
+        }
+
+        function drawArrow(ctx, fromx, fromy, tox, toy, color) {
+            const headlen = 8;
+            const dx = tox - fromx;
+            const dy = toy - fromy;
+            const angle = Math.atan2(dy, dx);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(fromx, fromy);
+            ctx.lineTo(tox, toy);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(tox, toy);
+            ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+
+        // --- 3. DEADLOCK RECOVERY LOGIC ---
+        function abortOneProcess() {
+            let deadlocked = runDeadlockDetection();
+            if (deadlocked.length === 0) {
+                log("No deadlocked process to abort.", 'log-info');
+                return;
+            }
+
+            let pIdx = parseInt(deadlocked[0].replace('P', ''));
+            terminatedProcesses.push(pIdx);
+
+            for (let j = 0; j < detR; j++) {
+                detAvail[j] += detAlloc[pIdx][j];
+                detAlloc[pIdx][j] = 0;
+                detReq[pIdx][j] = 0;
+            }
+
+            log(`RECOVERY: Terminated Process P${pIdx} to break deadlock. Resources reclaimed.`, 'log-danger');
+            renderRecoveryTable();
+        }
+
+        function abortAllDeadlocked() {
+            let deadlocked = runDeadlockDetection();
+            if (deadlocked.length === 0) {
+                log("No deadlocked processes to abort.", 'log-info');
+                return;
+            }
+
+            deadlocked.forEach(pName => {
+                let pIdx = parseInt(pName.replace('P', ''));
+                if (!terminatedProcesses.includes(pIdx)) {
+                    terminatedProcesses.push(pIdx);
+                    for (let j = 0; j < detR; j++) {
+                        detAvail[j] += detAlloc[pIdx][j];
+                        detAlloc[pIdx][j] = 0;
+                        detReq[pIdx][j] = 0;
+                    }
+                }
+            });
+
+            log(`RECOVERY: Aborted ALL deadlocked processes { ${deadlocked.join(', ')} }.`, 'log-danger');
+            renderRecoveryTable();
+        }
+
+        function preemptResource() {
+            let deadlocked = runDeadlockDetection();
+            if (deadlocked.length === 0) {
+                log("No deadlock present for preemption.", 'log-info');
+                return;
+            }
+
+            let pIdx = parseInt(deadlocked[0].replace('P', ''));
+            let j = 0;
+            while (j < detR && detAlloc[pIdx][j] === 0) j++;
+
+            if (j < detR && detAlloc[pIdx][j] > 0) {
+                detAlloc[pIdx][j]--;
+                detAvail[j]++;
+                log(`PREEMPTION: Reclaimed 1 unit of Resource R${j} from Process P${pIdx}.`, 'log-warning');
+            } else {
+                log(`No active resource allocation available to preempt from P${pIdx}.`, 'log-info');
+            }
+            renderRecoveryTable();
+        }
+
+        function renderRecoveryTable() {
+            const container = document.getElementById('visualizerContainer');
+            let deadlocked = runDeadlockDetection();
+
+            let tableHTML = `
+                <h3>System Recovery Matrix State</h3>
+                <table>
+                    <tr>
+                        <th>Process</th>
+                        <th>Allocation (A B C)</th>
+                        <th>Request (A B C)</th>
+                        <th>Status</th>
+                    </tr>
+            `;
+
+            for (let i = 0; i < detP; i++) {
+                let status = terminatedProcesses.includes(i) ?
+                    '<span style="color:var(--accent-red); font-weight:bold;">TERMINATED</span>' :
+                    (deadlocked.includes(`P${i}`) ?
+                        '<span style="color:var(--accent-orange); font-weight:bold;">DEADLOCKED</span>' :
+                        '<span style="color:var(--accent-green); font-weight:bold;">RUNNING</span>');
+
+                tableHTML += `
+                    <tr>
+                        <td>P${i}</td>
+                        <td>[${detAlloc[i].join(', ')}]</td>
+                        <td>[${detReq[i].join(', ')}]</td>
+                        <td>${status}</td>
+                    </tr>
+                `;
+            }
+            tableHTML += `</table>`;
+            tableHTML += `<div>Available System Vector: <strong>[${detAvail.join(', ')}]</strong></div>`;
+
+            container.innerHTML = tableHTML;
+        }
+
+        function resetRecoveryState() {
+            detAlloc = [
+                [0, 1, 0], [2, 0, 0], [3, 0, 3], [2, 1, 1]
+            ];
+            detReq = [
+                [0, 0, 0], [2, 0, 2], [0, 0, 1], [1, 0, 0]
+            ];
+            detAvail = [0, 0, 0];
+            terminatedProcesses = [];
+            log("System state and recovery history reset.", 'log-info');
+            renderRecoveryTable();
+        }
+
+        // --- HELPERS ---
+        function log(msg, className = 'log-info') {
+            const logger = document.getElementById('eventLog');
+            let time = new Date().toLocaleTimeString().split(' ')[0];
+            logger.innerHTML += `<div class="${className}">[${time}] ${msg}</div>`;
+            logger.scrollTop = logger.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('eventLog').innerHTML = '';
+        }
+
+        // Initialize Lab and Start Guided Tutorial
+        renderTab();
+        log("Deadlock Handling Virtual Lab ready.", 'log-info');
+        startTutorial();
+    </script>
+</body>
+</html>

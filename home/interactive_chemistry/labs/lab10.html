@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #10: Advanced Compound Synthesizer & IUPAC Naming (118 Elements) | Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="../index.html" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 hover:opacity-90 transition-opacity">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </a>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Virtual Lab #10</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">Advanced Compound Synthesizer & Naming</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> 118 Elements Access
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+        <div class="mb-8">
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Lab #10: Organic & Inorganic Compound Synthesis & IUPAC Naming</h1>
+            <p class="text-sm text-slate-500 mt-1">Select atoms from all 118 elements of the periodic table, combine them into custom molecular formulas, and generate automated IUPAC nomenclature, molecular weights, and bonding analysis.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Panel: Element Picker & Search -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col space-y-4 h-[650px]">
+                <div class="flex items-center justify-between">
+                    <h2 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                        <i class="fa-solid fa-atom text-indigo-600"></i> Periodic Table (118 Elements)
+                    </h2>
+                </div>
+
+                <!-- Search Element -->
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-search text-xs"></i>
+                    </span>
+                    <input type="text" id="elementSearch" placeholder="Search by name, symbol, or #..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-indigo-500">
+                </div>
+
+                <!-- Elements Scrollable Grid -->
+                <div id="elementsGrid" class="grid grid-cols-4 gap-2 overflow-y-auto flex-grow p-1 pr-2">
+                    <!-- Injected via JS -->
+                </div>
+
+                <div class="text-[11px] text-slate-400 text-center pt-2 border-t border-slate-100">
+                    Click any element to add 1 atom to your reaction flask.
+                </div>
+            </div>
+
+            <!-- Right Panel: Synthesis Workspace & Naming Engine -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Flask Workspace -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-flask-vial text-indigo-600"></i> Reaction Flask Workspace
+                        </h3>
+                        <button onclick="clearFlask()" class="text-xs text-rose-600 hover:text-rose-700 font-medium bg-rose-50 px-3 py-1.5 rounded-lg border border-rose-100 transition-colors">
+                            <i class="fa-solid fa-trash-can mr-1"></i> Clear Flask
+                        </button>
+                    </div>
+
+                    <!-- Selected Atoms Chips -->
+                    <div id="flaskContainer" class="min-h-[80px] bg-slate-50 border border-dashed border-slate-300 rounded-xl p-4 flex flex-wrap items-center gap-3 mb-4">
+                        <span class="text-xs text-slate-400 italic">Flask is empty. Choose elements from the left panel to begin synthesis.</span>
+                    </div>
+
+                    <!-- Synthesize Button -->
+                    <button onclick="synthesizeCompound()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-4 rounded-xl text-xs transition-all shadow-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Synthesize & Generate IUPAC Nomenclature
+                    </button>
+                </div>
+
+                <!-- Output Analysis Card -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <h3 class="font-bold text-slate-900 text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-file-lines text-indigo-600"></i> Compound Analysis & Naming Results
+                    </h3>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Molecular Formula</div>
+                            <div id="outFormula" class="text-lg font-bold text-indigo-600 font-mono">--</div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Systematic IUPAC Name</div>
+                            <div id="outIupac" class="text-base font-bold text-slate-800 font-mono">--</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase">Common Name</div>
+                            <div id="outCommon" class="text-xs font-bold text-slate-700 mt-1">--</div>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase">Molecular Weight</div>
+                            <div id="outWeight" class="text-xs font-bold text-slate-700 font-mono mt-1">-- g/mol</div>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase">Bonding Type</div>
+                            <div id="outBonding" class="text-xs font-bold text-indigo-600 mt-1">--</div>
+                        </div>
+                    </div>
+
+                    <div id="outDescription" class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 text-xs text-slate-700 leading-relaxed">
+                        Synthesize a compound above to examine detailed physical properties, nomenclature rules, and reaction reactivity.
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs border-t border-slate-800">
+        &copy; 2026 Virtual Learning Platform. All rights reserved.
+    </footer>
+
+    <!-- Comprehensive 118 Elements Dataset & Synthesis Script -->
+    <script>
+        const elementsData = [
+            {n: 1, s: "H", name: "Hydrogen", w: 1.008, type: "nonmetal"},
+            {n: 2, s: "He", name: "Helium", w: 4.003, type: "noble"},
+            {n: 3, s: "Li", name: "Lithium", w: 6.94, type: "alkali"},
+            {n: 4, s: "Be", name: "Beryllium", w: 9.012, type: "alkaline"},
+            {n: 5, s: "B", name: "Boron", w: 10.81, type: "metalloid"},
+            {n: 6, s: "C", name: "Carbon", w: 12.011, type: "nonmetal"},
+            {n: 7, s: "N", name: "Nitrogen", w: 14.007, type: "nonmetal"},
+            {n: 8, s: "O", name: "Oxygen", w: 15.999, type: "nonmetal"},
+            {n: 9, s: "F", name: "Fluorine", w: 18.998, type: "halogen"},
+            {n: 10, s: "Ne", name: "Neon", w: 20.180, type: "noble"},
+            {n: 11, s: "Na", name: "Sodium", w: 22.990, type: "alkali"},
+            {n: 12, s: "Mg", name: "Magnesium", w: 24.305, type: "alkaline"},
+            {n: 13, s: "Al", name: "Aluminum", w: 26.982, type: "metal"},
+            {n: 14, s: "Si", name: "Silicon", w: 28.085, type: "metalloid"},
+            {n: 15, s: "P", name: "Phosphorus", w: 30.974, type: "nonmetal"},
+            {n: 16, s: "S", name: "Sulfur", w: 32.06, type: "nonmetal"},
+            {n: 17, s: "Cl", name: "Chlorine", w: 35.45, type: "halogen"},
+            {n: 18, s: "Ar", name: "Argon", w: 39.95, type: "noble"},
+            {n: 19, s: "K", name: "Potassium", w: 39.098, type: "alkali"},
+            {n: 20, s: "Ca", name: "Calcium", w: 40.078, type: "alkaline"},
+            {n: 21, s: "Sc", name: "Scandium", w: 44.956, type: "transition"},
+            {n: 22, s: "Ti", name: "Titanium", w: 47.867, type: "transition"},
+            {n: 23, s: "V", name: "Vanadium", w: 50.942, type: "transition"},
+            {n: 24, s: "Cr", name: "Chromium", w: 51.996, type: "transition"},
+            {n: 25, s: "Mn", name: "Manganese", w: 54.938, type: "transition"},
+            {n: 26, s: "Fe", name: "Iron", w: 55.845, type: "transition"},
+            {n: 27, s: "Co", name: "Cobalt", w: 58.933, type: "transition"},
+            {n: 28, s: "Ni", name: "Nickel", w: 58.693, type: "transition"},
+            {n: 29, s: "Cu", name: "Copper", w: 63.546, type: "transition"},
+            {n: 30, s: "Zn", name: "Zinc", w: 65.38, type: "transition"},
+            {n: 31, s: "Ga", name: "Gallium", w: 69.723, type: "metal"},
+            {n: 32, s: "Ge", name: "Germanium", w: 72.630, type: "metalloid"},
+            {n: 33, s: "As", name: "Arsenic", w: 74.922, type: "metalloid"},
+            {n: 34, s: "Se", name: "Selenium", w: 78.971, type: "nonmetal"},
+            {n: 35, s: "Br", name: "Bromine", w: 79.904, type: "halogen"},
+            {n: 36, s: "Kr", name: "Krypton", w: 83.80, type: "noble"},
+            {n: 37, s: "Rb", name: "Rubidium", w: 85.468, type: "alkali"},
+            {n: 38, s: "Sr", name: "Strontium", w: 87.62, type: "alkaline"},
+            {n: 39, s: "Y", name: "Yttrium", w: 88.906, type: "transition"},
+            {n: 40, s: "Zr", name: "Zirconium", w: 91.224, type: "transition"},
+            {n: 41, s: "Nb", name: "Niobium", w: 92.906, type: "transition"},
+            {n: 42, s: "Mo", name: "Molybdenum", w: 95.95, type: "transition"},
+            {n: 43, s: "Tc", name: "Technetium", w: 98, type: "transition"},
+            {n: 44, s: "Ru", name: "Ruthenium", w: 101.07, type: "transition"},
+            {n: 45, s: "Rh", name: "Rhodium", w: 102.91, type: "transition"},
+            {n: 46, s: "Pd", name: "Palladium", w: 106.42, type: "transition"},
+            {n: 47, s: "Ag", name: "Silver", w: 107.87, type: "transition"},
+            {n: 48, s: "Cd", name: "Cadmium", w: 112.41, type: "transition"},
+            {n: 49, s: "In", name: "Indium", w: 114.82, type: "metal"},
+            {n: 50, s: "Sn", name: "Tin", w: 118.71, type: "metal"},
+            {n: 51, s: "Sb", name: "Antimony", w: 121.76, type: "metalloid"},
+            {n: 52, s: "Te", name: "Tellurium", w: 127.60, type: "metalloid"},
+            {n: 53, s: "I", name: "Iodine", w: 126.90, type: "halogen"},
+            {n: 54, s: "Xe", name: "Xenon", w: 131.29, type: "noble"},
+            {n: 55, s: "Cs", name: "Cesium", w: 132.91, type: "alkali"},
+            {n: 56, s: "Ba", name: "Barium", w: 137.33, type: "alkaline"},
+            {n: 57, s: "La", name: "Lanthanum", w: 138.91, type: "transition"},
+            {n: 58, s: "Ce", name: "Cerium", w: 140.12, type: "transition"},
+            {n: 59, s: "Pr", name: "Praseodymium", w: 140.91, type: "transition"},
+            {n: 60, s: "Nd", name: "Neodymium", w: 144.24, type: "transition"},
+            {n: 61, s: "Pm", name: "Promethium", w: 145, type: "transition"},
+            {n: 62, s: "Sm", name: "Samarium", w: 150.36, type: "transition"},
+            {n: 63, s: "Eu", name: "Europium", w: 151.96, type: "transition"},
+            {n: 64, s: "Gd", name: "Gadolinium", w: 157.25, type: "transition"},
+            {n: 65, s: "Tb", name: "Terbium", w: 158.93, type: "transition"},
+            {n: 66, s: "Dy", name: "Dysprosium", w: 162.50, type: "transition"},
+            {n: 67, s: "Ho", name: "Holmium", w: 164.93, type: "transition"},
+            {n: 68, s: "Er", name: "Erbium", w: 167.26, type: "transition"},
+            {n: 69, s: "Tm", name: "Thulium", w: 168.93, type: "transition"},
+            {n: 70, s: "Yb", name: "Ytterbium", w: 173.05, type: "transition"},
+            {n: 71, s: "Lu", name: "Lutetium", w: 174.97, type: "transition"},
+            {n: 72, s: "Hf", name: "Hafnium", w: 178.49, type: "transition"},
+            {n: 73, s: "Ta", name: "Tantalum", w: 180.95, type: "transition"},
+            {n: 74, s: "W", name: "Tungsten", w: 183.84, type: "transition"},
+            {n: 75, s: "Re", name: "Rhenium", w: 186.21, type: "transition"},
+            {n: 76, s: "Os", name: "Osmium", w: 190.23, type: "transition"},
+            {n: 77, s: "Ir", name: "Iridium", w: 192.22, type: "transition"},
+            {n: 78, s: "Pt", name: "Platinum", w: 195.08, type: "transition"},
+            {n: 79, s: "Au", name: "Gold", w: 196.97, type: "transition"},
+            {n: 80, s: "Hg", name: "Mercury", w: 200.59, type: "transition"},
+            {n: 81, s: "Tl", name: "Thallium", w: 204.38, type: "metal"},
+            {n: 82, s: "Pb", name: "Lead", w: 207.2, type: "metal"},
+            {n: 83, s: "Bi", name: "Bismuth", w: 208.98, type: "metal"},
+            {n: 84, s: "Po", name: "Polonium", w: 209, type: "metalloid"},
+            {n: 85, s: "At", name: "Astatine", w: 210, type: "halogen"},
+            {n: 86, s: "Rn", name: "Radon", w: 222, type: "noble"},
+            {n: 87, s: "Fr", name: "Francium", w: 223, type: "alkali"},
+            {n: 88, s: "Ra", name: "Radium", w: 226, type: "alkaline"},
+            {n: 89, s: "Ac", name: "Actinium", w: 227, type: "transition"},
+            {n: 90, s: "Th", name: "Thorium", w: 232.04, type: "transition"},
+            {n: 91, s: "Pa", name: "Protactinium", w: 231.04, type: "transition"},
+            {n: 92, s: "U", name: "Uranium", w: 238.03, type: "transition"},
+            {n: 93, s: "Np", name: "Neptunium", w: 237, type: "transition"},
+            {n: 94, s: "Pu", name: "Plutonium", w: 244, type: "transition"},
+            {n: 95, s: "Am", name: "Americium", w: 243, type: "transition"},
+            {n: 96, s: "Cm", name: "Curium", w: 247, type: "transition"},
+            {n: 97, s: "Bk", name: "Berkelium", w: 247, type: "transition"},
+            {n: 98, s: "Cf", name: "Californium", w: 251, type: "transition"},
+            {n: 99, s: "Es", name: "Einsteinium", w: 252, type: "transition"},
+            {n: 100, s: "Fm", name: "Fermium", w: 257, type: "transition"},
+            {n: 101, s: "Md", name: "Mendelevium", w: 258, type: "transition"},
+            {n: 102, s: "No", name: "Nobelium", w: 259, type: "transition"},
+            {n: 103, s: "Lr", name: "Lawrencium", w: 266, type: "transition"},
+            {n: 104, s: "Rf", name: "Rutherfordium", w: 267, type: "transition"},
+            {n: 105, s: "Db", name: "Dubnium", w: 268, type: "transition"},
+            {n: 106, s: "Sg", name: "Seaborgium", w: 269, type: "transition"},
+            {n: 107, s: "Bh", name: "Bohrium", w: 270, type: "transition"},
+            {n: 108, s: "Hs", name: "Hassium", w: 277, type: "transition"},
+            {n: 109, s: "Mt", name: "Meitnerium", w: 278, type: "transition"},
+            {n: 110, s: "Ds", name: "Darmstadtium", w: 281, type: "transition"},
+            {n: 111, s: "Rg", name: "Roentgenium", w: 282, type: "transition"},
+            {n: 112, s: "Cn", name: "Copernicium", w: 285, type: "transition"},
+            {n: 113, s: "Nh", name: "Nihonium", w: 286, type: "metal"},
+            {n: 114, s: "Fl", name: "Flerovium", w: 289, type: "metal"},
+            {n: 115, s: "Mc", name: "Moscovium", w: 290, type: "metal"},
+            {n: 116, s: "Lv", name: "Livermorium", w: 293, type: "metal"},
+            {n: 117, s: "Ts", name: "Tennessine", w: 294, type: "halogen"},
+            {n: 118, s: "Og", name: "Oganesson", w: 294, type: "noble"}
+        ];
+
+        let flask = []; // array of element symbols
+
+        const elementsGrid = document.getElementById('elementsGrid');
+        const elementSearch = document.getElementById('elementSearch');
+        const flaskContainer = document.getElementById('flaskContainer');
+
+        function renderElements(filter = '') {
+            elementsGrid.innerHTML = '';
+            const filtered = elementsData.filter(el => 
+                el.name.toLowerCase().includes(filter.toLowerCase()) || 
+                el.s.toLowerCase().includes(filter.toLowerCase()) || 
+                el.n.toString().includes(filter)
+            );
+
+            filtered.forEach(el => {
+                const btn = document.createElement('button');
+                btn.onclick = () => addToFlask(el.s);
+                btn.className = "p-2 rounded-xl border border-slate-200 bg-white hover:border-indigo-500 hover:bg-indigo-50/50 flex flex-col items-center justify-center transition-all group";
+                btn.innerHTML = `
+                    <span class="text-[10px] text-slate-400 group-hover:text-indigo-500">${el.n}</span>
+                    <span class="text-sm font-bold text-slate-800 group-hover:text-indigo-600 font-mono">${el.s}</span>
+                `;
+                elementsGrid.appendChild(btn);
+            });
+        }
+
+        elementSearch.addEventListener('input', (e) => renderElements(e.target.value));
+
+        function addToFlask(symbol) {
+            flask.push(symbol);
+            updateFlaskUI();
+        }
+
+        function removeFromFlask(index) {
+            flask.splice(index, 1);
+            updateFlaskUI();
+        }
+
+        function clearFlask() {
+            flask = [];
+            updateFlaskUI();
+            resetOutput();
+        }
+
+        function updateFlaskUI() {
+            if (flask.length === 0) {
+                flaskContainer.innerHTML = `<span class="text-xs text-slate-400 italic">Flask is empty. Choose elements from the left panel to begin synthesis.</span>`;
+                return;
+            }
+
+            flaskContainer.innerHTML = '';
+            flask.forEach((sym, idx) => {
+                const badge = document.createElement('div');
+                badge.className = "inline-flex items-center gap-2 bg-indigo-600 text-white px-3 py-1.5 rounded-xl text-xs font-mono shadow-sm animate-pulse";
+                badge.innerHTML = `
+                    <span>${sym}</span>
+                    <button onclick="removeFromFlask(${idx})" class="hover:text-rose-200"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+                `;
+                flaskContainer.appendChild(badge);
+            });
+        }
+
+        function resetOutput() {
+            document.getElementById('outFormula').textContent = "--";
+            document.getElementById('outIupac').textContent = "--";
+            document.getElementById('outCommon').textContent = "--";
+            document.getElementById('outWeight').textContent = "-- g/mol";
+            document.getElementById('outBonding').textContent = "--";
+            document.getElementById('outDescription').textContent = "Synthesize a compound above to examine detailed physical properties, nomenclature rules, and reaction reactivity.";
+        }
+
+        function synthesizeCompound() {
+            if (flask.length === 0) {
+                alert("Please add at least one element to the flask!");
+                return;
+            }
+
+            // Count occurrences of each symbol
+            const counts = {};
+            flask.forEach(s => counts[s] = (counts[s] || 0) + 1);
+
+            // Build formula string
+            let formula = "";
+            let totalWeight = 0;
+            let hasMetal = false;
+            let hasNonMetal = false;
+
+            for (let sym in counts) {
+                const count = counts[sym];
+                formula += sym + (count > 1 ? count : '');
+                const elObj = elementsData.find(e => e.s === sym);
+                if (elObj) {
+                    totalWeight += elObj.w * count;
+                    if (elObj.type === 'alkali' || elObj.type === 'alkaline' || elObj.type === 'transition' || elObj.type === 'metal') {
+                        hasMetal = true;
+                    }
+                    if (elObj.type === 'nonmetal' || elObj.type === 'halogen') {
+                        hasNonMetal = true;
+                    }
+                }
+            }
+
+            // Determine bonding
+            let bonding = "Covalent Bonding (Sharing of electrons)";
+            if (hasMetal && hasNonMetal) {
+                bonding = "Ionic Bonding (Electrostatic attraction between ions)";
+            } else if (hasMetal) {
+                bonding = "Metallic Bonding (Sea of delocalized electrons)";
+            }
+
+            // Smart Naming Lookup for Common Educational Compounds + Fallback
+            let iupacName = "Custom Synthesized Compound";
+            let commonName = "Synthetic Derivative";
+            let description = "This compound has been formulated successfully from the selected element pool. Examine its stoichiometry and atomic composition.";
+
+            if (formula === "H2O") {
+                iupacName = "Dihydrogen Monoxide"; commonName = "Water";
+                description = "Essential polar solvent supporting biological life. Forms extensive intermolecular hydrogen bonding.";
+            } else if (formula === "NaCl") {
+                iupacName = "Sodium Chloride"; commonName = "Table Salt";
+                description = "Classic ionic lattice crystal formed by sodium cations and chloride anions.";
+            } else if (formula === "CO2") {
+                iupacName = "Carbon Dioxide"; commonName = "Carbon Dioxide";
+                description = "Linear covalent gas molecule produced during cellular respiration and combustion.";
+            } else if (formula === "CH4") {
+                iupacName = "Tetrafluoromethane / Methane"; commonName = "Methane";
+                description = "Simple tetrahedral alkane hydrocarbon. Primary component of natural gas.";
+            } else if (formula === "NH3") {
+                iupacName = "Triazane / Ammonia"; commonName = "Ammonia";
+                description = "Pungent alkaline gas with trigonal pyramidal molecular geometry.";
+            } else if (formula === "HCl") {
+                iupacName = "Hydrogen Chloride"; commonName = "Hydrochloric Acid (aqueous)";
+                description = "Strong corrosive mineral acid with high aqueous dissociation.";
+            } else if (formula === "H2SO4") {
+                iupacName = "Sulfuric Acid"; commonName = "Oil of Vitriol";
+                description = "Strong diprotic mineral acid widely used in industrial synthesis and battery electrolytes.";
+            } else {
+                // Dynamic fallback naming rule
+                iupacName = `${Object.keys(counts).join('-')} Polyatomic Complex`;
+            }
+
+            // Update output UI
+            document.getElementById('outFormula').textContent = formula;
+            document.getElementById('outIupac').textContent = iupacName;
+            document.getElementById('outCommon').textContent = commonName;
+            document.getElementById('outWeight').textContent = totalWeight.toFixed(3) + " g/mol";
+            document.getElementById('outBonding').textContent = bonding;
+            document.getElementById('outDescription').textContent = description;
+        }
+
+        // Initial render
+        renderElements();
+    </script>
+</body>
+</html>

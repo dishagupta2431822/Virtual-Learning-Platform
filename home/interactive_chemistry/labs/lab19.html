@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab #19: Buffer Solutions & Henderson-Hasselbalch | Virtual Labs</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="../index.html" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 hover:opacity-90 transition-opacity">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </a>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 tracking-tight">Virtual Lab #19</span>
+                    <span class="text-xs block text-indigo-600 font-semibold uppercase tracking-wider">Buffer Solutions & Henderson-Hasselbalch</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> pH Titration & Capacity Simulator
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+        <!-- Lab Header Info -->
+        <div class="mb-8">
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Buffer Solutions & Henderson-Hasselbalch</h1>
+            <p class="text-sm text-slate-500 mt-1">Calculate pH, test buffer capacity against strong acid and base additions, and analyze Henderson-Hasselbalch ratios.</p>
+        </div>
+
+        <!-- Simulation Grid Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Control Panel -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between space-y-6">
+                <div>
+                    <h2 class="font-bold text-slate-900 text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-indigo-600"></i> Buffer System Parameters
+                    </h2>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Select Buffer System</label>
+                            <select id="bufferSystem" onchange="resetBuffer()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:border-indigo-500">
+                                <option value="acetic">Acetic Acid / Sodium Acetate (pH ~ 4.76)</option>
+                                <option value="ammonia">Ammonia / Ammonium Chloride (pH ~ 9.25)</option>
+                                <option value="phosphate">Dihydrogen / Monohydrogen Phosphate (pH ~ 7.20)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Weak Acid Concentration (M)</label>
+                            <input type="range" id="acidConc" min="0.05" max="1.0" step="0.05" value="0.50" oninput="updateBuffer()" class="w-full accent-indigo-600">
+                            <div class="flex justify-between text-[11px] text-slate-400 font-mono mt-1">
+                                <span>0.05 M</span>
+                                <span id="acidVal" class="text-indigo-600 font-bold">0.50 M</span>
+                                <span>1.00 M</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Conjugate Base Concentration (M)</label>
+                            <input type="range" id="baseConc" min="0.05" max="1.0" step="0.05" value="0.50" oninput="updateBuffer()" class="w-full accent-indigo-600">
+                            <div class="flex justify-between text-[11px] text-slate-400 font-mono mt-1">
+                                <span>0.05 M</span>
+                                <span id="baseVal" class="text-indigo-600 font-bold">0.50 M</span>
+                                <span>1.00 M</span>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-100">
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Add Titrant (Perturbation)</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="addTitrant('acid')" class="py-2.5 px-3 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 font-medium text-xs hover:bg-rose-100 transition-all">
+                                    + 10 mL 1M HCl
+                                </button>
+                                <button onclick="addTitrant('base')" class="py-2.5 px-3 rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-700 font-medium text-xs hover:bg-indigo-100 transition-all">
+                                    + 10 mL 1M NaOH
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <button onclick="resetBuffer()" class="text-xs text-slate-500 hover:text-slate-700 font-medium underline">
+                        Reset Buffer
+                    </button>
+                    <span class="text-xs text-slate-400"><i class="fa-solid fa-flask text-indigo-600 mr-1"></i> 100 mL Solution</span>
+                </div>
+            </div>
+
+            <!-- Right Visualizer & Analysis Panel -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Main pH Output Card -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 id="panelTitle" class="font-bold text-slate-900 text-base">Acetic Acid / Acetate Buffer System</h3>
+                        <span id="phBadge" class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">pH = 4.76</span>
+                    </div>
+
+                    <!-- Visual pH Meter Bar -->
+                    <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 mb-6">
+                        <div class="flex justify-between text-xs font-semibold text-slate-600 mb-2">
+                            <span>Solution pH Scale (0 - 14)</span>
+                            <span id="currentPhDisplay" class="text-indigo-600 font-bold font-mono text-sm">pH 4.76</span>
+                        </div>
+                        <div class="w-full bg-gradient-to-r from-rose-500 via-amber-400 to-indigo-600 h-4 rounded-full relative p-0.5 shadow-inner">
+                            <div id="phPointer" class="absolute top-0 bottom-0 w-3 bg-slate-900 rounded-full shadow-md transition-all duration-300" style="left: 34%;"></div>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-slate-400 font-mono mt-1 px-1">
+                            <span>0 (Acidic)</span>
+                            <span>7 (Neutral)</span>
+                            <span>14 (Basic)</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Henderson-Hasselbalch Formula</div>
+                            <div class="text-sm font-bold text-indigo-600 font-mono">pH = pKa + log([A⁻]/[HA])</div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Buffer Capacity (β)</div>
+                            <div id="bufferCapacityVal" class="text-base font-bold text-slate-800 font-mono">High (0.50 mol/L/pH)</div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Added Perturbation</div>
+                            <div id="perturbationVal" class="text-base font-bold text-emerald-600 font-mono">None (Initial State)</div>
+                        </div>
+                    </div>
+
+                    <p id="bufferDesc" class="text-xs text-slate-600 leading-relaxed">
+                        A buffer solution resists dramatic changes in pH upon the addition of small amounts of strong acid or base. The weak acid neutralizes added OH⁻ ions, while the conjugate base neutralizes added H⁺ ions.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs border-t border-slate-800">
+        &copy; 2026 Virtual Learning Platform. All rights reserved.
+    </footer>
+
+    <!-- Simulation Script -->
+    <script>
+        let addedAcidMoles = 0;
+        let addedBaseMoles = 0;
+
+        const systems = {
+            acetic: {
+                name: "Acetic Acid / Sodium Acetate",
+                pKa: 4.76,
+                acidName: "CH3COOH",
+                baseName: "CH3COO⁻",
+                desc: "Acetic acid and sodium acetate form an acidic buffer operating efficiently around pH 4.76. Added H+ reacts with acetate to form undissociated acetic acid."
+            },
+            ammonia: {
+                name: "Ammonia / Ammonium Chloride",
+                pKa: 9.25, // pKa of NH4+ (14 - pKb 4.75)
+                acidName: "NH4⁺",
+                baseName: "NH3",
+                desc: "Ammonia and ammonium chloride form a basic buffer operating around pH 9.25. Added OH⁻ reacts with ammonium ions to form aqueous ammonia and water."
+            },
+            phosphate: {
+                name: "Dihydrogen / Monohydrogen Phosphate",
+                pKa: 7.20,
+                acidName: "H2PO4⁻",
+                baseName: "HPO4²⁻",
+                desc: "Phosphate buffers are critical physiological buffers maintaining intracellular pH around 7.20 due to the amphiprotic nature of phosphate ions."
+            }
+        };
+
+        function resetBuffer() {
+            addedAcidMoles = 0;
+            addedBaseMoles = 0;
+            document.getElementById('acidConc').value = 0.50;
+            document.getElementById('baseConc').value = 0.50;
+            updateBuffer();
+        }
+
+        function addTitrant(type) {
+            if (type === 'acid') {
+                addedAcidMoles += 0.010; // 10 mL of 1M = 0.01 moles
+            } else {
+                addedBaseMoles += 0.010;
+            }
+            updateBuffer();
+        }
+
+        function updateBuffer() {
+            const sysKey = document.getElementById('bufferSystem').value;
+            const sys = systems[sysKey];
+
+            let initialAcid = parseFloat(document.getElementById('acidConc').value) * 0.1; // 100 mL = 0.1 L -> moles
+            let initialBase = parseFloat(document.getElementById('baseConc').value) * 0.1;
+
+            document.getElementById('acidVal').textContent = parseFloat(document.getElementById('acidConc').value).toFixed(2) + " M";
+            document.getElementById('baseVal').textContent = parseFloat(document.getElementById('baseConc').value).toFixed(2) + " M";
+
+            // Apply titrant perturbations
+            let currentAcidMoles = initialAcid + addedAcidMoles - addedBaseMoles;
+            let currentBaseMoles = initialBase + addedBaseMoles - addedAcidMoles;
+
+            if (currentAcidMoles < 0.001) currentAcidMoles = 0.001;
+            if (currentBaseMoles < 0.001) currentBaseMoles = 0.001;
+
+            // Henderson-Hasselbalch calculation: pH = pKa + log([Base]/[Acid])
+            const ratio = currentBaseMoles / currentAcidMoles;
+            const ph = sys.pKa + Math.log10(ratio);
+
+            // Cap pH between 0 and 14
+            const clampedPh = Math.max(0, Math.min(14, ph));
+            const phPercent = (clampedPh / 14) * 100;
+
+            document.getElementById('panelTitle').textContent = `${sys.name} Buffer System`;
+            document.getElementById('phBadge').textContent = `pH = ${clampedPh.toFixed(2)}`;
+            document.getElementById('currentPhDisplay').textContent = `pH ${clampedPh.toFixed(2)}`;
+            document.getElementById('phPointer').style.left = `${phPercent}%`;
+
+            const totalBufferMoles = initialAcid + initialBase;
+            const capacity = (totalBufferMoles * 0.5).toFixed(2);
+            document.getElementById('bufferCapacityVal').textContent = `${capacity} mol/L/pH`;
+
+            let pertText = "None (Initial State)";
+            if (addedAcidMoles > 0 && addedBaseMoles === 0) pertText = `+ ${(addedAcidMoles * 1000).toFixed(0)} mL 1M HCl`;
+            else if (addedBaseMoles > 0 && addedAcidMoles === 0) pertText = `+ ${(addedBaseMoles * 1000).toFixed(0)} mL 1M NaOH`;
+            else if (addedAcidMoles > 0 && addedBaseMoles > 0) pertText = `Mixed Additions`;
+            document.getElementById('perturbationVal').textContent = pertText;
+
+            document.getElementById('bufferDesc').textContent = sys.desc + ` Current conjugate base-to-acid ratio is ${(currentBaseMoles/currentAcidMoles).toFixed(2)}.`;
+        }
+
+        // Initial load
+        updateBuffer();
+    </script>
+</body>
+</html>
