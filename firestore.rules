@@ -1,0 +1,67 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function ownsUserData(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function validEventBase(uid) {
+      return request.resource.data.uid == uid
+        && request.resource.data.email == request.auth.token.get('email', '')
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 180
+        && request.resource.data.createdAt is timestamp;
+    }
+
+    match /users/{uid}/history/{entryId} {
+      allow read: if ownsUserData(uid);
+      allow create: if ownsUserData(uid)
+        && validEventBase(uid)
+        && (
+          (
+            request.resource.data.appType == 'virtual-labs'
+            && request.resource.data.eventType == 'lab_completed'
+            && request.resource.data.keys().hasOnly([
+              'uid', 'email', 'appType', 'eventType', 'title', 'createdAt', 'course', 'url'
+            ])
+            && (!('course' in request.resource.data) || request.resource.data.course is string)
+            && (!('url' in request.resource.data) || request.resource.data.url is string)
+          )
+          || (
+            request.resource.data.appType == 'ai-interviews'
+            && request.resource.data.eventType == 'interview_evaluated'
+            && request.resource.data.keys().hasAll(['score', 'grade'])
+            && request.resource.data.keys().hasOnly([
+              'uid', 'email', 'appType', 'eventType', 'title', 'createdAt',
+              'score', 'grade', 'testCasesPassed', 'language', 'url'
+            ])
+            && request.resource.data.score is number
+            && request.resource.data.score >= 0
+            && request.resource.data.score <= 100
+            && request.resource.data.grade is string
+            && (!('testCasesPassed' in request.resource.data) || request.resource.data.testCasesPassed is string)
+            && (!('language' in request.resource.data) || request.resource.data.language is string)
+            && (!('url' in request.resource.data) || request.resource.data.url is string)
+          )
+          || (
+            request.resource.data.appType == 'e-library'
+            && request.resource.data.eventType == 'resource_downloaded'
+            && request.resource.data.keys().hasAll(['fileName'])
+            && request.resource.data.keys().hasOnly([
+              'uid', 'email', 'appType', 'eventType', 'title', 'createdAt',
+              'fileName', 'resourceCategory', 'url'
+            ])
+            && request.resource.data.fileName is string
+            && (!('resourceCategory' in request.resource.data) || request.resource.data.resourceCategory is string)
+            && (!('url' in request.resource.data) || request.resource.data.url is string)
+          )
+        );
+      allow update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

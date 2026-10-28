@@ -1,12 +1,12 @@
 import { getApps, initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import {
+    addDoc,
     collection,
     getFirestore,
     onSnapshot,
     orderBy,
     query,
-    addDoc,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -20,62 +20,65 @@ const firebaseConfig = {
     measurementId: "G-604P4VMXS9"
 };
 
-const databaseIds = {
-    'virtual-labs': 'virtual-labs',
-    'ai-interviews': 'ai-interviews',
-    'e-library': 'e-library'
+const eventTypes = {
+    'virtual-labs': 'lab_completed',
+    'ai-interviews': 'interview_evaluated',
+    'e-library': 'resource_downloaded'
 };
 
 const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
 function getHistoryCollection(appType, uid) {
-    const databaseId = databaseIds[appType];
-    if (!databaseId) throw new Error(`Unknown progress application: ${appType}`);
-
-    return collection(getFirestore(app, databaseId), 'users', uid, 'history');
+    if (!eventTypes[appType]) throw new Error(`Unknown progress application: ${appType}`);
+    return collection(getFirestore(app), 'users', uid, 'history');
 }
 
 export function subscribeProgress(appType, uid, onEntries, onError) {
     const historyQuery = query(getHistoryCollection(appType, uid), orderBy('createdAt', 'desc'));
     return onSnapshot(historyQuery, (snapshot) => {
-        onEntries(snapshot.docs.map((entry) => ({ id: entry.id, ...entry.data() })));
+        onEntries(snapshot.docs
+            .map((entry) => ({ id: entry.id, ...entry.data() }))
+            .filter((entry) => entry.appType === appType));
     }, onError);
 }
 
 export async function recordProgress(appType, user, event) {
     if (!user?.uid) throw new Error('Sign in before saving progress.');
+    if (event.eventType !== eventTypes[appType]) {
+        throw new Error(`Invalid event type for ${appType}.`);
+    }
 
-    const safeEvent = {
+    const savedEvent = {
         uid: user.uid,
         email: user.email || '',
+        appType,
         eventType: event.eventType,
         title: String(event.title || 'Progress update').slice(0, 180),
         createdAt: serverTimestamp()
     };
-
     for (const field of ['course', 'url', 'score', 'grade', 'testCasesPassed', 'language', 'fileName', 'resourceCategory']) {
-        if (event[field] !== undefined) safeEvent[field] = event[field];
+        if (event[field] !== undefined) savedEvent[field] = event[field];
     }
 
-    const entry = await addDoc(getHistoryCollection(appType, user.uid), safeEvent);
-    if (!user.email) return { id: entry.id, emailSent: false };
+    const savedRecord = await addDoc(getHistoryCollection(appType, user.uid), savedEvent);
+    if (!user.email) return { id: savedRecord.id, emailSent: false };
 
     try {
         const token = await user.getIdToken();
         const response = await fetch('/api/progress/notify', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${token}`,
+                'Authorization': 'Bearer ' + token,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ appType, eventId: entry.id })
+            body: JSON.stringify({ appType, eventId: savedResult.eventId })
         });
         const result = await response.json();
         if (!response.ok) throw new Error(result.error || `Email notification failed (${response.status}).`);
-        return { id: entry.id, emailSent: result.sent === true };
+        return { id: savedRecord.id, emailSent: result.sent === true };
     } catch (error) {
-        console.error('Progress saved, but its email notification failed:', error);
-        return { id: entry.id, emailSent: false, emailError: error.message };
+        console.error('Progress was saved to Firestore, but its email notification failed:', error);
+        return { id: savedRecord.id, emailSent: false, emailError: error.message };
     }
 }

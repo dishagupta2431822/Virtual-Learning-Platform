@@ -5,12 +5,12 @@ const path = require('path');
 const cron = require('node-cron');
 const { applicationDefault, getApps, initializeApp } = require('firebase-admin/app');
 const { getAuth } = require('firebase-admin/auth');
-const { getFirestore, Timestamp } = require('firebase-admin/firestore');
+const { FieldValue, getFirestore, Timestamp } = require('firebase-admin/firestore');
 
 const app = express();
 const projectRoot = path.resolve(__dirname, '..');
 const projectId = 'virtual-learning-platfor-1e5ab';
-const progressDatabases = {
+const progressApps = {
     'virtual-labs': 'virtual-labs',
     'ai-interviews': 'ai-interviews',
     'e-library': 'e-library'
@@ -34,9 +34,30 @@ function getAdminApp() {
 }
 
 function getProgressDatabase(appType) {
-    const databaseId = progressDatabases[appType];
-    if (!databaseId) throw new Error('Unsupported progress application.');
-    return getFirestore(getAdminApp(), databaseId);
+    if (!progressApps[appType]) throw new Error('Unsupported progress application.');
+    return getFirestore(getAdminApp());
+}
+
+function getProgressWriteError(error, appType) {
+    const errorCode = String(error.code || '').toLowerCase();
+    const errorMessage = String(error.message || '').toLowerCase();
+    const databaseId = '(default)';
+
+    if (errorCode.includes('permission-denied') || errorCode === '7') {
+        return `The Firebase server account does not have permission to write to "${databaseId}". Grant it the Cloud Datastore User role, then restart the server.`;
+    }
+    if (errorCode.includes('not-found') || errorCode === '5'
+        || errorMessage.includes('database') && errorMessage.includes('not found')) {
+        return `The Firestore database "${databaseId}" does not exist in project "${projectId}". Create it in Firebase Console, deploy its rules, then retry.`;
+    }
+    if (errorCode.includes('invalid-credential') || errorMessage.includes('default credentials')
+        || errorMessage.includes('application default credentials') || errorMessage.includes('could not load the default')) {
+        return 'Firebase Admin credentials are not configured for this Node server. Set GOOGLE_APPLICATION_CREDENTIALS to a service-account JSON file with Firestore access, then restart npm start.';
+    }
+    if (errorCode.includes('unauthenticated') || errorCode === '16') {
+        return 'The Firebase Admin credentials are invalid or expired. Configure valid server credentials, then restart the server.';
+    }
+    return `The backend could not write to the "${databaseId}" Firestore database. Check the Node server log and Firebase Admin access, then retry.`;
 }
 
 async function sendProgressEmail({ to, subject, text }) {
@@ -74,8 +95,11 @@ async function verifyProgressRequest(req) {
         return await getAuth(getAdminApp()).verifyIdToken(match[1]);
     } catch (error) {
         console.error('Firebase ID token verification failed:', error.message);
-        const authError = new Error('Your sign-in has expired. Sign in again.');
-        authError.statusCode = 401;
+        const isInvalidToken = String(error.code || '').startsWith('auth/');
+        const authError = new Error(isInvalidToken
+            ? 'Your sign-in token is invalid or expired. Sign in again.'
+            : 'The backend could not verify Firebase sign-in. Check the Firebase Admin credentials and server log.');
+        authError.statusCode = isInvalidToken ? 401 : 503;
         throw authError;
     }
 }
@@ -87,11 +111,94 @@ app.get('/api/status', (req, res) => {
     });
 });
 
+app.post('/api/progress', async (req, res) => {
+    try {
+        const decodedToken = await verifyProgressRequest(req);
+        const { appType, event } = req.body || {};
+        const eventTypes = {
+            'virtual-labs': 'lab_completed',
+            'ai-interviews': 'interview_evaluated',
+            'e-library': 'resource_downloaded'
+        };
+        if (!Object.hasOwn(eventTypes, appType) || !event || typeof event !== 'object' || Array.isArray(event)) {
+            return res.status(400).json({ success: false, error: 'A valid app type and progress event are required.' });
+        }
+
+        const allowedFields = {
+            'virtual-labs': ['course', 'url'],
+            'ai-interviews': ['score', 'grade', 'testCasesPassed', 'language', 'url'],
+            'e-library': ['fileName', 'resourceCategory', 'url']
+        }[appType];
+        const unexpectedFields = Object.keys(event).filter((field) => !['eventType', 'title', ...allowedFields].includes(field));
+        if (unexpectedFields.length || event.eventType !== eventTypes[appType]
+            || typeof event.title !== 'string' || !event.title.trim() || event.title.length > 180) {
+            return res.status(400).json({ success: false, error: 'The progress event contains invalid fields.' });
+        }
+
+        const savedEvent = {
+            uid: decodedToken.uid,
+            email: decodedToken.email || '',
+            appType,
+            eventType: event.eventType,
+            title: event.title.trim(),
+            createdAt: FieldValue.serverTimestamp()
+        };
+        const stringLimits = {
+            course: 120,
+            url: 500,
+            grade: 20,
+            testCasesPassed: 40,
+            language: 40,
+            fileName: 180,
+            resourceCategory: 120
+        };
+        for (const field of allowedFields) {
+            if (event[field] === undefined) continue;
+            if (field === 'score' && appType === 'ai-interviews') {
+                if (typeof event.score !== 'number' || !Number.isFinite(event.score)
+                    || event.score < 0 || event.score > 100) {
+                    return res.status(400).json({ success: false, error: 'The interview score must be between 0 and 100.' });
+                }
+                savedEvent.score = event.score;
+                continue;
+            }
+            if (typeof event[field] !== 'string' || event[field].length > stringLimits[field]
+                || (field === 'url' && !event[field].startsWith('/'))) {
+                return res.status(400).json({ success: false, error: `The progress event field "${field}" is invalid.` });
+            }
+            savedEvent[field] = event[field];
+        }
+
+        if (appType === 'ai-interviews'
+            && (typeof event.score !== 'number' || !Number.isFinite(event.score) || event.score < 0 || event.score > 100
+                || typeof event.grade !== 'string' || !event.grade.trim())) {
+            return res.status(400).json({ success: false, error: 'A valid interview score and grade are required.' });
+        }
+        if (appType === 'e-library' && (typeof event.fileName !== 'string' || !event.fileName.trim())) {
+            return res.status(400).json({ success: false, error: 'A downloaded file name is required.' });
+        }
+
+        const record = await getProgressDatabase(appType)
+            .collection('users')
+            .doc(decodedToken.uid)
+            .collection('history')
+            .add(savedEvent);
+        res.status(201).json({ success: true, saved: true, eventId: record.id });
+    } catch (error) {
+        console.error('Progress database write failed:', error.message);
+        const appType = req.body?.appType;
+        res.status(error.statusCode || 503).json({
+            success: false,
+            error: error.statusCode ? error.message : getProgressWriteError(error, appType)
+        });
+    }
+});
+
 app.post('/api/progress/notify', async (req, res) => {
     try {
         const decodedToken = await verifyProgressRequest(req);
         const { appType, eventId } = req.body || {};
-        if (!Object.hasOwn(progressDatabases, appType) || typeof eventId !== 'string' || !/^[A-Za-z0-9_-]{10,40}$/.test(eventId)) {
+        if (!Object.hasOwn(progressApps, appType) || typeof eventId !== 'string' || !/^[A-Za-z0-9_-]{10,40}$/.test(eventId)) {
             return res.status(400).json({ success: false, error: 'A valid app type and progress event ID are required.' });
         }
 
@@ -111,7 +218,7 @@ app.post('/api/progress/notify', async (req, res) => {
         }
 
         const event = eventSnapshot.data();
-        if (event.uid !== decodedToken.uid || event.email !== decodedToken.email) {
+        if (event.uid !== decodedToken.uid || event.email !== decodedToken.email || event.appType !== appType) {
             return res.status(403).json({ success: false, error: 'You cannot send a notification for this record.' });
         }
 
@@ -148,24 +255,22 @@ async function sendWeeklyProgressSummary() {
     const weekStart = Timestamp.fromDate(new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000));
     const userSummaries = new Map();
 
-    for (const [appType] of Object.entries(progressDatabases)) {
-        const events = await getProgressDatabase(appType)
-            .collectionGroup('history')
-            .where('createdAt', '>=', weekStart)
-            .get();
+    const events = await getFirestore(getAdminApp())
+        .collectionGroup('history')
+        .where('createdAt', '>=', weekStart)
+        .get();
 
-        for (const eventDoc of events.docs) {
-            const event = eventDoc.data();
-            if (!event.email || !event.uid) continue;
+    for (const eventDoc of events.docs) {
+        const event = eventDoc.data();
+        if (!event.email || !event.uid || !progressApps[event.appType]) continue;
 
-            const summary = userSummaries.get(event.uid) || { email: event.email, events: [] };
-            summary.events.push({ appType, ...event });
-            userSummaries.set(event.uid, summary);
-        }
+        const summary = userSummaries.get(event.uid) || { email: event.email, events: [] };
+        summary.events.push(event);
+        userSummaries.set(event.uid, summary);
     }
 
     const dateKey = now.toISOString().slice(0, 10);
-    const digestDatabase = getProgressDatabase('virtual-labs');
+    const digestDatabase = getFirestore(getAdminApp());
     for (const [uid, summary] of userSummaries) {
         const digestRef = digestDatabase.collection('digestRuns').doc(`${dateKey}-${uid}`);
         if ((await digestRef.get()).exists) continue;

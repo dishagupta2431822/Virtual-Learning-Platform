@@ -1,5 +1,5 @@
 // Import Firebase SDKs (CDN Modules)
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getApps, initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { 
     getAuth, 
     signInWithEmailAndPassword, 
@@ -30,7 +30,7 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase App, Auth, and Firestore Database
-const app = initializeApp(firebaseConfig);
+const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 

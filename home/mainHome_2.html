@@ -906,7 +906,7 @@
                 });
             }, (error) => {
                 console.error('Virtual lab history could not be loaded:', error);
-                showHistoryMessage('Could not load your live history. Check the Firestore database and security rules setup.');
+                showHistoryMessage('Could not load your live history. Check the default Firestore database and published security rules.');
             });
         }, (error) => {
             console.error('Firebase authentication state could not be loaded for virtual lab history:', error);

@@ -851,7 +851,7 @@
         });
       }, (error) => {
         console.error('AI interview history could not be loaded:', error);
-        showHistoryMessage('Could not load your live history. Check the Firestore database and security rules setup.');
+        showHistoryMessage('Could not load your live history. Check the default Firestore database and published security rules.');
       });
     }, (error) => {
       console.error('Firebase authentication state could not be loaded for AI interview history:', error);
@@ -881,11 +881,11 @@
           url: window.location.pathname
         });
         if (result.emailError) {
-          window.alert(`Your score was saved, but its email notification could not be sent: ${result.emailError}`);
+          console.warn('AI interview score saved, but its email notification could not be sent:', result.emailError);
         }
       } catch (error) {
         console.error('AI interview report could not be saved:', error);
-        window.alert('The report is ready, but it could not be saved to your history. Check your connection and Firestore setup.');
+        window.alert(`The report is ready, but it could not be saved to your history: ${error.message || 'Check the backend server and Firestore setup, then try again.'}`);
       }
     });
   </script>

@@ -108,7 +108,8 @@ function createProfile(user) {
                 });
                 completeButton.textContent = 'Lab completion saved';
                 if (result.emailError) {
-                    window.alert(`The completion was saved, but its email notification could not be sent: ${result.emailError}`);
+                    completeButton.textContent = 'Saved • email unavailable';
+                    console.warn('Lab completion saved, but its email notification could not be sent:', result.emailError);
                 } else if (user.email) {
                     completeButton.textContent = result.emailSent ? 'Saved • email sent' : 'Saved • email unavailable';
                 }
@@ -116,7 +117,7 @@ function createProfile(user) {
                 console.error('Virtual lab completion could not be saved:', error);
                 completeButton.disabled = false;
                 completeButton.textContent = 'Mark lab complete';
-                window.alert('Could not save your lab completion. Check your connection and Firestore setup.');
+                window.alert(`Could not save your lab completion: ${error.message || 'Check the backend server and Firestore setup, then try again.'}`);
             }
         });
         profileRoot.append(completeButton);

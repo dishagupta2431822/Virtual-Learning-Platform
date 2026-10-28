@@ -1122,7 +1122,7 @@
         });
       }, (error) => {
         console.error('E-Library download history could not be loaded:', error);
-        showHistoryMessage('Could not load your live history. Check the Firestore database and security rules setup.');
+        showHistoryMessage('Could not load your live history. Check the default Firestore database and published security rules.');
       });
     }, (error) => {
       console.error('Firebase authentication state could not be loaded for E-Library history:', error);
@@ -1188,7 +1188,7 @@
           : 'Personal reading-notes template downloaded and saved to your history.');
       } catch (error) {
         console.error('E-Library download could not be recorded:', error);
-        window.alert('The download could not be saved to your history, so no file was downloaded. Check your connection and Firestore setup.');
+        window.alert(`The download could not be saved to your history, so no file was downloaded: ${error.message || 'Check the backend server and Firestore setup, then try again.'}`);
       }
     });
   </script>
